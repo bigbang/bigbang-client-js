@@ -1,0 +1,6 @@
+{
+  "name": "BigBang",
+  "dependencies": {
+    "websocket": "~1.0.8"
+  }
+}
