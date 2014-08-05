@@ -26,7 +26,7 @@ module.exports = function (grunt) {
                     archive: 'dist/bigbang-web.dist.zip'
                 },
                 files: [
-                    {src: ['dist/web/*'], dest: '/', filter: 'isFile'}, // includes files in path
+                    {src: ['dist/web/**'], dest: '/', filter: 'isFile'}, // includes files in path
                 ]
             }
         },
