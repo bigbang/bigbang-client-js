@@ -32,24 +32,24 @@ module.exports = function (grunt) {
         },
         typescript: {
             node: {
-                src: ['lib/BigBangClient.ts', 'lib/NodeBigBangClient.ts', 'lib/PewRuntime.ts', 'lib/WireProtocol.Protocol.ts', 'lib/NodeMain.ts', 'lib/BigBangShell.ts'],
-                dest: 'dist/node',
+                src: ['src/BigBangClient.ts', 'src/NodeBigBangClient.ts', 'src/PewRuntime.ts', 'src/WireProtocol.Protocol.ts', 'src/NodeMain.ts', 'src/BigBangShell.ts'],
+                dest: 'lib',
                 options: {
                     module: 'commonjs',
                     target: 'es5',
-                    basePath: 'lib',
+                    basePath: 'src',
                     sourceMap: false,
                     fullSourceMapPath: true,
                     declaration: true
                 }
             },
             web: {
-                src: ['lib/BigBangClient.ts', 'lib/BrowserBigBangClient.ts', 'lib/PewRuntime.ts', 'lib/WireProtocol.Protocol.ts'],
+                src: ['src/BigBangClient.ts', 'src/BrowserBigBangClient.ts', 'src/PewRuntime.ts', 'src/WireProtocol.Protocol.ts'],
                 dest: 'dist/tmp/web',
                 options: {
                     module: 'commonjs',
                     target: 'es5',
-                    basePath: 'lib',
+                    basePath: 'src',
                     sourceMap: false,
                     fullSourceMapPath: false,
                     declaration: true
@@ -74,6 +74,7 @@ module.exports = function (grunt) {
             main: {
                 files: [
                     {src: "README-SHELL.md", dest: "dist/"},
+                    {src: "lib", dest: "dist/node"},
                     {src: "package.client.json", dest: "dist/node/package.json"},
                     {cwd: "hello", src: "**", dest: "dist/web/", expand: true},
                     {src: 'dist/bigbang.js', dest: 'dist/web/bigbang.js'}
