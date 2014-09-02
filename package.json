@@ -1,5 +1,6 @@
 {
   "name": "bigbang-client",
+  "version": "0.1.0",
   "devDependencies": {
     "grunt": "~0.4.1",
     "grunt-exec": "~0.4.3",
@@ -17,5 +18,8 @@
     "grunt-markdown-pdf": "~2.1.1",
     "browserify": "~4.2.0",
     "grunt-browserify": "~2.1.3"
+  },
+  "scripts": {
+      "prepublish": "grunt"
   }
 }
