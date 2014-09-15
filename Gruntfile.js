@@ -65,11 +65,6 @@ module.exports = function (grunt) {
             'dist/bigbang.js': ['dist/tmp/web/BrowserBigBangClient.js']
 
         },
-        exec: {
-            pewGenerate: {
-                command: 'pew -c client -l typescript -i ../bigbang-io/src/main/pew/WireProtocol.pew -o lib'
-            }
-        },
         copy: {
             main: {
                 files: [
@@ -81,6 +76,20 @@ module.exports = function (grunt) {
                 ]
             }
         },
+        markdownpdf: {
+            options: {
+
+            },
+            files: {
+                src: "*.md",
+                dest: "dist"
+            }
+        },
+        exec: {
+            pewGenerate: {
+                command: 'pew -c client -l typescript -i ../bigbang-io/src/main/pew/WireProtocol.pew -o lib'
+            }
+        },
         maven: {
             options: {
                 goal: 'install',
@@ -90,15 +99,6 @@ module.exports = function (grunt) {
                 injectDestFolder: false
             },
             src: ['dist/bigbang.js', 'dist/bigbang.min.js']
-        },
-        markdownpdf: {
-            options: {
-
-            },
-            files: {
-                src: "*.md",
-                dest: "dist"
-            }
         }
     });
 
@@ -114,5 +114,5 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-markdown-pdf');
     grunt.loadNpmTasks('grunt-browserify');
 
-    grunt.registerTask('default', ['clean', 'exec', 'typescript', 'browserify', 'copy', 'uglify', 'markdownpdf', 'compress', 'maven']);
+    grunt.registerTask('default', ['clean', 'typescript', 'browserify', 'copy', 'uglify', 'markdownpdf', 'compress']);
 };
