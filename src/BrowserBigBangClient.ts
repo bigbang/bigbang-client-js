@@ -9,7 +9,7 @@ import bigbang  = require("./BigBangClient");
 
 export module client {
 
-    export class BrowserBigBangClient extends bigbang.client.AbstractBigBangClient implements wire.WireProtocolProtocolListener {
+    export class Client extends bigbang.client.AbstractBigBangClient implements wire.WireProtocolProtocolListener {
 
         private socket:WebSocket;
 

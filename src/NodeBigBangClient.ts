@@ -9,7 +9,7 @@ import net      = require("net");
 import bigbang  = require("./BigBangClient");
 import ws       = require("websocket");
 
-export class NodeBigBangClient extends bigbang.client.AbstractBigBangClient implements wire.WireProtocolProtocolListener {
+export class Client extends bigbang.client.AbstractBigBangClient implements wire.WireProtocolProtocolListener {
 
     private socket;
     private connection;

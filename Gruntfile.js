@@ -3,7 +3,7 @@ module.exports = function (grunt) {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
 
-        clean: ['dist/'],
+        clean: ['dist/', 'lib/'],
 
         uglify: {
             my_target: {
@@ -18,7 +18,7 @@ module.exports = function (grunt) {
                     archive: 'dist/bigbang-node.dist.zip'
                 },
                 files: [
-                    {src: ['dist/node/*'], dest: '/', filter: 'isFile'}, // includes files in path
+                    {src: ['dist/node/*'], dest: '/', filter: 'isFile'} // includes files in path
                 ]
             },
             web: {
@@ -26,33 +26,33 @@ module.exports = function (grunt) {
                     archive: 'dist/bigbang-web.dist.zip'
                 },
                 files: [
-                    {src: ['dist/web/**'], dest: '/', filter: 'isFile'}, // includes files in path
+                    {src: ['dist/web/**'], dest: '/', filter: 'isFile'} // includes files in path
                 ]
             }
         },
         typescript: {
             node: {
-                src: ['src/BigBangClient.ts', 'src/NodeBigBangClient.ts', 'src/PewRuntime.ts', 'src/WireProtocol.Protocol.ts', 'src/NodeMain.ts', 'src/BigBangShell.ts'],
-                dest: 'lib',
+                src: ['src/BigBangClient.ts', 'src/NodeBigBangClient.ts', 'src/PewRuntime.ts', 'src/WireProtocol.Protocol.ts'],
+                dest: 'lib/node',
                 options: {
                     module: 'commonjs',
                     target: 'es5',
                     basePath: 'src',
                     sourceMap: false,
                     fullSourceMapPath: true,
-                    declaration: true
+                    declaration: false
                 }
             },
             web: {
                 src: ['src/BigBangClient.ts', 'src/BrowserBigBangClient.ts', 'src/PewRuntime.ts', 'src/WireProtocol.Protocol.ts'],
-                dest: 'dist/tmp/web',
+                dest: 'lib/browser',
                 options: {
                     module: 'commonjs',
                     target: 'es5',
                     basePath: 'src',
                     sourceMap: false,
                     fullSourceMapPath: false,
-                    declaration: true
+                    declaration: false
                 }
             }
         },
@@ -62,17 +62,23 @@ module.exports = function (grunt) {
                     standalone: 'bigbang'
                 }
             },
-            'dist/bigbang.js': ['dist/tmp/web/BrowserBigBangClient.js']
+            'dist/browser/bigbang.js': ['lib/browser/BrowserBigBangClient.js']
 
         },
         copy: {
-            main: {
+//            main: {
+//                files: [
+//                    {src: "README-SHELL.md", dest: "dist/"},
+//                    {src: "lib", dest: "dist/node"},
+//                    {src: "package.client.json", dest: "dist/node/package.json"},
+//                    {cwd: "hello", src: "**", dest: "dist/web/", expand: true},
+//                    {src: 'dist/bigbang.js', dest: 'dist/web/bigbang.js'}
+//                ]
+//            }
+            node : {
                 files: [
-                    {src: "README-SHELL.md", dest: "dist/"},
-                    {src: "lib", dest: "dist/node"},
-                    {src: "package.client.json", dest: "dist/node/package.json"},
-                    {cwd: "hello", src: "**", dest: "dist/web/", expand: true},
-                    {src: 'dist/bigbang.js', dest: 'dist/web/bigbang.js'}
+                    {cwd: 'lib/node', src: "**", dest: "dist/node", expand:true},
+                    {src: "package.client.json", dest: "dist/node/package.json"}
                 ]
             }
         },
@@ -115,4 +121,5 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-browserify');
 
     grunt.registerTask('default', ['clean', 'typescript', 'browserify', 'copy', 'uglify', 'markdownpdf', 'compress']);
+    grunt.registerTask('build', ['clean', 'typescript', 'browserify', 'copy']);
 };

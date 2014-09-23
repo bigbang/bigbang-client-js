@@ -1,4 +1,4 @@
-/// <reference path="./node.d.ts"/>
+/// <reference path="./../../src/node.d.ts"/>
 /// <reference path="./PewRuntime.ts"/>
 /// <reference path="./NodeBigBangClient.ts"/>
 import pew      = require("./PewRuntime");

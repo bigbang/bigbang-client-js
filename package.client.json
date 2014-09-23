@@ -1,6 +1,11 @@
 {
-  "name": "BigBang",
-  "dependencies": {
-    "websocket": "~1.0.8"
-  }
+  "name": "bigbang.io",
+  "version": "0.0.1",
+  "description": "A Node.js client for BigBang.io",
+  "main": "NodeBigBangClient.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
 }
