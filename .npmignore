@@ -1,0 +1,8 @@
+examples
+node_modules
+src
+.idea
+.npmignore
+Gruntfile.js
+RELEASE-NOTES.md
+web

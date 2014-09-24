@@ -1,15 +1,15 @@
 {
-    "name": "bigbang.io-client-examples-basic",
+    "name": "bigbang.io-examples-node-simple",
     "version": "1.0.0",
     "description": "",
-    "main": "basic.js",
+    "main": "index.js",
     "scripts": {
-        "start": "node basic",
+        "start": "node index",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "author": "Jason von Nieda",
     "license": "ISC",
     "dependencies": {
-        "bigbang.io": "0.0.1"
+        "bigbang.io": "^0.0.2"
     }
 }

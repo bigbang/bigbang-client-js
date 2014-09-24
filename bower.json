@@ -1,0 +1,23 @@
+{
+  "name": "bigbang.io",
+  "version": "0.0.1",
+  "homepage": "https://github.com/bigbang/bigbang-client-js",
+  "authors": [
+    "Jason von Nieda <jason@vonnieda.org>"
+  ],
+  "description": "A BigBang.io client library",
+  "main": "web/bigbang.js",
+  "moduleType": [
+    "amd",
+    "node"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "lib"
+  ]
+}

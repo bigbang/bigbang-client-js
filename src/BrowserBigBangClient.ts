@@ -1,154 +1,143 @@
 ///<reference path="PewRuntime.ts"/>
 ///<reference path="WireProtocol.Protocol.ts"/>
 ///<reference path="node.d.ts"/>
-import pew      = require("PewRuntime");
-import wire     = require("WireProtocol.Protocol");
-import http     = require("http");
-import net      = require ("net");
-import bigbang  = require("./BigBangClient");
+import pew = require("./PewRuntime");
+import wire = require("./WireProtocol.Protocol");
+import http = require("http");
+import net = require("net");
+import bigbang = require("./BigBangClient");
 
-export module client {
+export class Client extends bigbang.AbstractBigBangClient implements wire.WireProtocolProtocolListener {
 
-    export class Client extends bigbang.client.AbstractBigBangClient implements wire.WireProtocolProtocolListener {
+    private socket:WebSocket;
 
-        private socket:WebSocket;
+    constructor() {
+        super();
+    }
 
-        constructor() {
-            super();
-        }
+    connect(host:string, user:string, password:string, callback:(connectionResult:bigbang.ConnectionResult) =>any):void {
+        this.internalLogin(host, user, password, host, (loginResult:bigbang.LoginResult) => {
 
-        connect(host:string, user:string, password:string, callback:(connectionResult:bigbang.client.ConnectionResult) =>any):void {
-            this.internalLogin(host, user, password, host, (loginResult:bigbang.client.LoginResult) => {
-
-                if (loginResult.authenticated) {
-                    this.internalConnect(host, loginResult.clientKey, callback);
-                }
-                else {
-                    var rslt:bigbang.client.ConnectionResult = new bigbang.client.ConnectionResult();
-                    rslt.message = loginResult.message;
-                    rslt.success = false;
-                    callback(rslt);
-                }
-
-            });
-        }
-
-        connectAnonymous(host:string, callback:(connectionResult:bigbang.client.ConnectionResult) =>any):void {
-            this.connect(host, null, null, callback);
-        }
-
-        internalLogin(host:string, user:string, password:string, application:string, callback:(loginResult:bigbang.client.LoginResult) =>any) {
-            var hostname = host.split(":")[0];
-            var port = host.split(":")[1];
-
-            var protocolHash = this.wireProtocol.protocolHash
-
-            var url:string = "http://" + hostname + ":" + port;
-
-            if (!user && !password) {
-                url += "/loginAnon?application=" + application + "&wireprotocolhash=" + protocolHash;
-
+            if (loginResult.authenticated) {
+                this.internalConnect(host, loginResult.clientKey, callback);
             }
             else {
-                url += "/login?username=" + user + "&password=" + password + "&application=" + application + "&wireprotocolhash=" + protocolHash;
+                var rslt:bigbang.ConnectionResult = new bigbang.ConnectionResult();
+                rslt.message = loginResult.message;
+                rslt.success = false;
+                callback(rslt);
             }
+        });
+    }
 
-            var xhr = this.createCORSRequest('GET', url);
-            if (!xhr) {
-                alert('CORS not supported');
-                return;
-            }
+    connectAnonymous(host:string, callback:(connectionResult:bigbang.ConnectionResult) =>any):void {
+        this.connect(host, null, null, callback);
+    }
 
-            // Response handlers.
-            xhr.onload = function () {
-                var loginResult:bigbang.client.LoginResult = new bigbang.client.LoginResult();
-                var json = JSON.parse(xhr.responseText);
+    internalLogin(host:string, user:string, password:string, application:string, callback:(loginResult:bigbang.LoginResult) =>any) {
+        var hostname = host.split(":")[0];
+        var port = host.split(":")[1];
 
-                loginResult.authenticated = json.authenticated;
-                loginResult.clientKey = json.clientKey;
-                loginResult.message = json.message;
+        var protocolHash = this.wireProtocol.protocolHash
 
-                callback(loginResult);
-            };
+        var uri:string = "http://" + hostname + ":" + port;
 
-            xhr.onerror = function () {
-                alert('Woops, there was an error making the request.');
-            };
-
-            xhr.send();
+        if (!user && !password) {
+            uri += "/loginAnon?application=" + application + "&wireprotocolhash=" + protocolHash;
+        }
+        else {
+            uri += "/login?username=" + user + "&password=" + password + "&application=" + application + "&wireprotocolhash=" + protocolHash;
         }
 
-        internalConnect(host:string, clientKey:string, callback:(connectionResult:bigbang.client.ConnectionResult) =>any):void {
-
-            this._internalConnectionResult = callback;
-            this._clientKey = clientKey;
-            var ws:string = "ws://" + host + "/";
-
-            this.socket = new WebSocket(ws);
-
-            this.socket.onopen = (event) => {
-                setTimeout(()=> {
-                    this.onConnect();
-                }, 0);
-            };
-
-            this.socket.onmessage = (event) => {
-                var s:string = event.data.toString();
-                this.onReceiveText(s);
-            };
-
-            this.socket.onclose = (event) => {
-                if (this._disconnectCallback) {
-                    this._disconnectCallback();
-                }
-            };
-
-            this.socket.onerror = function (event) {
-                console.error("WebSocket error: " + event);
-            };
+        var xhr = this.createCORSRequest('GET', uri);
+        if (!xhr) {
+            alert('CORS not supported');
+            return;
         }
 
-        onDisconnect(notify) {
-            if (!notify) {
-                this.socket.onclose = null;
-            }
+        // Response handlers.
+        xhr.onload = function () {
+            var loginResult:bigbang.LoginResult = new bigbang.LoginResult();
+            var json = JSON.parse(xhr.responseText);
 
-            this.socket.close();
+            loginResult.authenticated = json.authenticated;
+            loginResult.clientKey = json.clientKey;
+            loginResult.message = json.message;
+
+            callback(loginResult);
+        };
+
+        xhr.onerror = function () {
+            alert('Woops, there was an error making the request.');
+        };
+
+        xhr.send();
+    }
+
+    internalConnect(host:string, clientKey:string, callback:(connectionResult:bigbang.ConnectionResult) =>any):void {
+        this._internalConnectionResult = callback;
+        this._clientKey = clientKey;
+        var ws:string = "ws://" + host + "/";
+
+        this.socket = new WebSocket(ws);
+
+        this.socket.onopen = (event) => {
+            setTimeout(()=> {
+                this.onConnect();
+            }, 0);
+        };
+
+        this.socket.onmessage = (event) => {
+            var s:string = event.data.toString();
+            this.onReceiveText(s);
+        };
+
+        this.socket.onclose = (event) => {
+            if (this._disconnectCallback) {
+                this._disconnectCallback();
+            }
+        };
+
+        this.socket.onerror = function (event) {
+            console.error("WebSocket error: " + event);
+        };
+    }
+
+    sendToServer(msg:pew.PewMessage):void {
+        var s:string = this.wireProtocol.wrapNetstring(msg);
+        if (this.socket) {
+            this.socket.send(s);
+        }
+        else {
+            console.error("Send while socket is null.");
+        }
+    }
+
+    onDisconnect(notify) {
+        if (!notify) {
+            this.socket.onclose = null;
         }
 
-        sendToServer(msg:pew.PewMessage):void {
+        this.socket.close();
+    }
 
-            var s:string = this.wireProtocol.wrapNetstring(msg);
-
-            if (this.socket) {
-                this.socket.send(s);
-            }
-            else {
-                console.error("Send while socket is null.");
-            }
+    createCORSRequest(method, url) {
+        var xhr = new XMLHttpRequest();
+        if ("withCredentials" in xhr) {
+            // Check if the XMLHttpRequest object has a "withCredentials" property.
+            // "withCredentials" only exists on XMLHTTPRequest2 objects.
+            xhr.open(method, url, true);
+        } else if (typeof XDomainRequest != "undefined") {
+            // Otherwise, check if XDomainRequest.
+            // XDomainRequest only exists in IE, and is IE's way of making CORS requests.
+            // xhr = new XDomainRequest();
+            // xhr.open(method, url);
+            console.log("Not capturing XDomainRequest just yet..");
+            throw new Error("Error, XDomainRequest support!")
+        } else {
+            // Otherwise, CORS is not supported by the browser.
+            xhr = null;
         }
-
-        createCORSRequest(method, url) {
-            var xhr = new XMLHttpRequest();
-            if ("withCredentials" in xhr) {
-                // Check if the XMLHttpRequest object has a "withCredentials" property.
-                // "withCredentials" only exists on XMLHTTPRequest2 objects.
-                xhr.open(method, url, true);
-
-            } else if (typeof XDomainRequest != "undefined") {
-                // Otherwise, check if XDomainRequest.
-                // XDomainRequest only exists in IE, and is IE's way of making CORS requests.
-                // xhr = new XDomainRequest();
-                // xhr.open(method, url);
-                console.log("Not capturing XDomainRequest just yet..");
-                throw new Error("Error, XDomainRequest support!")
-
-
-            } else {
-                // Otherwise, CORS is not supported by the browser.
-                xhr = null;
-            }
-            return xhr;
-        }
+        return xhr;
     }
 }

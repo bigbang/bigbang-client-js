@@ -1,15 +1,15 @@
-/// <reference path="PewRuntime.ts"/>
-/// <reference path="WireProtocol.Protocol.ts"/>
-/// <reference path="node.d.ts"/>
-/// <reference path="websocket.d.ts"/>
-import pew      = require("./PewRuntime");
-import wire     = require("./WireProtocol.Protocol");
-import http     = require("http");
-import net      = require("net");
-import bigbang  = require("./BigBangClient");
-import ws       = require("websocket");
+///<reference path="PewRuntime.ts"/>
+///<reference path="WireProtocol.Protocol.ts"/>
+///<reference path="node.d.ts"/>
+///<reference path="websocket.d.ts"/>
+import pew = require("./PewRuntime");
+import wire = require("./WireProtocol.Protocol");
+import http = require("http");
+import net = require("net");
+import bigbang = require("./BigBangClient");
+import ws = require("websocket");
 
-export class Client extends bigbang.client.AbstractBigBangClient implements wire.WireProtocolProtocolListener {
+export class Client extends bigbang.AbstractBigBangClient implements wire.WireProtocolProtocolListener {
 
     private socket;
     private connection;
@@ -18,14 +18,14 @@ export class Client extends bigbang.client.AbstractBigBangClient implements wire
         super();
     }
 
-    connect(host:string, user:string, password:string, callback:(connectionResult:bigbang.client.ConnectionResult) =>any):void {
-        this.login(host, user, password, host, (loginResult:bigbang.client.LoginResult) => {
+    connect(host:string, user:string, password:string, callback:(connectionResult:bigbang.ConnectionResult) =>any):void {
+        this.internalLogin(host, user, password, host, (loginResult:bigbang.LoginResult) => {
 
             if (loginResult.authenticated) {
                 this.internalConnect(host, loginResult.clientKey, callback);
             }
             else {
-                var rslt:bigbang.client.ConnectionResult = new bigbang.client.ConnectionResult();
+                var rslt:bigbang.ConnectionResult = new bigbang.ConnectionResult();
                 rslt.message = loginResult.message;
                 rslt.success = false;
                 callback(rslt);
@@ -33,13 +33,11 @@ export class Client extends bigbang.client.AbstractBigBangClient implements wire
         });
     }
 
-    connectAnonymous(host:string, callback:(connectionResult:bigbang.client.ConnectionResult) =>any):void {
-       this.connect(host, null, null, callback);
+    connectAnonymous(host:string, callback:(connectionResult:bigbang.ConnectionResult) =>any):void {
+        this.connect(host, null, null, callback);
     }
 
-
-    login(host:string, user:string, password:string, application:string, callback:(loginResult:bigbang.client.LoginResult) =>any) {
-
+    internalLogin(host:string, user:string, password:string, application:string, callback:(loginResult:bigbang.LoginResult) =>any) {
         var hostname = host.split(":")[0];
         var port = host.split(":")[1];
 
@@ -47,8 +45,7 @@ export class Client extends bigbang.client.AbstractBigBangClient implements wire
 
         var uri:string = "http://" + hostname + ":" + port;
 
-
-        if( !user && !password ) {
+        if (!user && !password) {
             uri += "/loginAnon?application=" + application + "&wireprotocolhash=" + protocolHash;
         }
         else {
@@ -66,7 +63,7 @@ export class Client extends bigbang.client.AbstractBigBangClient implements wire
             res.setEncoding('utf8');
             res.on('data', function (data) {
 
-                var loginResult:bigbang.client.LoginResult = new bigbang.client.LoginResult();
+                var loginResult:bigbang.LoginResult = new bigbang.LoginResult();
                 var json = JSON.parse(data);
 
                 loginResult.authenticated = json.authenticated;
@@ -74,7 +71,6 @@ export class Client extends bigbang.client.AbstractBigBangClient implements wire
                 loginResult.message = json.message;
 
                 callback(loginResult);
-
             });
         });
 
@@ -85,18 +81,16 @@ export class Client extends bigbang.client.AbstractBigBangClient implements wire
         req.end();
     }
 
-    internalConnect(host:string, clientKey:string, callback:(connectionResult:bigbang.client.ConnectionResult) =>any):void {
+    internalConnect(host:string, clientKey:string, callback:(connectionResult:bigbang.ConnectionResult) =>any):void {
         this._internalConnectionResult = callback;
         this._clientKey = clientKey;
         this.socket = new ws.client();
-
 
         this.socket.on('connectFailed', function (error) {
             console.log("websocket connect failed " + error);
         });
 
         this.socket.on('connect', (connection) => {
-            //woo
             this.connection = connection;
             this.onConnect();
 
@@ -117,7 +111,6 @@ export class Client extends bigbang.client.AbstractBigBangClient implements wire
         });
 
         this.socket.connect('ws://' + host);
-
     }
 
     sendToServer(msg:pew.PewMessage):void {
