@@ -2,6 +2,11 @@
   "name": "bigbang.io",
   "version": "0.0.2",
   "main": "lib/NodeBigBangClient.js",
+  "repository" : {
+      "type" : "git",
+      "url" : "https://github.com/bigbang/bigbang-client-js"
+  },
+  "private" : true,
   "dependencies": {
     "websocket": "~1.0.8"
   },

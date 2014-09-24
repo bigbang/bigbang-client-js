@@ -6,3 +6,7 @@ src
 Gruntfile.js
 RELEASE-NOTES.md
 web
+README-NODE.md
+README-WEB.md
+*.tgz
+bower.json
