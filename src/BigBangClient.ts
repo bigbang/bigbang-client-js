@@ -6,39 +6,67 @@ import wire     = require("./WireProtocol.Protocol");
 
 export interface BigBangClient {
 
+    // move host, user, password to options, default to host on first arg
+    // need to nodeify callback
+    // convert to http URL
     connect(host:string, user:string, password:string, callback:(connectionResult:ConnectionResult) =>any):void;
 
+    // get rid of this
     connectAnonymous(host:string, callback:(connectionResult:ConnectionResult) =>any):void;
 
+    // looks good
+    // might eventually take an options hash
+    // when you create a channel you are the owner
     subscribe(channel:string, callback:(err:ChannelError, channel:Channel) =>any):void;
 
+    // probably should let the user know, but right now server doesn't send
+    // plan API for future
     unsubscribe(channel:string):void;
 
+    // looks good, only returns if you are already subscribed
     getChannel(channelName:string):Channel;
 
+    // looks good, synchronous
     disconnect():void;
 
+    // this is where events might come in
     disconnected(callback:() =>any):void;
 
+    // way to identify messages from myself, etc.
     clientId():string;
 
-    //todo, dont let regular users see this
+    // todo, dont let regular users see this
+    // private
     sendToServer(msg:pew.PewMessage):void;
 }
 
+// probbaly doesn't need export
 export class LoginResult {
     authenticated:boolean;
     clientKey:string;
     message:string;
 }
 
+// internal
 class ResponseWrapper {
     type:string;
     callback:any;
 }
 
+// used, see if we can extend Error
 export class ChannelError {
+    message:string;
 
+    constructor(msg:string) {
+        this.message = msg;
+    }
+
+    toString():string {
+        return this.message;
+    }
+}
+
+export class ConnectionError {
     message:string;
 
     constructor(msg:string) {
@@ -51,6 +79,7 @@ export class ChannelError {
 }
 
 export class ChannelMessage {
+    // the sender's client id
     senderId:string;
     channel:Channel;
     payload:pew.ByteArray;
@@ -60,9 +89,24 @@ export class ChannelMessage {
 export class ConnectionResult {
     success:boolean;
     clientId:string;
+    // in the case of an error
     message:string;
 }
 
+/*
+    Keyspaces:
+        key/value store associated with a channel
+            keys are strings, values are JSON
+            those are synchronized to all subscribers
+        each channel has a default keyspace ('def')
+
+    Channel Data:
+        is the object you get when you ask for a keyspace
+
+    If you create a keyspace where the name is your clientId it's automatically
+    deleted when you leave the channel. This feature should be codified into
+    like a "personal" keyspace.
+ */
 export class Channel {
 
     private client:BigBangClient;
@@ -84,15 +128,20 @@ export class Channel {
         this.channelPermissions = [];
         this.currentSubscribers = [];
 
+        // see if we can hide this stuff, is it public?
         this.keySpaces["_meta"] = new ChannelData(client, "_meta", this);
         this.keySpaces["def"] = new ChannelData(client, "def", this);
         this.channelData = this.keySpaces["def"];
     }
 
+    // public, readonly
     name:string;
+    // public
     channelData:ChannelData;
 
 
+    // public
+    // client ids of people subscribed
     subscribers():Array<string> {
         var subs:Array<string> = [];
         var doc:any = this.metaKeyspace().get("subs");
@@ -107,11 +156,17 @@ export class Channel {
         return subs;
     }
 
+    // public
+    // message event
+    // on('message')
     onMessage( message:(msg:ChannelMessage) => any):void {
         this.onMessageHandler = message;
     }
 
 
+    // public
+    // on('join')
+    // on('leave')
     onSubscribers(join:(s) => any, leave:(s) => any) {
 
         this.metaKeyspace().on("subs", (doc:any) => {
@@ -132,6 +187,7 @@ export class Channel {
         }, null);
     }
 
+    // private
     diff(a1, a2):Array<string> {
         var a = [], diff = [];
         for (var i = 0; i < a1.length; i++)
@@ -145,6 +201,7 @@ export class Channel {
     }
 
 
+    // private
     listChanged(orig:Array<string>, current:Array<string>):Array<string> {
         var result = [];
 
@@ -158,18 +215,25 @@ export class Channel {
     }
 
 
+    // public
     getKeyspace(ks:string):ChannelData {
         return this.getOrCreateChannelData(ks);
     }
 
+    // private
+    // permissions provide client security, but it's backed by the server
     setChannelPermissions(perms:Array<string>):void {
         this.channelPermissions = perms;
     }
 
+    // private
     private metaKeyspace():ChannelData {
         return this.keySpaces["_meta"];
     }
 
+    // this is how you send stuff to channel
+    // probably needs options
+    // "for now" it has to be a JSON object
     public publish(payload:any, callback:(err:ChannelError) => any):void {
 
         if (this.hasPermission("Publish")) {
@@ -186,6 +250,7 @@ export class Channel {
         }
     }
 
+    // private helper method
     publishByteArray(payload:pew.ByteArray):void {
         var msg:wire.WireChannelMessage = new wire.WireChannelMessage();
         msg.name = this.name;
@@ -193,6 +258,7 @@ export class Channel {
         this.client.sendToServer(msg);
     }
 
+    // go away, not used
     send(payload:any, callback:(response)=>any) {
         var msg:wire.WireQueueMessage = new wire.WireQueueMessage();
         msg.id = null;
@@ -212,6 +278,7 @@ export class Channel {
 
     }
 
+    // private, internal
     hasPermission(p:string):boolean {
 
         var ret:boolean = false;
@@ -225,6 +292,7 @@ export class Channel {
         return ret;
     }
 
+    // private fulfilling SPI
     onWireChannelMessage(msg:wire.WireChannelMessage):void {
         if (this.onMessageHandler) {
             var channelMessage:ChannelMessage = new ChannelMessage();
@@ -235,6 +303,7 @@ export class Channel {
         }
     }
 
+    // private fulfilling SPI
     onWireQueueMessage(msg:wire.WireQueueMessage):void {
         if (msg.id) {
             var wrapper:ResponseWrapper = this.responses[msg.id];
@@ -262,6 +331,7 @@ export class Channel {
         }
     }
 
+    // private
     private getOrCreateChannelData(ks:string):ChannelData {
         var cd:ChannelData;
 
@@ -280,23 +350,26 @@ export class Channel {
         return cd;
     }
 
+    // private fulfilling SPI
     onWireChannelDataCreate(msg:wire.WireChannelDataCreate):void {
         this.getOrCreateChannelData(msg.ks).onWireChannelDataCreate(msg);
     }
 
+    // private fulfilling SPI
     onWireChannelDataUpdate(msg:wire.WireChannelDataUpdate):void {
         this.getOrCreateChannelData(msg.ks).onWireChannelDataUpdate(msg);
     }
 
+    // private fulfilling SPI
     onWireChannelDataDelete(msg:wire.WireChannelDataDelete):void {
         this.getOrCreateChannelData(msg.ks).onWireChannelDataDelete(msg);
     }
 
+    // check if not needed due to send stuff
     private randomRequestId():string {
         //todo better id :)
         return Math.floor((Math.random() * 999999) + 1).toString();
     }
-
 }
 
 
@@ -334,11 +407,13 @@ export class ChannelData {
         this.channel = channel;
     }
 
+    // public
     get(key:string):any {
         return this.elementMap[key];
     }
 
 
+    // public
     keys():Array<string> {
         var keys = [];
 
@@ -348,6 +423,7 @@ export class ChannelData {
         return keys;
     }
 
+    // public
     put(key:string, value:any, callback:(err:ChannelError)=>any) {
 
         if (!key) {
@@ -378,6 +454,7 @@ export class ChannelData {
         }
     }
 
+    // public, maybe change to remove
     del(key:string, callback:(err:ChannelError)=>any):any {
 
         if (!key) {
@@ -405,6 +482,7 @@ export class ChannelData {
     }
 
     //todo allow multiple listeners per key..
+    // public, let you listen to events on a specific key
     on(key:string, update:(o:any) =>any, del:() =>any):void {
 
         if (update) {
@@ -417,6 +495,7 @@ export class ChannelData {
     }
 
 
+    // public, let you listen for any key changes
     onValue(create:(key:string, val:any) => any, update:(key:string, val:any)=>any, del:(key:string) => any) {
 
         if (create) {
@@ -432,6 +511,7 @@ export class ChannelData {
         }
     }
 
+    // private fulfilling SPI
     onWireChannelDataCreate(msg:wire.WireChannelDataCreate):void {
         var payload:string = msg.payload.getBytesAsUTF8();
         var o:any = JSON.parse(payload);
@@ -448,6 +528,7 @@ export class ChannelData {
         });
     }
 
+    // private fulfilling SPI
     onWireChannelDataUpdate(msg:wire.WireChannelDataUpdate):void {
         var payload:string = msg.payload.getBytesAsUTF8();
         var o:any = JSON.parse(payload);
@@ -465,6 +546,7 @@ export class ChannelData {
 
     }
 
+    // private fulfilling SPI
     onWireChannelDataDelete(msg:wire.WireChannelDataDelete):void {
         delete this.elementMap[msg.key];
         var del = this.deleteMap[msg.key];
