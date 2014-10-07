@@ -1,5 +1,8 @@
 var bigbang = require('bigbang.io');
 var bb = new bigbang.Client();
-bb.connectAnonymous('demo.app.bigbang.io', function(res) {
-    console.log(res);
+bb.connect('http://demo.bigbang.io', function(err) {
+    if (err) {
+        return console.log('all is lost!');
+    }
+    console.log('connected');
 });

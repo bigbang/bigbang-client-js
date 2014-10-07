@@ -18,23 +18,32 @@ export class Client extends bigbang.AbstractBigBangClient implements wire.WirePr
         super();
     }
 
-    connect(host:string, user:string, password:string, callback:(connectionResult:bigbang.ConnectionResult) =>any):void {
-        this.internalLogin(host, user, password, host, (loginResult:bigbang.LoginResult) => {
+    connect(url:any, options?:any, callback?:(err:bigbang.ConnectionError) => any):void {
+        if (options instanceof Function) {
+            callback = options;
+            options = null;
+        }
 
+        if (url instanceof Object) {
+            options = url;
+            url = null;
+        }
+
+        var parsedUrl = this.parseUrl(url);
+
+        var host = parsedUrl.host;
+        var user = null;
+        var password = null;
+
+        this.internalLogin(host, user, password, host, (loginResult:bigbang.LoginResult) => {
             if (loginResult.authenticated) {
                 this.internalConnect(host, loginResult.clientKey, callback);
             }
             else {
-                var rslt:bigbang.ConnectionResult = new bigbang.ConnectionResult();
-                rslt.message = loginResult.message;
-                rslt.success = false;
-                callback(rslt);
+                var err:bigbang.ConnectionError = new bigbang.ConnectionError(loginResult.message);
+                callback(err);
             }
         });
-    }
-
-    connectAnonymous(host:string, callback:(connectionResult:bigbang.ConnectionResult) =>any):void {
-        this.connect(host, null, null, callback);
     }
 
     internalLogin(host:string, user:string, password:string, application:string, callback:(loginResult:bigbang.LoginResult) =>any) {
@@ -75,33 +84,34 @@ export class Client extends bigbang.AbstractBigBangClient implements wire.WirePr
         });
 
         req.on('error', function (e) {
+            // TODO: callback err
             console.log('problem with request: ' + e.message);
         });
 
         req.end();
     }
 
-    internalConnect(host:string, clientKey:string, callback:(connectionResult:bigbang.ConnectionResult) =>any):void {
+    internalConnect(host:string, clientKey:string, callback:(err:bigbang.ConnectionError) =>any):void {
         this._internalConnectionResult = callback;
         this._clientKey = clientKey;
         this.socket = new ws.client();
 
         this.socket.on('connectFailed', function (error) {
-            console.log("websocket connect failed " + error);
+            callback(new bigbang.ConnectionError(error));
         });
 
         this.socket.on('connect', (connection) => {
             this.connection = connection;
             this.onConnect();
+            callback(null);
 
             connection.on('error', function (error) {
                 console.log('connection error ' + error);
+                // TODO: this should probably call disconnect?
             });
 
             connection.on('close', () => {
-                if (this._disconnectCallback) {
-                    this._disconnectCallback();
-                }
+                this.emit('disconnected', false);
             });
 
             connection.on('message', (message) => {

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+
+</body>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.14/require.js" type="text/javascript"></script>
+<script type="text/javascript">
+    require(['../../../web/bigbang.io'], function(bigbang) {
+        var bb = new bigbang.Client();
+        bb.connectAnonymous('demo.app.bigbang.io', function(res) {
+            console.log(res);
+        });
+    });
+</script>
+</html>

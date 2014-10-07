@@ -15,23 +15,19 @@ export class Client extends bigbang.AbstractBigBangClient implements wire.WirePr
         super();
     }
 
-    connect(host:string, user:string, password:string, callback:(connectionResult:bigbang.ConnectionResult) =>any):void {
-        this.internalLogin(host, user, password, host, (loginResult:bigbang.LoginResult) => {
-
-            if (loginResult.authenticated) {
-                this.internalConnect(host, loginResult.clientKey, callback);
-            }
-            else {
-                var rslt:bigbang.ConnectionResult = new bigbang.ConnectionResult();
-                rslt.message = loginResult.message;
-                rslt.success = false;
-                callback(rslt);
-            }
-        });
-    }
-
-    connectAnonymous(host:string, callback:(connectionResult:bigbang.ConnectionResult) =>any):void {
-        this.connect(host, null, null, callback);
+    connect(url?:string, options?:any, callback?:(err:bigbang.ConnectionError) => any):void {
+//        this.internalLogin(host, user, password, host, (loginResult:bigbang.LoginResult) => {
+//
+//            if (loginResult.authenticated) {
+//                this.internalConnect(host, loginResult.clientKey, callback);
+//            }
+//            else {
+//                var rslt:bigbang.ConnectionResult = new bigbang.ConnectionResult();
+//                rslt.message = loginResult.message;
+//                rslt.success = false;
+//                callback(rslt);
+//            }
+//        });
     }
 
     internalLogin(host:string, user:string, password:string, application:string, callback:(loginResult:bigbang.LoginResult) =>any) {

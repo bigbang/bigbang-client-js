@@ -4,57 +4,68 @@
 import pew      = require("./PewRuntime");
 import wire     = require("./WireProtocol.Protocol");
 
+/**
+ * BigBangClient
+ */
 export interface BigBangClient {
 
-    // move host, user, password to options, default to host on first arg
-    // need to nodeify callback
-    // convert to http URL
-    connect(host:string, user:string, password:string, callback:(connectionResult:ConnectionResult) =>any):void;
+    /**
+     * Connect to BigBang using the specified url.
+     * @param url
+     * @param options
+     * @param callback
+     */
+    connect(url:any, options?:any, callback?:(err:ConnectionError) => any):void;
 
-    // get rid of this
-    connectAnonymous(host:string, callback:(connectionResult:ConnectionResult) =>any):void;
-
-    // looks good
-    // might eventually take an options hash
-    // when you create a channel you are the owner
-    subscribe(channel:string, callback:(err:ChannelError, channel:Channel) =>any):void;
-
-    // probably should let the user know, but right now server doesn't send
-    // plan API for future
-    unsubscribe(channel:string):void;
-
-    // looks good, only returns if you are already subscribed
-    getChannel(channelName:string):Channel;
-
-    // looks good, synchronous
+    /**
+     * Disconnect from BigBang.
+     */
     disconnect():void;
 
-    // this is where events might come in
-    disconnected(callback:() =>any):void;
+    /**
+     * Subscribe to the specified channel. If the channel doesn't exist it will
+     * be created. Channel creators own the channels they create.
+     * @param channel
+     * @param options
+     * @param callback
+     */
+    subscribe(channel:string, options?:any, callback?:(err:ChannelError, channel:Channel) =>any):void;
 
-    // way to identify messages from myself, etc.
-    clientId():string;
+    /**
+     * Unsubscribe from the specified channel.
+     * @param channel
+     */
+    unsubscribe(channel:string):void;
 
-    // todo, dont let regular users see this
-    // private
-    sendToServer(msg:pew.PewMessage):void;
+    /**
+     * Returns your unique clientId for this connection. The clientId can
+     * be used to identify messages from and to you.
+     */
+    getClientId():string;
+
+    /**
+     * Get a reference to the specified channel. The returned Channel object
+     * can be used to further interact with the channel.
+     * @param channelName
+     */
+    getChannel(channelName:string):Channel;
+
+    /**
+     * @fires disconnected Emitted when the client is disconnected, either from
+     * calling disconnect() or through external means.
+     * @param event
+     * @param listener
+     */
+    on(event:string, listener:(event:any) => any):void;
 }
 
-// probbaly doesn't need export
 export class LoginResult {
     authenticated:boolean;
     clientKey:string;
     message:string;
 }
 
-// internal
-class ResponseWrapper {
-    type:string;
-    callback:any;
-}
-
-// used, see if we can extend Error
-export class ChannelError {
+export class ConnectionError {
     message:string;
 
     constructor(msg:string) {
@@ -66,7 +77,19 @@ export class ChannelError {
     }
 }
 
-export class ConnectionError {
+export class ConnectionResult {
+    success:boolean;
+    clientId:string;
+    // in the case of an error
+    message:string;
+}
+
+class ResponseWrapper {
+    type:string;
+    callback:any;
+}
+
+export class ChannelError {
     message:string;
 
     constructor(msg:string) {
@@ -86,34 +109,16 @@ export class ChannelMessage {
 }
 
 
-export class ConnectionResult {
-    success:boolean;
-    clientId:string;
-    // in the case of an error
-    message:string;
-}
-
-/*
-    Keyspaces:
-        key/value store associated with a channel
-            keys are strings, values are JSON
-            those are synchronized to all subscribers
-        each channel has a default keyspace ('def')
-
-    Channel Data:
-        is the object you get when you ask for a keyspace
-
-    If you create a keyspace where the name is your clientId it's automatically
-    deleted when you leave the channel. This feature should be codified into
-    like a "personal" keyspace.
- */
 export class Channel {
 
-    private client:BigBangClient;
+    private client:AbstractBigBangClient;
+
     private responses:{ [name:string]: ResponseWrapper
     };
+
     private keySpaces:{ [name:string]: ChannelData
-    }
+    };
+
     private channelPermissions:Array<string>;
 
     private currentSubscribers:Array<string>;
@@ -121,14 +126,13 @@ export class Channel {
 
     private onMessageHandler:(msg:ChannelMessage) =>any;
 
-    constructor(client:BigBangClient) {
+    constructor(client:AbstractBigBangClient) {
         this.client = client;
         this.responses = {};
         this.keySpaces = {};
         this.channelPermissions = [];
         this.currentSubscribers = [];
 
-        // see if we can hide this stuff, is it public?
         this.keySpaces["_meta"] = new ChannelData(client, "_meta", this);
         this.keySpaces["def"] = new ChannelData(client, "def", this);
         this.channelData = this.keySpaces["def"];
@@ -142,7 +146,7 @@ export class Channel {
 
     // public
     // client ids of people subscribed
-    subscribers():Array<string> {
+    public subscribers():Array<string> {
         var subs:Array<string> = [];
         var doc:any = this.metaKeyspace().get("subs");
 
@@ -375,7 +379,7 @@ export class Channel {
 
 export class ChannelData {
 
-    private client:BigBangClient;
+    private client:AbstractBigBangClient;
     private keySpace:string;
     private channel:Channel;
 
@@ -395,7 +399,7 @@ export class ChannelData {
     private delListeners:Array<any>;
 
 
-    constructor(client:BigBangClient, keySpace:string, channel:Channel) {
+    constructor(client:AbstractBigBangClient, keySpace:string, channel:Channel) {
         this.client = client;
         this.keySpace = keySpace;
         this.elementMap = {};
@@ -567,7 +571,6 @@ export class ChannelData {
 
 
 export class AbstractBigBangClient implements wire.WireProtocolProtocolListener, BigBangClient {
-
     wireProtocol;
     _internalConnectionResult;
     _disconnectCallback;
@@ -599,33 +602,46 @@ export class AbstractBigBangClient implements wire.WireProtocolProtocolListener,
 
     }
 
-
-    connect(host:string, user:string, password:string, callback:(connectionResult:ConnectionResult) =>any):void {
+    connect(url:any, options?:any, callback?:(err:ConnectionError) => any):void {
         throw new Error("abstract");
     }
 
-    connectAnonymous(host:string, callback:(connectionResult:ConnectionResult) =>any):void {
-        throw new Error("abstract");
+    disconnect():void {
+        this.sendToServer(new wire.WireDisconnectRequest());
     }
 
-
-    sendToServer(msg:pew.PewMessage):void {
-        throw new Error("abstract");
-    }
-
-    subscribe(channelId:string, callback:(err:ChannelError, channel:Channel) =>any):void {
-        this.channelSubscribeMap[channelId] = callback;
+    subscribe(channel:string, options?:any, callback?:(err:ChannelError, channel:Channel) =>any):void {
+        this.channelSubscribeMap[channel] = callback;
         var msg:wire.WireChannelSubscribe = new wire.WireChannelSubscribe();
-        msg.name = channelId;
+        msg.name = channel;
         this.sendToServer(msg);
     }
 
-    unsubscribe(channelName:string):void {
+    unsubscribe(channel:string):void {
         throw new Error("Not implemented");
     }
 
-    getChannel(channelName:string):Channel {
-        return this.channelMap[channelName];
+    getClientId():string {
+        return this._clientId;
+    }
+
+    getChannel(channel:string):Channel {
+        return this.channelMap[channel];
+    }
+
+    on(event:string, listener:(event:any) => any):void {
+        throw new Error("abstract");
+    }
+
+    // end of public interface
+
+    emit(event:string, arg:any) {
+        // TODO:
+        throw new Error("abstract");
+    }
+
+    sendToServer(msg:pew.PewMessage):void {
+        throw new Error("abstract");
     }
 
     onConnect():void {
@@ -635,16 +651,8 @@ export class AbstractBigBangClient implements wire.WireProtocolProtocolListener,
         this.sendToServer(req);
     }
 
-    onDisconnect(notify) {
-        throw new Error("abstract");
-    }
-
-
-    disconnect():void {
-        this.sendToServer(new wire.WireDisconnectRequest());
-    }
-
     disconnected(callback:() =>any):void {
+        // TODO:
         this._disconnectCallback = callback;
     }
 
@@ -653,10 +661,6 @@ export class AbstractBigBangClient implements wire.WireProtocolProtocolListener,
         msg.name = channel;
         msg.payload = new pew.ByteArray(pew.base64_encode(payload));
         this.sendToServer(msg);
-    }
-
-    clientId():string {
-        return this._clientId;
     }
 
     onReceiveText(data:string):void {
@@ -806,7 +810,7 @@ export class AbstractBigBangClient implements wire.WireProtocolProtocolListener,
     }
 
     onWireDisconnectSuccess(msg:wire.WireDisconnectSuccess):void {
-        this.onDisconnect(false);
+        this.emit('disconnected', false);
         if (this._disconnectCallback) {
             this._disconnectCallback();
         }
@@ -828,6 +832,24 @@ export class AbstractBigBangClient implements wire.WireProtocolProtocolListener,
 
     onWireChannelSubscribe(msg:wire.WireChannelSubscribe) {
         console.log('implement me onchannelsubs');
+    }
+
+    /**
+     * A terrible, temporary URL parser till we can find a good one that works
+     * in Node and browser.
+     * @param url
+     */
+    parseUrl(url:string):any {
+        url = url.replace(/\//g, '');
+        var comps:string[] = url.split(':');
+        var protocol = comps[0];
+        var host = comps[1];
+        var port:Number = Number(comps[2]) || (protocol === 'http' ? 80 : 443);
+        return {
+            protocol : protocol,
+            host : host,
+            port : port
+        };
     }
 }
 
