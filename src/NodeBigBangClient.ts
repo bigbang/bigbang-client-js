@@ -19,6 +19,10 @@ export class Client extends bigbang.AbstractBigBangClient implements wire.WirePr
     }
 
     connect(url:any, options?:any, callback?:(err:bigbang.ConnectionError) => any):void {
+        // connect calls internalLogin
+        // internalLogin's callback calls internalConnect
+        // internalConnect sets it's callback to be called later
+        // events call internalConnect's callback
         if (options instanceof Function) {
             callback = options;
             options = null;
@@ -32,6 +36,7 @@ export class Client extends bigbang.AbstractBigBangClient implements wire.WirePr
         var parsedUrl = this.parseUrl(url);
 
         var host = parsedUrl.host;
+        host += ':' + parsedUrl.port;
         var user = null;
         var password = null;
 
@@ -84,8 +89,12 @@ export class Client extends bigbang.AbstractBigBangClient implements wire.WirePr
         });
 
         req.on('error', function (e) {
-            // TODO: callback err
-            console.log('problem with request: ' + e.message);
+            var loginResult:bigbang.LoginResult = new bigbang.LoginResult();
+
+            loginResult.authenticated = false;
+            loginResult.message = e.message;
+
+            return callback(loginResult);
         });
 
         req.end();
@@ -103,11 +112,10 @@ export class Client extends bigbang.AbstractBigBangClient implements wire.WirePr
         this.socket.on('connect', (connection) => {
             this.connection = connection;
             this.onConnect();
-            callback(null);
 
             connection.on('error', function (error) {
                 console.log('connection error ' + error);
-                // TODO: this should probably call disconnect?
+                // TODO: call disconnect?
             });
 
             connection.on('close', () => {

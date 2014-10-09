@@ -4,11 +4,35 @@
 import pew      = require("./PewRuntime");
 import wire     = require("./WireProtocol.Protocol");
 
+export class SimpleEventEmitter {
+    private _listeners = {};
+
+    public on(event:string, listener:(event:any) => any):void {
+        var listeners = this._listeners[event];
+        if (!listeners) {
+            this._listeners[event] = listeners = [];
+        }
+        listeners.push(listener);
+    }
+
+    public emit(event:string, arg1?:any, arg2?:any, arg3?:any) {
+        var listeners = this._listeners[event];
+        if (!listeners) {
+            return;
+        }
+        listeners.forEach(function(listener) {
+            listener(arg1, arg2, arg3);
+        });
+    }
+}
+
 /**
  * BigBangClient
+ *
+ * @fires disconnected When the client is disconnected, either from
+ * calling disconnect() or through external forces beyond your control.
  */
 export interface BigBangClient {
-
     /**
      * Connect to BigBang using the specified url.
      * @param url
@@ -51,8 +75,7 @@ export interface BigBangClient {
     getChannel(channelName:string):Channel;
 
     /**
-     * @fires disconnected Emitted when the client is disconnected, either from
-     * calling disconnect() or through external means.
+     * Register an event listener for the specified event.
      * @param event
      * @param listener
      */
@@ -109,25 +132,31 @@ export class ChannelMessage {
 }
 
 
-export class Channel {
+/**
+ * Channel
+ *
+ * @fires message When a message is received on the channel.
+ * @fires join When someone joins the channel.
+ * @fires leave When someone has left the channel.
+ */
+export class Channel extends SimpleEventEmitter {
 
     private client:AbstractBigBangClient;
 
-    private responses:{ [name:string]: ResponseWrapper
-    };
+    private responses:{ [name:string]: ResponseWrapper };
 
-    private keySpaces:{ [name:string]: ChannelData
-    };
+    private keySpaces:{ [name:string]: ChannelData };
 
     private channelPermissions:Array<string>;
 
     private currentSubscribers:Array<string>;
 
+    private name:string;
 
-    private onMessageHandler:(msg:ChannelMessage) =>any;
-
-    constructor(client:AbstractBigBangClient) {
+    constructor(client:AbstractBigBangClient, name:string) {
+        super();
         this.client = client;
+        this.name = name;
         this.responses = {};
         this.keySpaces = {};
         this.channelPermissions = [];
@@ -135,18 +164,50 @@ export class Channel {
 
         this.keySpaces["_meta"] = new ChannelData(client, "_meta", this);
         this.keySpaces["def"] = new ChannelData(client, "def", this);
-        this.channelData = this.keySpaces["def"];
+
+
+        this.metaKeyspace().on("subs", (doc:any) => {
+            var self = this;
+            var oldSubs:Array<string> = this.currentSubscribers;
+            this.currentSubscribers = this.getSubscribers();
+
+            var diff = this.diff(oldSubs, this.getSubscribers());
+
+            diff.forEach(function (id) {
+                if (oldSubs.indexOf(id) != -1) {
+                    self.emit('leave', id);
+                }
+                else {
+                    self.emit('join', id);
+                }
+            });
+        });
     }
 
-    // public, readonly
-    name:string;
-    // public
-    channelData:ChannelData;
+    /**
+     * Get the name of this Channel.
+     * @returns {string}
+     */
+    public getName():string {
+        return this.name;
+    }
 
+    /**
+     * Get either the named ChannelData or the default if no namespace is
+     * specified.
+     * @param namespace
+     * @returns {ChannelData}
+     */
+    public getChannelData(namespace?:string) {
+        namespace = namespace || 'def';
+        return this.getOrCreateChannelData(namespace);
+    }
 
-    // public
-    // client ids of people subscribed
-    public subscribers():Array<string> {
+    /**
+     * Get the clientIds of the current subscribers on this channel.
+     * @returns {Array<string>}
+     */
+    public getSubscribers():Array<string> {
         var subs:Array<string> = [];
         var doc:any = this.metaKeyspace().get("subs");
 
@@ -160,86 +221,15 @@ export class Channel {
         return subs;
     }
 
-    // public
-    // message event
-    // on('message')
-    onMessage( message:(msg:ChannelMessage) => any):void {
-        this.onMessageHandler = message;
-    }
-
-
-    // public
-    // on('join')
-    // on('leave')
-    onSubscribers(join:(s) => any, leave:(s) => any) {
-
-        this.metaKeyspace().on("subs", (doc:any) => {
-
-            var oldSubs:Array<string> = this.currentSubscribers;
-            this.currentSubscribers = this.subscribers();
-
-            var diff = this.diff(oldSubs, this.subscribers());
-
-            diff.forEach(function (id) {
-                if (oldSubs.indexOf(id) != -1) {
-                    leave(id);
-                }
-                else {
-                    join(id);
-                }
-            });
-        }, null);
-    }
-
-    // private
-    diff(a1, a2):Array<string> {
-        var a = [], diff = [];
-        for (var i = 0; i < a1.length; i++)
-            a[a1[i]] = true;
-        for (var i = 0; i < a2.length; i++)
-            if (a[a2[i]]) delete a[a2[i]];
-            else a[a2[i]] = true;
-        for (var k in a)
-            diff.push(k);
-        return diff;
-    }
-
-
-    // private
-    listChanged(orig:Array<string>, current:Array<string>):Array<string> {
-        var result = [];
-
-        orig.forEach(function (key) {
-            if (-1 === current.indexOf(key)) {
-                result.push(key);
-            }
-        }, this);
-
-        return result;
-    }
-
-
-    // public
-    getKeyspace(ks:string):ChannelData {
-        return this.getOrCreateChannelData(ks);
-    }
-
-    // private
-    // permissions provide client security, but it's backed by the server
-    setChannelPermissions(perms:Array<string>):void {
-        this.channelPermissions = perms;
-    }
-
-    // private
-    private metaKeyspace():ChannelData {
-        return this.keySpaces["_meta"];
-    }
-
-    // this is how you send stuff to channel
-    // probably needs options
-    // "for now" it has to be a JSON object
+    /**
+     * Send a message to the channel. Payload can be any JSON object.
+     * @param payload
+     * @param callback
+     */
     public publish(payload:any, callback:(err:ChannelError) => any):void {
-
+        // this is how you send stuff to channel
+        // probably needs options
+        // "for now" it has to be a JSON object
         if (this.hasPermission("Publish")) {
             this.publishByteArray(new pew.ByteArray(pew.base64_encode(JSON.stringify(payload))));
             if (callback) {
@@ -254,60 +244,18 @@ export class Channel {
         }
     }
 
-    // private helper method
-    publishByteArray(payload:pew.ByteArray):void {
-        var msg:wire.WireChannelMessage = new wire.WireChannelMessage();
-        msg.name = this.name;
-        msg.payload = payload;
-        this.client.sendToServer(msg);
-    }
+    ////////////////////////////////////////////////////////////////////////////
+    // End of public interface
+    ////////////////////////////////////////////////////////////////////////////
 
-    // go away, not used
-    send(payload:any, callback:(response)=>any) {
-        var msg:wire.WireQueueMessage = new wire.WireQueueMessage();
-        msg.id = null;
-        msg.name = this.name;
-        msg.payload = new pew.ByteArray(pew.base64_encode(JSON.stringify(payload)));
-
-
-        if (callback) {
-            msg.id = this.randomRequestId();
-            var wrapper:ResponseWrapper = new ResponseWrapper();
-            wrapper.type = "json";
-            wrapper.callback = callback;
-            this.responses[msg.id] = wrapper;
-        }
-
-        this.client.sendToServer(msg);
-
-    }
-
-    // private, internal
-    hasPermission(p:string):boolean {
-
-        var ret:boolean = false;
-
-        this.channelPermissions.forEach(function (perm) {
-            if (p == perm) {
-                ret = true;
-            }
-        });
-
-        return ret;
-    }
-
-    // private fulfilling SPI
     onWireChannelMessage(msg:wire.WireChannelMessage):void {
-        if (this.onMessageHandler) {
-            var channelMessage:ChannelMessage = new ChannelMessage();
-            channelMessage.channel = this;
-            channelMessage.payload = msg.payload;
-            channelMessage.senderId = msg.senderId;
-            this.onMessageHandler(channelMessage);
-        }
+        var channelMessage:ChannelMessage = new ChannelMessage();
+        channelMessage.channel = this;
+        channelMessage.payload = msg.payload;
+        channelMessage.senderId = msg.senderId;
+        this.emit('message', channelMessage);
     }
 
-    // private fulfilling SPI
     onWireQueueMessage(msg:wire.WireQueueMessage):void {
         if (msg.id) {
             var wrapper:ResponseWrapper = this.responses[msg.id];
@@ -335,7 +283,71 @@ export class Channel {
         }
     }
 
-    // private
+    onWireChannelDataCreate(msg:wire.WireChannelDataCreate):void {
+        this.getOrCreateChannelData(msg.ks).onWireChannelDataCreate(msg);
+    }
+
+    onWireChannelDataUpdate(msg:wire.WireChannelDataUpdate):void {
+        this.getOrCreateChannelData(msg.ks).onWireChannelDataUpdate(msg);
+    }
+
+    onWireChannelDataDelete(msg:wire.WireChannelDataDelete):void {
+        this.getOrCreateChannelData(msg.ks).onWireChannelDataDelete(msg);
+    }
+
+    setChannelPermissions(perms:Array<string>):void {
+        this.channelPermissions = perms;
+    }
+
+    hasPermission(p:string):boolean {
+
+        var ret:boolean = false;
+
+        this.channelPermissions.forEach(function (perm) {
+            if (p == perm) {
+                ret = true;
+            }
+        });
+
+        return ret;
+    }
+
+    private diff(a1, a2):Array<string> {
+        var a = [], diff = [];
+        for (var i = 0; i < a1.length; i++)
+            a[a1[i]] = true;
+        for (var i = 0; i < a2.length; i++)
+            if (a[a2[i]]) delete a[a2[i]];
+            else a[a2[i]] = true;
+        for (var k in a)
+            diff.push(k);
+        return diff;
+    }
+
+
+    private listChanged(orig:Array<string>, current:Array<string>):Array<string> {
+        var result = [];
+
+        orig.forEach(function (key) {
+            if (-1 === current.indexOf(key)) {
+                result.push(key);
+            }
+        }, this);
+
+        return result;
+    }
+
+    private metaKeyspace():ChannelData {
+        return this.keySpaces["_meta"];
+    }
+
+    private publishByteArray(payload:pew.ByteArray):void {
+        var msg:wire.WireChannelMessage = new wire.WireChannelMessage();
+        msg.name = this.name;
+        msg.payload = payload;
+        this.client.sendToServer(msg);
+    }
+
     private getOrCreateChannelData(ks:string):ChannelData {
         var cd:ChannelData;
 
@@ -353,83 +365,54 @@ export class Channel {
         }
         return cd;
     }
-
-    // private fulfilling SPI
-    onWireChannelDataCreate(msg:wire.WireChannelDataCreate):void {
-        this.getOrCreateChannelData(msg.ks).onWireChannelDataCreate(msg);
-    }
-
-    // private fulfilling SPI
-    onWireChannelDataUpdate(msg:wire.WireChannelDataUpdate):void {
-        this.getOrCreateChannelData(msg.ks).onWireChannelDataUpdate(msg);
-    }
-
-    // private fulfilling SPI
-    onWireChannelDataDelete(msg:wire.WireChannelDataDelete):void {
-        this.getOrCreateChannelData(msg.ks).onWireChannelDataDelete(msg);
-    }
-
-    // check if not needed due to send stuff
-    private randomRequestId():string {
-        //todo better id :)
-        return Math.floor((Math.random() * 999999) + 1).toString();
-    }
 }
 
 
-export class ChannelData {
+/**
+ * ChannelData
+ *
+ * @fires add(key, value) When a new key/value is added.
+ * @fires update(key, value) When a key's value is updated.
+ * @fires remove(key) When a key and it's value is removed.
+ * @fires 'key'(value, operation) When the specified key is added, updated or
+ * removed this event will be fired. Operation will be one of add, update, or
+ * remove.
+ */
+export class ChannelData extends SimpleEventEmitter {
 
     private client:AbstractBigBangClient;
     private keySpace:string;
     private channel:Channel;
 
-    private elementMap:{ [key:string] : any
-    }
-
-    private updateMap:{ [key:string]: (o:any) =>any
-    }
-
-    private deleteMap:{[key:string]: () =>any
-    }
-
-    private addListeners:Array<any>;
-
-    private updateListeners:Array<any>;
-
-    private delListeners:Array<any>;
-
+    private elementMap:{ [key:string] : any }
 
     constructor(client:AbstractBigBangClient, keySpace:string, channel:Channel) {
+        super();
         this.client = client;
         this.keySpace = keySpace;
         this.elementMap = {};
-        this.updateMap = {};
-        this.deleteMap = {};
-        this.addListeners = [];
-        this.updateListeners = [];
-        this.delListeners = [];
         this.channel = channel;
+        this.onWireChannelDataCreate.bind(this);
+        this.onWireChannelDataDelete.bind(this);
+        this.onWireChannelDataUpdate.bind(this);
     }
 
-    // public
-    get(key:string):any {
+    /**
+     * Get the value for the specified key.
+     * @param key
+     * @returns {any}
+     */
+    public get(key:string):any {
         return this.elementMap[key];
     }
 
-
-    // public
-    keys():Array<string> {
-        var keys = [];
-
-        for (var k in this.elementMap) {
-            keys.push(k);
-        }
-        return keys;
-    }
-
-    // public
-    put(key:string, value:any, callback:(err:ChannelError)=>any) {
-
+    /**
+     * Set a value for the specified key.
+     * @param key
+     * @param value
+     * @param callback
+     */
+    public put(key:string, value:any, callback:(err:ChannelError)=>any) {
         if (!key) {
             callback(new ChannelError("ChannelData key cannot be null."));
             return;
@@ -443,7 +426,7 @@ export class ChannelData {
             var msg:wire.WireChannelDataPut = new wire.WireChannelDataPut();
             msg.key = key;
             msg.ks = this.keySpace;
-            msg.name = this.channel.name;
+            msg.name = this.channel.getName();
             msg.payload = new pew.ByteArray(pew.base64_encode(JSON.stringify(value)));
             this.client.sendToServer(msg);
 
@@ -458,9 +441,12 @@ export class ChannelData {
         }
     }
 
-    // public, maybe change to remove
-    del(key:string, callback:(err:ChannelError)=>any):any {
-
+    /**
+     * Remove the specified key and it's value.
+     * @param key
+     * @param callback
+     */
+    public remove(key:string, callback:(err:ChannelError)=>any):any {
         if (!key) {
             callback(new ChannelError("ChannelData key cannot be null."));
             return;
@@ -470,13 +456,12 @@ export class ChannelData {
             var del:wire.WireChannelDataDel = new wire.WireChannelDataDel();
             del.key = key;
             del.ks = this.keySpace;
-            del.name = this.channel.name;
+            del.name = this.channel.getName();
             this.client.sendToServer(del);
 
             if (callback) {
                 callback(null);
             }
-
         }
         else {
             if (callback) {
@@ -485,113 +470,62 @@ export class ChannelData {
         }
     }
 
-    //todo allow multiple listeners per key..
-    // public, let you listen to events on a specific key
-    on(key:string, update:(o:any) =>any, del:() =>any):void {
+    /**
+     * Get a list of the keys on this ChannelData.
+     * @returns {Array}
+     */
+    public getKeys():Array<string> {
+        var keys = [];
 
-        if (update) {
-            this.updateMap[key] = update;
+        for (var k in this.elementMap) {
+            keys.push(k);
         }
-
-        if (del) {
-            this.deleteMap[key] = del;
-        }
+        return keys;
     }
 
+    ////////////////////////////////////////////////////////////////////////////
+    // End of public interface
+    ////////////////////////////////////////////////////////////////////////////
 
-    // public, let you listen for any key changes
-    onValue(create:(key:string, val:any) => any, update:(key:string, val:any)=>any, del:(key:string) => any) {
-
-        if (create) {
-            this.addListeners.push(create);
-        }
-
-        if (update) {
-            this.updateListeners.push(update);
-        }
-
-        if (del) {
-            this.delListeners.push(del);
-        }
-    }
-
-    // private fulfilling SPI
     onWireChannelDataCreate(msg:wire.WireChannelDataCreate):void {
         var payload:string = msg.payload.getBytesAsUTF8();
         var o:any = JSON.parse(payload);
         this.elementMap[msg.key] = o;
-
-        var update = this.updateMap[msg.key];
-
-        if (update) {
-            update(o);
-        }
-
-        this.addListeners.forEach(function (callback:any) {
-            callback(msg.key, o);
-        });
+        this.emit('add', msg.key, o);
+        this.emit(msg.key, o, 'add');
     }
 
-    // private fulfilling SPI
     onWireChannelDataUpdate(msg:wire.WireChannelDataUpdate):void {
         var payload:string = msg.payload.getBytesAsUTF8();
         var o:any = JSON.parse(payload);
         this.elementMap[msg.key] = o;
-
-        var update = this.updateMap[msg.key];
-
-        if (update) {
-            update(o);
-        }
-
-        this.updateListeners.forEach(function (callback:any) {
-            callback(msg.key, o);
-        });
-
+        this.emit('update', msg.key, o)
+        this.emit(msg.key, o, 'update');
     }
 
-    // private fulfilling SPI
     onWireChannelDataDelete(msg:wire.WireChannelDataDelete):void {
         delete this.elementMap[msg.key];
-        var del = this.deleteMap[msg.key];
-
-        if (del) {
-            del();
-        }
-
-        delete this.deleteMap[msg.key];
-
-
-        this.delListeners.forEach(function (callback:any) {
-            callback(msg.key);
-        });
-
+        this.emit('remove', msg.key);
+        this.emit(msg.key, null, 'remove');
     }
 }
 
-
-export class AbstractBigBangClient implements wire.WireProtocolProtocolListener, BigBangClient {
+export class AbstractBigBangClient extends SimpleEventEmitter implements wire.WireProtocolProtocolListener, BigBangClient {
     wireProtocol;
     _internalConnectionResult;
-    _disconnectCallback;
     _clientId:string;
     _clientKey:string;
 
 
-    channelSubscribeMap:{ [channeId:string]: (err:ChannelError, channel:Channel) =>any
-    };
+    channelSubscribeMap:{ [channeId:string]: (err:ChannelError, channel:Channel) =>any };
 
-    channelMap:{ [channelId:string]: Channel
-    }
+    channelMap:{ [channelId:string]: Channel };
 
 
     bufString:string = "";
 
-    public channelListeners:{ [s:string]: (channel:string, payload:string) =>any;
-    } = {};
-    public sessionListener:(payload:string) => any;
-
     constructor() {
+        super();
         this.wireProtocol = new wire.WireProtocol();
         this.wireProtocol.listener = this;
         this.connect = this.connect.bind(this);
@@ -611,6 +545,11 @@ export class AbstractBigBangClient implements wire.WireProtocolProtocolListener,
     }
 
     subscribe(channel:string, options?:any, callback?:(err:ChannelError, channel:Channel) =>any):void {
+        if (options instanceof Function) {
+            callback = options;
+            options = null;
+        }
+
         this.channelSubscribeMap[channel] = callback;
         var msg:wire.WireChannelSubscribe = new wire.WireChannelSubscribe();
         msg.name = channel;
@@ -618,7 +557,7 @@ export class AbstractBigBangClient implements wire.WireProtocolProtocolListener,
     }
 
     unsubscribe(channel:string):void {
-        throw new Error("Not implemented");
+        throw new Error("Unimplemented: unsubscribe");
     }
 
     getClientId():string {
@@ -629,19 +568,12 @@ export class AbstractBigBangClient implements wire.WireProtocolProtocolListener,
         return this.channelMap[channel];
     }
 
-    on(event:string, listener:(event:any) => any):void {
-        throw new Error("abstract");
-    }
-
-    // end of public interface
-
-    emit(event:string, arg:any) {
-        // TODO:
-        throw new Error("abstract");
-    }
+    ////////////////////////////////////////////////////////////////////////////
+    // End of public interface
+    ////////////////////////////////////////////////////////////////////////////
 
     sendToServer(msg:pew.PewMessage):void {
-        throw new Error("abstract");
+        throw new Error("Unimplemented: sendToServer");
     }
 
     onConnect():void {
@@ -649,11 +581,6 @@ export class AbstractBigBangClient implements wire.WireProtocolProtocolListener,
         req.clientKey = this._clientKey;
         req.version = 1234;
         this.sendToServer(req);
-    }
-
-    disconnected(callback:() =>any):void {
-        // TODO:
-        this._disconnectCallback = callback;
     }
 
     publish(channel:string, payload:string):void {
@@ -689,7 +616,7 @@ export class AbstractBigBangClient implements wire.WireProtocolProtocolListener,
 
                 var c:string = body.charAt(body.length - 1);
                 if (c != ',') {
-                    //need to explode and kill the client or something here..
+                    // TODO: need to explode and kill the client or something here..
                     console.error("TextProtocol decode exception, not terminated with comma");
                 }
 
@@ -720,14 +647,15 @@ export class AbstractBigBangClient implements wire.WireProtocolProtocolListener,
     onWireChannelJoin(msg:wire.WireChannelJoin) {
         var callback = this.channelSubscribeMap[msg.name];
 
-        var channel:Channel = new Channel(this);
-        channel.name = msg.name;
+        var channel:Channel = new Channel(this, msg.name);
         channel.setChannelPermissions(msg.channelPermissions);
 
-        this.channelMap[channel.name] = channel;
+        this.channelMap[channel.getName()] = channel;
 
         if (!msg.success) {
-            throw new Error("Unable to join channel, redirect this error please");
+            if (callback) {
+                return callback(new ChannelError("Unable to join channel"), channel);
+            }
         }
 
         if (callback) {
@@ -736,7 +664,6 @@ export class AbstractBigBangClient implements wire.WireProtocolProtocolListener,
     }
 
     onWireChannelLeave(msg:wire.WireChannelLeave) {
-        delete this.channelListeners[msg.name];
     }
 
     onWireChannelMessage(msg:wire.WireChannelMessage):void {
@@ -751,7 +678,7 @@ export class AbstractBigBangClient implements wire.WireProtocolProtocolListener,
 
 
     onWireRpcMessage(msg:wire.WireRpcMessage):void {
-        //TODO -- do
+        // TODO
     }
 
     onWireConnectFailure(msg:wire.WireConnectFailure) {
@@ -768,7 +695,7 @@ export class AbstractBigBangClient implements wire.WireProtocolProtocolListener,
         cr.clientId = msg.clientId;
         cr.success = true;
         cr.message = null;
-        this._internalConnectionResult(cr);
+        this._internalConnectionResult(null, cr);
     }
 
     onWireChannelDataCreate(msg:wire.WireChannelDataCreate):void {
@@ -802,22 +729,19 @@ export class AbstractBigBangClient implements wire.WireProtocolProtocolListener,
     }
 
     onWireChannelDataDel(msg:wire.WireChannelDataDel) {
-        console.log('implement me channeldatadel');
+        console.log('Unimplemented: onWireChannelDataDel');
     }
 
     onWireChannelDataPut(msg:wire.WireChannelDataPut) {
-        console.log('implement me channeledataput');
+        console.log('Unimplemented: onWireChannelDataPut');
     }
 
     onWireDisconnectSuccess(msg:wire.WireDisconnectSuccess):void {
         this.emit('disconnected', false);
-        if (this._disconnectCallback) {
-            this._disconnectCallback();
-        }
     }
 
     onWireChannelUnSubscribe(msg:wire.WireChannelUnSubscribe):void {
-        console.log("implement me unsubscrube");
+        console.log("Unimplemented: onWireChannelUnSubscribe");
     }
 
 
@@ -831,7 +755,7 @@ export class AbstractBigBangClient implements wire.WireProtocolProtocolListener,
     }
 
     onWireChannelSubscribe(msg:wire.WireChannelSubscribe) {
-        console.log('implement me onchannelsubs');
+        console.log('Unimplemented: onWireChannelSubscribe');
     }
 
     /**
@@ -852,9 +776,3 @@ export class AbstractBigBangClient implements wire.WireProtocolProtocolListener,
         };
     }
 }
-
-
-
-
-
-
