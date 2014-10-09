@@ -31,7 +31,7 @@ module.exports = function (grunt) {
                 dest : 'web/bigbang.io.js',
                 options : {
                     browserifyOptions : {
-                        standalone : 'bigbang.io'
+                        standalone : 'BigBang'
                     }
                 }
             }

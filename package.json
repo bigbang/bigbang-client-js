@@ -2,11 +2,11 @@
   "name": "bigbang.io",
   "version": "0.0.2",
   "main": "lib/NodeBigBangClient.js",
-  "repository" : {
-      "type" : "git",
-      "url" : "https://github.com/bigbang/bigbang-client-js"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bigbang/bigbang-client-js"
   },
-  "private" : true,
+  "private": true,
   "dependencies": {
     "websocket": "~1.0.8"
   },
@@ -16,6 +16,7 @@
     "grunt-contrib-clean": "^0.6.0",
     "grunt-contrib-uglify": "^0.6.0",
     "grunt-exec": "^0.4.6",
+    "grunt-jsdoc": "^0.5.7",
     "grunt-typescript": "^0.3.8"
   },
   "scripts": {

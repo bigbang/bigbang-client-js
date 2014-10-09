@@ -15,23 +15,34 @@ export class Client extends bigbang.AbstractBigBangClient implements wire.WirePr
         super();
     }
 
-    connect(host:string, user:string, password:string, callback:(connectionResult:bigbang.ConnectionResult) =>any):void {
+    connect(url:any, options?:any, callback?:(err:bigbang.ConnectionError) => any):void {
+        if (options instanceof Function) {
+            callback = options;
+            options = null;
+        }
+
+        if (url instanceof Object) {
+            options = url;
+            url = null;
+        }
+
+        var parsedUrl = this.parseUrl(url);
+
+        var host = parsedUrl.host;
+        host += ':' + parsedUrl.port;
+        var user = null;
+        var password = null;
+
         this.internalLogin(host, user, password, host, (loginResult:bigbang.LoginResult) => {
 
             if (loginResult.authenticated) {
                 this.internalConnect(host, loginResult.clientKey, callback);
             }
             else {
-                var rslt:bigbang.ConnectionResult = new bigbang.ConnectionResult();
-                rslt.message = loginResult.message;
-                rslt.success = false;
-                callback(rslt);
+                var err:bigbang.ConnectionError = new bigbang.ConnectionError(loginResult.message);
+                callback(err);
             }
         });
-    }
-
-    connectAnonymous(host:string, callback:(connectionResult:bigbang.ConnectionResult) =>any):void {
-        this.connect(host, null, null, callback);
     }
 
     internalLogin(host:string, user:string, password:string, application:string, callback:(loginResult:bigbang.LoginResult) =>any) {
@@ -51,7 +62,12 @@ export class Client extends bigbang.AbstractBigBangClient implements wire.WirePr
 
         var xhr = this.createCORSRequest('GET', uri);
         if (!xhr) {
-            alert('CORS not supported');
+            var loginResult:bigbang.LoginResult = new bigbang.LoginResult();
+
+            loginResult.authenticated = false;
+            loginResult.message = 'CORS not supported';
+
+            return callback(loginResult);
             return;
         }
 
@@ -68,13 +84,18 @@ export class Client extends bigbang.AbstractBigBangClient implements wire.WirePr
         };
 
         xhr.onerror = function () {
-            alert('Woops, there was an error making the request.');
+            var loginResult:bigbang.LoginResult = new bigbang.LoginResult();
+
+            loginResult.authenticated = false;
+            loginResult.message = 'XHR error';
+
+            return callback(loginResult);
         };
 
         xhr.send();
     }
 
-    internalConnect(host:string, clientKey:string, callback:(connectionResult:bigbang.ConnectionResult) =>any):void {
+    internalConnect(host:string, clientKey:string, callback:(err:bigbang.ConnectionError) =>any):void {
         this._internalConnectionResult = callback;
         this._clientKey = clientKey;
         var ws:string = "ws://" + host + "/";
@@ -93,13 +114,12 @@ export class Client extends bigbang.AbstractBigBangClient implements wire.WirePr
         };
 
         this.socket.onclose = (event) => {
-            if (this._disconnectCallback) {
-                this._disconnectCallback();
-            }
+            this.emit('disconnected', false);
         };
 
         this.socket.onerror = function (event) {
             console.error("WebSocket error: " + event);
+            // TODO: call disconnect?
         };
     }
 
