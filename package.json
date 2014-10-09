@@ -6,7 +6,7 @@
     "type": "git",
     "url": "https://github.com/bigbang/bigbang-client-js"
   },
-  "private": true,
+  "private": false,
   "dependencies": {
     "websocket": "~1.0.8"
   },
