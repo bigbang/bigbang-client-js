@@ -20,5 +20,5 @@
     "tests",
     "lib"
   ],
-  "private" : true
+  "private" : false
 }
