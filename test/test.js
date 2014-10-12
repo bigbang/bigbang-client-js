@@ -1,13 +1,9 @@
-var assert = require("assert");
-var randomstring = require("randomstring");
-var bigbang = require('../lib/NodeBigBangClient.js');
-
 
 describe('client', function () {
 
     describe('#connect', function () {
         it('should connect successfuly', function (done) {
-            var bb = new bigbang.Client();
+            var bb = new BigBang.Client();
             bb.connect('http://demo.bigbang.io', function (err) {
                 assert.equal(err, null);
                 done();
@@ -17,7 +13,7 @@ describe('client', function () {
 
     describe('#connect', function () {
         it('should should fail gracefully', function (done) {
-            var bb = new bigbang.Client();
+            var bb = new BigBang.Client();
             bb.connect('http://hugenondexistintdomainthingfoobar.bigbang.io', function (err) {
                 assert(err);
                 done();
@@ -27,7 +23,7 @@ describe('client', function () {
 
     describe('#connect', function () {
         it('should connect successfuly via https', function (done) {
-            var bb = new bigbang.Client();
+            var bb = new BigBang.Client();
             bb.connect('https://demo.bigbang.io', function (err) {
                 assert.equal(err, null);
                 done();
@@ -37,16 +33,16 @@ describe('client', function () {
 
     describe('#connect', function () {
         it('should should subscribe', function (done) {
-            var bb = new bigbang.Client();
+            var bb = new BigBang.Client();
             bb.connect('http://demo.bigbang.io', function (err) {
                 assert.equal(err, null);
 
-                var channelName = randomstring.generate(8);
+                var channelName = randomstring(8);
                 bb.subscribe(channelName, function (err, channel) {
                     assert(!err);
                     assert(channel);
 
-                    var sent = {"foo": randomstring.generate(), "bar": randomstring.generate()};
+                    var sent = {"foo": randomstring(), "bar": randomstring()};
 
                     channel.on('message', function (msg) {
                         var json = msg.payload.getBytesAsJSON();
@@ -67,11 +63,11 @@ describe('client', function () {
     describe('#channelData', function () {
         it('should do awesome channelData stuff ', function (done) {
 
-            clientOnChannel(randomstring.generate(), function (channel) {
+            clientOnChannel(randomstring(), function (channel) {
 
-                var ks = randomstring.generate();
-                var thekey = randomstring.generate();
-                var obj = {foo: randomstring.generate(), bar: randomstring.generate() };
+                var ks = randomstring();
+                var thekey = randomstring();
+                var obj = {foo: randomstring(), bar: randomstring() };
 
                 channel.getChannelData(ks).on('add', function (key, value) {
                     assert.equal(key, thekey);
@@ -93,7 +89,7 @@ describe('client', function () {
 
 
 function clientOnChannel(name, callback) {
-    var bb = new bigbang.Client();
+    var bb = new BigBang.Client();
     bb.connect('http://demo.bigbang.io', function (err) {
         assert.equal(err, null);
 
@@ -105,3 +101,20 @@ function clientOnChannel(name, callback) {
 
     });
 }
+
+
+var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz';
+
+function randomstring(length) {
+    length = length ? length : 32;
+
+    var string = '';
+
+    for (var i = 0; i < length; i++) {
+        var randomNumber = Math.floor(Math.random() * chars.length);
+        string += chars.substring(randomNumber, randomNumber + 1);
+    }
+
+    return string;
+}
+

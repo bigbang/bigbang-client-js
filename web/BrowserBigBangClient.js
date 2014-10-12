@@ -30,9 +30,9 @@ var Client = (function (_super) {
         var user = null;
         var password = null;
 
-        this.internalLogin(host, user, password, host, function (loginResult) {
+        this.internalLogin(parsedUrl.protocol, host, user, password, host, function (loginResult) {
             if (loginResult.authenticated) {
-                _this.internalConnect(host, loginResult.clientKey, callback);
+                _this.internalConnect(parsedUrl.protocol, host, loginResult.clientKey, callback);
             } else {
                 var err = new bigbang.ConnectionError(loginResult.message);
                 callback(err);
@@ -40,13 +40,13 @@ var Client = (function (_super) {
         });
     };
 
-    Client.prototype.internalLogin = function (host, user, password, application, callback) {
+    Client.prototype.internalLogin = function (protocol, host, user, password, application, callback) {
         var hostname = host.split(":")[0];
         var port = host.split(":")[1];
 
         var protocolHash = this.wireProtocol.protocolHash;
 
-        var uri = "http://" + hostname + ":" + port;
+        var uri = protocol + "://" + hostname + ":" + port;
 
         if (!user && !password) {
             uri += "/loginAnon?application=" + application + "&wireprotocolhash=" + protocolHash;
@@ -88,11 +88,18 @@ var Client = (function (_super) {
         xhr.send();
     };
 
-    Client.prototype.internalConnect = function (host, clientKey, callback) {
+    Client.prototype.internalConnect = function (protocol, host, clientKey, callback) {
         var _this = this;
         this._internalConnectionResult = callback;
         this._clientKey = clientKey;
-        var ws = "ws://" + host + "/";
+
+        var ws;
+
+        if (protocol === "https") {
+            ws = "wss://" + host + "/";
+        } else {
+            ws = "ws://" + host + "/";
+        }
 
         this.socket = new WebSocket(ws);
 

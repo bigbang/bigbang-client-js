@@ -26,7 +26,8 @@
     "grunt-exec": "^0.4.6",
     "grunt-jsdoc": "^0.5.7",
     "grunt-typescript": "^0.3.8",
-    "randomstring": "~1.0.3"
+    "mocha": "~1.21.5",
+    "chai": "~1.9.2"
   },
   "scripts": {
     "prepublish": "grunt"
