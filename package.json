@@ -1,6 +1,6 @@
 {
   "name": "bigbang.io",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "main": "lib/NodeBigBangClient.js",
   "description": "Create realtime applications in seconds with Big Bang.",
   "repository": {
