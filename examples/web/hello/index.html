@@ -7,52 +7,49 @@
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
     <script type="text/javascript" src="js/pnglib.js"></script>
     <script type="text/javascript" src="js/identicon.js"></script>
-    <script type="text/javascript" src="bigbang.js"></script>
+    <script type="text/javascript" src="bower_components/bigbang.io/web/bigbang.io.min.js"></script>
 
     <link rel="stylesheet" type="text/css" href="css/style.css"/>
     <script type="text/javascript">
         $(document).ready(function () {
 
             //Create an instance of the BigBangClient
-            var client = new bigbang.client.BrowserBigBangClient();
+            var client = new BigBang.Client();
 
-            //Add your application here the format is: [yourapplication].app.bigbang.io
-            var bbHost = "";
+            //Demo application.
+            var host = "http://demo.bigbang.io";
 
-            if (bbHost === "") {
-                alert("Please define bbHost in hello.html. Format is [yourapplication].app.bigbang.io");
-            }
-            else {
-                client.connectAnonymous(bbHost+":80", function (result) {
-                    if (result.success) {
-                        client.subscribe("somechannel", function (err, c) {
-                            if (!err) {
-                                beginChat(c);
-                            }
-                            else {
-                                alert("Subscribe failure. " + err);
-                            }
-                        })
+            client.connect(host, function (err) {
+
+                if (err) {
+                    alert("Failed to connect to " + host);
+                    return;
+                }
+
+                client.subscribe("helloChat", function (err, channel) {
+                    if (err) {
+                        alert("Unable to subscribe to channel");
+                        return;
                     }
-                    else {
-                        alert("Failed to connect.");
-                    }
+                    beginChat(channel);
+
                 });
-            }
+            });
+
 
             function beginChat(channel) {
 
-                //
-                channel.onMessage(function (msg) {
+                channel.on('message', function (msg) {
                     writeMessage(msg.senderId, msg.payload.getBytesAsJSON().msg);
                 });
 
-                channel.onSubscribers(function (joined) {
+                channel.on('join', function (joined) {
                     writeMessage(joined, "Joined the channel.");
-                }, function (left) {
-                    writeMessage(left, "Left the channel.");
                 });
 
+                channel.on('leave', function (leave) {
+                    writeMessage(left, "Left the channel.");
+                });
 
                 $('#sendie').keyup(function (e) {
                     if (e.keyCode == 13) {
