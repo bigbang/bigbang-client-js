@@ -40,8 +40,8 @@ Example
 Servers
 =======
 
-To connect to BigBang.io you'll need a server URL. You can use `http://demo.bigbang.io` to try things out. When you are ready, you can create a free BigBang.io account and get your own free personal server at
-[https://cloud.getbigbang.com/](https://cloud.getbigbang.com/).
+To connect to BigBang.io you'll need a server URL. You can use `http://demo.bigbang.io` to try things out. When you are ready, you can create a free Big Bang account and create your first application for free
+at [https://cloud.getbigbang.com/](https://cloud.getbigbang.com/).
 
 
 Channels
