@@ -10,3 +10,5 @@ README-NODE.md
 README-WEB.md
 *.tgz
 bower.json
+test
+testem.json
