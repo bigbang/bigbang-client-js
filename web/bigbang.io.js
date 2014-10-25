@@ -88,6 +88,7 @@ var Channel = (function (_super) {
     function Channel(client, name) {
         var _this = this;
         _super.call(this);
+        this.unsubscribeCallback = null;
         this.client = client;
         this.name = name;
         this.responses = {};
@@ -151,6 +152,13 @@ var Channel = (function (_super) {
         }
     };
 
+    Channel.prototype.unsubscribe = function (callback) {
+        var msg = new wire.WireChannelUnSubscribe();
+        msg.name = this.getName();
+        this.client.sendToServer(msg);
+        this.unsubscribeCallback = callback;
+    };
+
     Channel.prototype.onWireChannelMessage = function (msg) {
         var channelMessage = new ChannelMessage();
         channelMessage.channel = this;
@@ -189,6 +197,12 @@ var Channel = (function (_super) {
 
     Channel.prototype.onWireChannelDataDelete = function (msg) {
         this.getOrCreateChannelData(msg.ks).onWireChannelDataDelete(msg);
+    };
+
+    Channel.prototype.onWireChannelLeave = function (msg) {
+        if (this.unsubscribeCallback) {
+            this.unsubscribeCallback();
+        }
     };
 
     Channel.prototype.setChannelPermissions = function (perms) {
@@ -396,10 +410,6 @@ var AbstractBigBangClient = (function (_super) {
         this.sendToServer(msg);
     };
 
-    AbstractBigBangClient.prototype.unsubscribe = function (channel) {
-        throw new Error("Unimplemented: unsubscribe");
-    };
-
     AbstractBigBangClient.prototype.getClientId = function () {
         return this._clientId;
     };
@@ -487,6 +497,8 @@ var AbstractBigBangClient = (function (_super) {
     };
 
     AbstractBigBangClient.prototype.onWireChannelLeave = function (msg) {
+        var channel = this.channelMap[msg.name];
+        channel.onWireChannelLeave(msg);
     };
 
     AbstractBigBangClient.prototype.onWireChannelMessage = function (msg) {
@@ -624,9 +636,9 @@ var Client = (function (_super) {
         var user = null;
         var password = null;
 
-        this.internalLogin(host, user, password, host, function (loginResult) {
+        this.internalLogin(parsedUrl.protocol, host, user, password, host, function (loginResult) {
             if (loginResult.authenticated) {
-                _this.internalConnect(host, loginResult.clientKey, callback);
+                _this.internalConnect(parsedUrl.protocol, host, loginResult.clientKey, callback);
             } else {
                 var err = new bigbang.ConnectionError(loginResult.message);
                 callback(err);
@@ -634,13 +646,13 @@ var Client = (function (_super) {
         });
     };
 
-    Client.prototype.internalLogin = function (host, user, password, application, callback) {
+    Client.prototype.internalLogin = function (protocol, host, user, password, application, callback) {
         var hostname = host.split(":")[0];
         var port = host.split(":")[1];
 
         var protocolHash = this.wireProtocol.protocolHash;
 
-        var uri = "http://" + hostname + ":" + port;
+        var uri = protocol + "://" + hostname + ":" + port;
 
         if (!user && !password) {
             uri += "/loginAnon?application=" + application + "&wireprotocolhash=" + protocolHash;
@@ -682,11 +694,18 @@ var Client = (function (_super) {
         xhr.send();
     };
 
-    Client.prototype.internalConnect = function (host, clientKey, callback) {
+    Client.prototype.internalConnect = function (protocol, host, clientKey, callback) {
         var _this = this;
         this._internalConnectionResult = callback;
         this._clientKey = clientKey;
-        var ws = "ws://" + host + "/";
+
+        var ws;
+
+        if (protocol === "https") {
+            ws = "wss://" + host + "/";
+        } else {
+            ws = "ws://" + host + "/";
+        }
 
         this.socket = new WebSocket(ws);
 

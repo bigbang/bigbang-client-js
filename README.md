@@ -1,7 +1,7 @@
 BigBang.io Client
 =================
 
-BigBang.io makes realtime data communication and synchronization a snap!
+Big Bang lets you create realtime applications in seconds.  It makes event streaming and data synchronization a snap!
 
 
 Installation
@@ -40,8 +40,8 @@ Example
 Servers
 =======
 
-To connect to BigBang.io you'll need a server URL. You can use `http://demo.bigbang.io` to try things out. When you are ready, you can create a free BigBang.io account and get your own free personal server at
-[https://cloud.getbigbang.com/](https://cloud.getbigbang.com/).
+To connect to BigBang.io you'll need a server URL. You can use `http://demo.bigbang.io` to try things out. When you are ready, you can create a free Big Bang account and create your first application for free
+at [https://cloud.getbigbang.com/](https://cloud.getbigbang.com/).
 
 
 Channels
@@ -81,7 +81,6 @@ Client manages your connection to the server and lets you interface with Channel
 * **connect**(url, options, function(err)): Connect to the server at *url*.
 * **disconnect**(): Disconnect from the server.
 * **subscribe**(channelName, options, function(err, channel)): Subscribe to a 	channel called *channelName*. *channel* will be a Channel object.
-* **unsubscribe**(channelName): Unsubscribe from the channel called *channelName*.
 * **getClientId**(): Get your unique clientId. This identifies you to the server and
 	to other users.
 * **getChannel**(channelName): Get a reference to the Channel object for the 	subscribed channel called *channelName*.
@@ -101,6 +100,7 @@ BigBang.Channel
 * **publish**(obj, function(err)): Publish *obj* to the channel. *obj* must be an object or array (for now).
 * **getChannelData**(namespace): Returns a *ChannelData* object for the given namespace. If no namespace is supplied a default will be used. Namespaces can be used to organize your channel's data.
 * **getSubscribers()**: Get the clientIds of the current subscribers on this channel as an Array.
+* **unsubscribe**(function()): Unsubscribe from the current channel.
 * **on**('message', function(message)): When a message is received on the channel.
 * **on**('join', function(clientId)): When someone joins the channel.
 * **on**('leave', function(clientId)): When someone leaves the channel.

@@ -87,6 +87,7 @@ var Channel = (function (_super) {
     function Channel(client, name) {
         var _this = this;
         _super.call(this);
+        this.unsubscribeCallback = null;
         this.client = client;
         this.name = name;
         this.responses = {};
@@ -150,6 +151,13 @@ var Channel = (function (_super) {
         }
     };
 
+    Channel.prototype.unsubscribe = function (callback) {
+        var msg = new wire.WireChannelUnSubscribe();
+        msg.name = this.getName();
+        this.client.sendToServer(msg);
+        this.unsubscribeCallback = callback;
+    };
+
     Channel.prototype.onWireChannelMessage = function (msg) {
         var channelMessage = new ChannelMessage();
         channelMessage.channel = this;
@@ -188,6 +196,12 @@ var Channel = (function (_super) {
 
     Channel.prototype.onWireChannelDataDelete = function (msg) {
         this.getOrCreateChannelData(msg.ks).onWireChannelDataDelete(msg);
+    };
+
+    Channel.prototype.onWireChannelLeave = function (msg) {
+        if (this.unsubscribeCallback) {
+            this.unsubscribeCallback();
+        }
     };
 
     Channel.prototype.setChannelPermissions = function (perms) {
@@ -395,10 +409,6 @@ var AbstractBigBangClient = (function (_super) {
         this.sendToServer(msg);
     };
 
-    AbstractBigBangClient.prototype.unsubscribe = function (channel) {
-        throw new Error("Unimplemented: unsubscribe");
-    };
-
     AbstractBigBangClient.prototype.getClientId = function () {
         return this._clientId;
     };
@@ -486,6 +496,8 @@ var AbstractBigBangClient = (function (_super) {
     };
 
     AbstractBigBangClient.prototype.onWireChannelLeave = function (msg) {
+        var channel = this.channelMap[msg.name];
+        channel.onWireChannelLeave(msg);
     };
 
     AbstractBigBangClient.prototype.onWireChannelMessage = function (msg) {

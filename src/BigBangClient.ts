@@ -56,12 +56,6 @@ export interface BigBangClient {
     subscribe(channel:string, options?:any, callback?:(err:ChannelError, channel:Channel) =>any):void;
 
     /**
-     * Unsubscribe from the specified channel.
-     * @param channel
-     */
-    unsubscribe(channel:string):void;
-
-    /**
      * Returns your unique clientId for this connection. The clientId can
      * be used to identify messages from and to you.
      */
@@ -152,6 +146,8 @@ export class Channel extends SimpleEventEmitter {
     private currentSubscribers:Array<string>;
 
     private name:string;
+
+    private unsubscribeCallback:any = null;
 
     constructor(client:AbstractBigBangClient, name:string) {
         super();
@@ -244,6 +240,18 @@ export class Channel extends SimpleEventEmitter {
         }
     }
 
+    /**
+     * Unsubscribe from the specified channel.
+     * @param channel
+     */
+     public unsubscribe(callback:() => any):void {
+        var msg:wire.WireChannelUnSubscribe = new wire.WireChannelUnSubscribe();
+        msg.name = this.getName();
+        this.client.sendToServer(msg);
+        this.unsubscribeCallback = callback;
+    }
+
+
     ////////////////////////////////////////////////////////////////////////////
     // End of public interface
     ////////////////////////////////////////////////////////////////////////////
@@ -293,6 +301,12 @@ export class Channel extends SimpleEventEmitter {
 
     onWireChannelDataDelete(msg:wire.WireChannelDataDelete):void {
         this.getOrCreateChannelData(msg.ks).onWireChannelDataDelete(msg);
+    }
+
+    onWireChannelLeave(msg:wire.WireChannelLeave):void {
+        if(this.unsubscribeCallback) {
+            this.unsubscribeCallback();
+        }
     }
 
     setChannelPermissions(perms:Array<string>):void {
@@ -556,10 +570,6 @@ export class AbstractBigBangClient extends SimpleEventEmitter implements wire.Wi
         this.sendToServer(msg);
     }
 
-    unsubscribe(channel:string):void {
-        throw new Error("Unimplemented: unsubscribe");
-    }
-
     getClientId():string {
         return this._clientId;
     }
@@ -664,6 +674,8 @@ export class AbstractBigBangClient extends SimpleEventEmitter implements wire.Wi
     }
 
     onWireChannelLeave(msg:wire.WireChannelLeave) {
+        var channel:Channel = this.channelMap[msg.name];
+        channel.onWireChannelLeave(msg);
     }
 
     onWireChannelMessage(msg:wire.WireChannelMessage):void {
