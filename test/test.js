@@ -85,7 +85,7 @@ describe('client', function () {
     describe('#channelData', function () {
         it('should do awesome channelData stuff ', function (done) {
 
-            clientOnChannel(randomstring(), function (channel) {
+            clientOnChannel(randomstring(), function (client, channel) {
 
                 var ks = randomstring();
                 var thekey = randomstring();
@@ -94,10 +94,14 @@ describe('client', function () {
                 channel.getChannelData(ks).on('add', function (key, value) {
                     assert.equal(key, thekey);
                     assert.deepEqual(value, obj);
+                    assert.ok( channel.getNamespaces().indexOf(ks) != -1);
+
                 });
 
                 channel.getChannelData(ks).on('remove', function (key) {
                     assert.equal(key, thekey);
+                    //TODO can't yet assert this here, timing..
+                    //assert.ok( channel.getNamespaces().indexOf(ks) == -1);
                     done();
                 });
 
@@ -118,7 +122,7 @@ function clientOnChannel(name, callback) {
         bb.subscribe(name, function (err, channel) {
             assert(!err);
             assert(channel);
-            callback(channel);
+            callback(bb, channel);
         });
 
     });

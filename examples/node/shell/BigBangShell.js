@@ -1,5 +1,6 @@
 var bigbang = require("bigbang.io");
 var readline = require("readline");
+var freetree = require('ascii-tree');
 
 if (process.argv.length != 3) {
     console.log('Please supply a host.');
@@ -84,14 +85,29 @@ function updatePrompt() {
 
 function doLs() {
     if (myChannel) {
-        myChannel.getChannelData().getKeys().forEach(function (key) {
-            var o = myChannel.getChannelData().get(key);
-            console.log(key + "=> " + JSON.stringify(o));
-        });
-        console.log("");
 
-        console.log("subscribers: " + myChannel.getSubscribers());
-        printToConsole("");
+        var treeStr = "#" + myChannel.getName() + "\n";
+
+        treeStr += "##Subscribers" + "\n";
+        myChannel.getSubscribers().forEach(function (sub) {
+            treeStr += "###" + sub + "\n";
+        });
+
+        treeStr += "##Namespaces" + "\n";
+
+        myChannel.getNamespaces().forEach(function (ns) {
+            treeStr += "###" + ns + "\n";
+
+            var channelData = myChannel.getChannelData(ns);
+
+            channelData.getKeys().forEach(function (key) {
+                var o = channelData.get(key);
+
+                treeStr += "####" + key + " => " + JSON.stringify(o) + "\n";
+            });
+        });
+
+        printToConsole(freetree.generate(treeStr));
     } else {
         printToConsole("Not subscribed to a channel.");
     }

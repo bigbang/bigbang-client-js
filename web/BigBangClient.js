@@ -137,6 +137,18 @@ var Channel = (function (_super) {
         return subs;
     };
 
+    Channel.prototype.getNamespaces = function () {
+        var names = [];
+
+        Object.keys(this.keySpaces).forEach(function (key) {
+            if (key !== '_meta') {
+                names.push(key);
+            }
+        });
+
+        return names;
+    };
+
     Channel.prototype.publish = function (payload, callback) {
         if (this.hasPermission("Publish")) {
             this.publishByteArray(new pew.ByteArray(pew.base64_encode(JSON.stringify(payload))));
@@ -195,7 +207,13 @@ var Channel = (function (_super) {
     };
 
     Channel.prototype.onWireChannelDataDelete = function (msg) {
-        this.getOrCreateChannelData(msg.ks).onWireChannelDataDelete(msg);
+        var channelData = this.getOrCreateChannelData(msg.ks);
+
+        channelData.onWireChannelDataDelete(msg);
+
+        if (channelData.getKeys().length == 0) {
+            delete this.keySpaces[msg.ks];
+        }
     };
 
     Channel.prototype.onWireChannelLeave = function (msg) {
