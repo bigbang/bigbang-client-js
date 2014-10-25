@@ -46,16 +46,24 @@ function startCli() {
             doDel(line);
         } else if (startsWith(line, "pub ")) {
             doPublish(line);
-        } else if (startsWith(line, "subs ")) {
+        } else if (startsWith(line, "sub ")) {
             subscribeCommand(line);
+        } else if (startsWith(line, 'unsub')) {
+            leaveCommand(line);
         } else if (startsWith(line, "whoami")) {
             whoami();
         } else if (startsWith(line, "mode")) {
             jsonMode = !jsonMode;
             console.log("JSON mode is " + jsonMode);
         }
+        else if (line.length == 0) {
+            //swallow empty commands
+            rl.prompt();
+        }
+        else {
+            printToConsole("Unknown command: " + line);
+        }
 
-        rl.prompt();
     }).on('close', function () {
             console.log('Bye!');
             process.exit(0);
@@ -110,15 +118,15 @@ function subscribeCommand(line) {
         });
 
         myChannel.getChannelData().on('add', function (key, val) {
-            printToConsole(printToConsole("key " + key + " added."));
+            printToConsole("key added => " + key);
         });
 
         myChannel.getChannelData().on('update', function (key, value) {
-            printToConsole("key " + key + " updated.");
+            printToConsole("key updated => " + key);
         });
 
         myChannel.getChannelData().on('remove', function (key) {
-            printToConsole("key " + key + " removed.");
+            printToConsole("key removed => " + key);
         });
 
         printToConsole("Subscribed to " + channel.getName());
@@ -127,6 +135,14 @@ function subscribeCommand(line) {
         });
     });
 }
+
+function leaveCommand(line) {
+    myChannel.unsubscribe(function () {
+        myChannel = null;
+        updatePrompt();
+    });
+}
+
 
 function doPut(line) {
     if (myChannel) {

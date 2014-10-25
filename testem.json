@@ -15,11 +15,11 @@
     ],
     "launchers": {
         "node": {
-            "command": "./node_modules/.bin/mocha -r test/setup.js -R tap test/test.js",
+            "command": "./node_modules/.bin/mocha -r test/setup.js -R tap -t 5000 test/test.js",
             "protocol": "tap"
         }
     },
     "launch_in_dev": [
-        "node", "chrome"
+        "node","chrome"
     ]
 }

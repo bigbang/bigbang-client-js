@@ -1,4 +1,3 @@
-
 describe('client', function () {
 
     describe('#connect', function () {
@@ -59,6 +58,29 @@ describe('client', function () {
         })
     });
 
+    describe('#connect', function () {
+        it('should should subscribe and unsubscribe', function (done) {
+            var bb = new BigBang.Client();
+
+            bb.connect('http://demo.bigbang.io', function (err) {
+                assert.equal(err, null);
+
+                var channelName = randomstring(8);
+                bb.subscribe(channelName, function (err, channel) {
+                    assert(!err);
+                    assert(channel);
+
+                    channel.on('join', function (joined) {
+                        assert.equal(bb.getClientId(), joined);
+                    });
+
+                    channel.unsubscribe( function() {
+                        done();
+                    });
+                })
+            })
+        })
+    });
 
     describe('#channelData', function () {
         it('should do awesome channelData stuff ', function (done) {
