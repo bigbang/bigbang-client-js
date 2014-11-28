@@ -74,13 +74,23 @@ export class Client extends bigbang.AbstractBigBangClient implements wire.WirePr
         // Response handlers.
         xhr.onload = function () {
             var loginResult:bigbang.LoginResult = new bigbang.LoginResult();
-            var json = JSON.parse(xhr.responseText);
 
-            loginResult.authenticated = json.authenticated;
-            loginResult.clientKey = json.clientKey;
-            loginResult.message = json.message;
+            var json:any = null;
 
-            callback(loginResult);
+            try {
+                json = JSON.parse(xhr.responseText);
+                loginResult.authenticated = json.authenticated;
+                loginResult.clientKey = json.clientKey;
+                loginResult.message = json.message;
+
+                callback(loginResult);
+            }
+            catch(e) {
+                loginResult.authenticated = false;
+                loginResult.message = e.message;
+                callback(loginResult);
+            }
+
         };
 
         xhr.onerror = function () {
