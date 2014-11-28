@@ -9,7 +9,7 @@
   },
   "private": false,
   "dependencies": {
-    "websocket": "~1.0.8"
+    "faye-websocket": "0.8.1"
   },
   "keywords": [
     "bigbang",
