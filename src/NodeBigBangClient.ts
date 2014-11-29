@@ -8,12 +8,12 @@ import http = require("http");
 import https = require("https");
 import net = require("net");
 import bigbang = require("./BigBangClient");
-import ws = require("websocket");
+import ws = require("faye-websocket");
+//import ws = require("websocket");
 
 export class Client extends bigbang.AbstractBigBangClient implements wire.WireProtocolProtocolListener {
 
     private socket;
-    private connection;
 
     constructor() {
         super();
@@ -54,11 +54,11 @@ export class Client extends bigbang.AbstractBigBangClient implements wire.WirePr
 
     internalLogin(protocol:string, host:string, user:string, password:string, application:string, callback:(loginResult:bigbang.LoginResult) =>any) {
         var hostname = host.split(":")[0];
-        var port = parseInt( host.split(":")[1] );
+        var port = parseInt(host.split(":")[1]);
 
         var protocolHash = this.wireProtocol.protocolHash
 
-        var uri:string = protocol +"://"+ hostname + ":" + port;
+        var uri:string = protocol + "://" + hostname + ":" + port;
 
         if (!user && !password) {
             uri += "/loginAnon?application=" + application + "&wireprotocolhash=" + protocolHash;
@@ -74,18 +74,29 @@ export class Client extends bigbang.AbstractBigBangClient implements wire.WirePr
             method: 'GET'
         };
 
-        if( protocol == 'https') {
-            var req = https.request(options, function (res) {
-                res.on('data', function (data) {
-                    var loginResult:bigbang.LoginResult = new bigbang.LoginResult();
-                    var json = JSON.parse(data);
+        var req = null;
 
+        var responseHandler = function (res) {
+
+            res.setEncoding("UTF-8");
+            res.on('data', function (data) {
+                var loginResult:bigbang.LoginResult = new bigbang.LoginResult();
+
+                var json:any = null;
+
+                try {
+                    json = JSON.parse(data);
                     loginResult.authenticated = json.authenticated;
                     loginResult.clientKey = json.clientKey;
                     loginResult.message = json.message;
 
                     callback(loginResult);
-                });
+                }
+                catch (e) {
+                    loginResult.authenticated = false;
+                    loginResult.message = e.message;
+                    callback(loginResult);
+                }
             });
 
             req.on('error', function (e) {
@@ -96,74 +107,50 @@ export class Client extends bigbang.AbstractBigBangClient implements wire.WirePr
 
                 return callback(loginResult);
             });
+        }
 
-            req.end();
+
+        if (protocol == 'https') {
+            req = https.request(options, responseHandler);
         }
         else {
-           var req = http.request(options, function (res) {
-                res.setEncoding('utf8');
-                res.on('data', function (data) {
-                    var loginResult:bigbang.LoginResult = new bigbang.LoginResult();
-                    var json = JSON.parse(data);
-
-                    loginResult.authenticated = json.authenticated;
-                    loginResult.clientKey = json.clientKey;
-                    loginResult.message = json.message;
-
-                    callback(loginResult);
-                });
-            });
-
-            req.on('error', function (e) {
-                var loginResult:bigbang.LoginResult = new bigbang.LoginResult();
-
-                loginResult.authenticated = false;
-                loginResult.message = e.message;
-
-                return callback(loginResult);
-            });
-
-            req.end();
+            req = http.request(options, responseHandler);
         }
+
+        req.end();
+
     }
 
     internalConnect(protocol:string, host:string, clientKey:string, callback:(err:bigbang.ConnectionError) =>any):void {
         this._internalConnectionResult = callback;
         this._clientKey = clientKey;
-        this.socket = new ws.client();
 
-        this.socket.on('connectFailed', function (error) {
-            callback(new bigbang.ConnectionError(error));
-        });
-
-        this.socket.on('connect', (connection) => {
-            this.connection = connection;
-            this.onConnect();
-
-            connection.on('error', function (error) {
-                console.log('connection error ' + error);
-                // TODO: call disconnect?
-            });
-
-            connection.on('close', () => {
-                this.emit('disconnected', false);
-            });
-
-            connection.on('message', (message) => {
-                this.onReceiveText(message.utf8Data);
-            });
-        });
-
-        if( protocol === "https") {
-            this.socket.connect('wss://' + host);
+        if (protocol === "https") {
+            this.socket = new ws.Client('wss://' + host);
         }
         else {
-            this.socket.connect('ws://' + host);
+            this.socket = new ws.Client('ws://' + host);
         }
+
+        this.socket.on('open', (event) => {
+            this.onConnect();
+        });
+
+        this.socket.on('message', (message) => {
+            this.onReceiveText(message.data);
+        });
+
+        this.socket.on('close', (event) => {
+           this.emit('disconnected', false);
+        });
+
+        this.socket.on('error', (event) => {
+            console.error(event);
+        })
     }
 
     sendToServer(msg:pew.PewMessage):void {
         var s:string = this.wireProtocol.wrapNetstring(msg);
-        this.connection.sendUTF(s);
+        this.socket.send(s);
     }
 }

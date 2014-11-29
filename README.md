@@ -99,6 +99,7 @@ BigBang.Channel
 
 * **publish**(obj, function(err)): Publish *obj* to the channel. *obj* must be an object or array (for now).
 * **getChannelData**(namespace): Returns a *ChannelData* object for the given namespace. If no namespace is supplied a default will be used. Namespaces can be used to organize your channel's data.
+* **getNamespaces()**: Get the current *ChannelData* namespace names as an Array
 * **getSubscribers()**: Get the clientIds of the current subscribers on this channel as an Array.
 * **unsubscribe**(function()): Unsubscribe from the current channel.
 * **on**('message', function(message)): When a message is received on the channel.

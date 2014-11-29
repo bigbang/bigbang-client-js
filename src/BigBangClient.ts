@@ -218,6 +218,22 @@ export class Channel extends SimpleEventEmitter {
     }
 
     /**
+     * Get the names of the current channel data namespaces associated with the channel.
+     * @returns {Array<string>}
+     */
+    public getNamespaces():Array<string> {
+        var names:Array<string> = [];
+
+        Object.keys( this.keySpaces).forEach(function(key) {
+            if( key !== '_meta') {
+                names.push(key);
+            }
+        });
+
+        return names;
+    }
+
+    /**
      * Send a message to the channel. Payload can be any JSON object.
      * @param payload
      * @param callback
@@ -300,7 +316,15 @@ export class Channel extends SimpleEventEmitter {
     }
 
     onWireChannelDataDelete(msg:wire.WireChannelDataDelete):void {
-        this.getOrCreateChannelData(msg.ks).onWireChannelDataDelete(msg);
+        var channelData = this.getOrCreateChannelData(msg.ks);
+
+        channelData.onWireChannelDataDelete(msg);
+
+        //if we are empty, go away!
+        if(channelData.getKeys().length == 0 ) {
+            delete this.keySpaces[msg.ks];
+        }
+
     }
 
     onWireChannelLeave(msg:wire.WireChannelLeave):void {
