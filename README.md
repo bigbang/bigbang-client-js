@@ -40,8 +40,7 @@ Example
 Servers
 =======
 
-To connect to BigBang.io you'll need a server URL. You can use `http://demo.bigbang.io` to try things out. When you are ready, you can create a free Big Bang account and create your first application for free
-at [https://cloud.bigbang.io/](https://cloud.bigbang.io/).
+To connect to Big Bang you'll need a URL. You can use `http://demo.bigbang.io` to try things out. When you are ready, you can create your own application at [https://cloud.bigbang.io/](https://cloud.bigbang.io/).
 
 
 Channels
@@ -96,7 +95,7 @@ Connect to a Big Bang application at *url*.
 
 Disconnect from the server.
 
-**client.subscribe**(channelName, options, function(err, channel))
+### **client.subscribe**(channelName, options, function(err, channel))
 
 Subscribe to a 	channel called *channelName*. *channel* will be a Channel object.
 
@@ -129,7 +128,7 @@ Get a reference to the Channel object for the 	subscribed channel called *channe
 
 **Events**
 
-**on**('disconnected', function(reason)): 
+**client.on**('disconnected', function(reason)):
 
 
 Event is fired when the client has been disconnected, either from calling disconnect() or for reasons beyond your control.
