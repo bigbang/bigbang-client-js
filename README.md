@@ -110,9 +110,9 @@ Subscribe to a 	channel called *channelName*. *channel* will be a Channel object
 
 ### **client.getClientId**():
  
-Get your unique clientId. This identifies you to the server and to other users.
+Your unique identifier for this session. This identifies you to the server and to other users.
 
-** Returns ** `string` clientid
+**Returns** `string` clientId
  
 
 ### **client.getChannel**(channelName)
@@ -196,7 +196,7 @@ Fired when a subscriber joins the channel.
 
 ### **channel.on('leave', function(clientId))** 
 
-Fired when a scubscriber leaves the channel.
+Fired when a subscriber leaves the channel.
 
 BigBang.ChannelData
 -------------------
