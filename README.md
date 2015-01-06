@@ -86,8 +86,6 @@ Connect to a Big Bang application at *url*.
 
 - url `string` HTTP or HTTPS URL to your application.
 
-- options `object`
-
 - callback (`Error`)
 
 
@@ -102,8 +100,6 @@ Subscribe to a 	channel called *channelName*. *channel* will be a Channel object
 **Params**
 
 - channelName `string`
-
-- options `object`
 
 - callback (`Error`,`Channel`)
 
