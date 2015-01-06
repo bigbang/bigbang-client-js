@@ -3,7 +3,7 @@ var pew = require("./PewRuntime");
 var WireProtocol = (function () {
     function WireProtocol() {
         this.protocolId = 0;
-        this.protocolHash = '6d57e4b8c8746db1711874a131731111';
+        this.protocolHash = 'd96a44664eff8b2a710ded18e07ab927';
     }
     WireProtocol.prototype.wrapNetstring = function (msg) {
         var msgStr = msg.messageType + ":" + msg.serializeJson();
@@ -107,12 +107,24 @@ var WireProtocol = (function () {
 
                 break;
             case 15:
+                var WirePing_msg = new WirePing();
+                WirePing_msg.deserializeJson(msgBody);
+                this.listener.onWirePing(WirePing_msg);
+
+                break;
+            case 16:
+                var WirePong_msg = new WirePong();
+                WirePong_msg.deserializeJson(msgBody);
+                this.listener.onWirePong(WirePong_msg);
+
+                break;
+            case 17:
                 var WireQueueMessage_msg = new WireQueueMessage();
                 WireQueueMessage_msg.deserializeJson(msgBody);
                 this.listener.onWireQueueMessage(WireQueueMessage_msg);
 
                 break;
-            case 16:
+            case 18:
                 var WireRpcMessage_msg = new WireRpcMessage();
                 WireRpcMessage_msg.deserializeJson(msgBody);
                 this.listener.onWireRpcMessage(WireRpcMessage_msg);
@@ -515,6 +527,7 @@ var WireConnectSuccess = (function () {
     WireConnectSuccess.prototype.deserializeJson = function (json) {
         var obj = JSON.parse(json);
         this.clientId = obj.clientId;
+        this.clientToServerPingMS = obj.clientToServerPingMS;
     };
 
     WireConnectSuccess.prototype.setPewBitmask = function (flag) {
@@ -529,6 +542,7 @@ var WireConnectSuccess = (function () {
         return (this._pew_bitmask_ & flag) == flag;
     };
     WireConnectSuccess.clientId_IS_SET = 1 << 0;
+    WireConnectSuccess.clientToServerPingMS_IS_SET = 1 << 1;
     return WireConnectSuccess;
 })();
 exports.WireConnectSuccess = WireConnectSuccess;
@@ -584,9 +598,61 @@ var WireDisconnectSuccess = (function () {
     return WireDisconnectSuccess;
 })();
 exports.WireDisconnectSuccess = WireDisconnectSuccess;
+var WirePing = (function () {
+    function WirePing() {
+        this.messageType = 15;
+    }
+    WirePing.prototype.serializeJson = function () {
+        return JSON.stringify(this);
+    };
+
+    WirePing.prototype.deserializeJson = function (json) {
+        var obj = JSON.parse(json);
+    };
+
+    WirePing.prototype.setPewBitmask = function (flag) {
+        this._pew_bitmask_ |= flag;
+    };
+
+    WirePing.prototype.unsetPewBitmask = function (flag) {
+        this._pew_bitmask_ &= flag;
+    };
+
+    WirePing.prototype.pewBitmaskIsSetFor = function (flag) {
+        return (this._pew_bitmask_ & flag) == flag;
+    };
+    return WirePing;
+})();
+exports.WirePing = WirePing;
+var WirePong = (function () {
+    function WirePong() {
+        this.messageType = 16;
+    }
+    WirePong.prototype.serializeJson = function () {
+        return JSON.stringify(this);
+    };
+
+    WirePong.prototype.deserializeJson = function (json) {
+        var obj = JSON.parse(json);
+    };
+
+    WirePong.prototype.setPewBitmask = function (flag) {
+        this._pew_bitmask_ |= flag;
+    };
+
+    WirePong.prototype.unsetPewBitmask = function (flag) {
+        this._pew_bitmask_ &= flag;
+    };
+
+    WirePong.prototype.pewBitmaskIsSetFor = function (flag) {
+        return (this._pew_bitmask_ & flag) == flag;
+    };
+    return WirePong;
+})();
+exports.WirePong = WirePong;
 var WireQueueMessage = (function () {
     function WireQueueMessage() {
-        this.messageType = 15;
+        this.messageType = 17;
     }
     WireQueueMessage.prototype.serializeJson = function () {
         return JSON.stringify(this);
@@ -618,7 +684,7 @@ var WireQueueMessage = (function () {
 exports.WireQueueMessage = WireQueueMessage;
 var WireRpcMessage = (function () {
     function WireRpcMessage() {
-        this.messageType = 16;
+        this.messageType = 18;
     }
     WireRpcMessage.prototype.serializeJson = function () {
         return JSON.stringify(this);

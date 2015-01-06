@@ -546,6 +546,10 @@ var AbstractBigBangClient = (function (_super) {
         cr.success = true;
         cr.message = null;
         this._internalConnectionResult(null, cr);
+
+        setInterval(function () {
+            this.sendToServer(new wire.WirePing());
+        }.bind(this), msg.clientToServerPingMS);
     };
 
     AbstractBigBangClient.prototype.onWireChannelDataCreate = function (msg) {
@@ -602,6 +606,13 @@ var AbstractBigBangClient = (function (_super) {
 
     AbstractBigBangClient.prototype.onWireChannelSubscribe = function (msg) {
         console.log('Unimplemented: onWireChannelSubscribe');
+    };
+
+    AbstractBigBangClient.prototype.onWirePing = function (msg) {
+        this.sendToServer(new wire.WirePong());
+    };
+
+    AbstractBigBangClient.prototype.onWirePong = function (msg) {
     };
 
     AbstractBigBangClient.prototype.parseUrl = function (url) {
