@@ -17,6 +17,9 @@
     "real-time",
     "websocket",
     "big bang",
+    "publish",
+    "subscribe",
+    "pubsub",
     "iot"
   ],
   "devDependencies": {
