@@ -10,7 +10,7 @@ export class WireProtocol implements pew.PewProtocol  {
 
   constructor() {
     this.protocolId =  0;
-    this.protocolHash = '6d57e4b8c8746db1711874a131731111';
+    this.protocolHash = 'd96a44664eff8b2a710ded18e07ab927';
   }
 
   listener : WireProtocolProtocolListener;
@@ -120,12 +120,24 @@ export class WireProtocol implements pew.PewProtocol  {
 
                    break;
                  case 15:
+                   var WirePing_msg: WirePing = new WirePing();
+                   WirePing_msg.deserializeJson( msgBody );
+                   this.listener.onWirePing( WirePing_msg );
+
+                   break;
+                 case 16:
+                   var WirePong_msg: WirePong = new WirePong();
+                   WirePong_msg.deserializeJson( msgBody );
+                   this.listener.onWirePong( WirePong_msg );
+
+                   break;
+                 case 17:
                    var WireQueueMessage_msg: WireQueueMessage = new WireQueueMessage();
                    WireQueueMessage_msg.deserializeJson( msgBody );
                    this.listener.onWireQueueMessage( WireQueueMessage_msg );
 
                    break;
-                 case 16:
+                 case 18:
                    var WireRpcMessage_msg: WireRpcMessage = new WireRpcMessage();
                    WireRpcMessage_msg.deserializeJson( msgBody );
                    this.listener.onWireRpcMessage( WireRpcMessage_msg );
@@ -153,6 +165,8 @@ export interface WireProtocolProtocolListener {
         onWireConnectSuccess(  msg:WireConnectSuccess ); 
         onWireDisconnectRequest(  msg:WireDisconnectRequest ); 
         onWireDisconnectSuccess(  msg:WireDisconnectSuccess ); 
+        onWirePing(  msg:WirePing ); 
+        onWirePong(  msg:WirePong ); 
         onWireQueueMessage(  msg:WireQueueMessage ); 
         onWireRpcMessage(  msg:WireRpcMessage ); 
 
@@ -706,10 +720,12 @@ export class WireChannelDataCreate implements pew.PewMessage {
 
     // Bitmask flags for optional field serialization support
     private static clientId_IS_SET : number = 1 << 0;
+    private static clientToServerPingMS_IS_SET : number = 1 << 1;
 
 
 
     clientId: string;
+    clientToServerPingMS: number;
 
     _pew_bitmask_:number;
 
@@ -720,6 +736,7 @@ export class WireChannelDataCreate implements pew.PewMessage {
     deserializeJson( json ) {
         var obj = JSON.parse( json );
         this.clientId = obj.clientId;
+        this.clientToServerPingMS = obj.clientToServerPingMS;
 
     }
 
@@ -801,10 +818,76 @@ export class WireChannelDataCreate implements pew.PewMessage {
         return (this._pew_bitmask_ & flag) == flag;
     }
 
-} export class WireQueueMessage implements pew.PewMessage {
+} export class WirePing implements pew.PewMessage {
 
     constructor( ) {
         this.messageType = 15;
+    }
+
+    messageType: number;
+
+    // Bitmask flags for optional field serialization support
+
+
+    _pew_bitmask_:number;
+
+    serializeJson( ) {
+        return JSON.stringify(this);
+    }
+
+    deserializeJson( json ) {
+        var obj = JSON.parse( json );
+    }
+
+    setPewBitmask(flag:number) : void {
+        this._pew_bitmask_ |= flag;
+    }
+
+    unsetPewBitmask(flag:number) : void {
+        this._pew_bitmask_ &= flag;
+    }
+
+    pewBitmaskIsSetFor(flag:number) : boolean {
+        return (this._pew_bitmask_ & flag) == flag;
+    }
+
+} export class WirePong implements pew.PewMessage {
+
+    constructor( ) {
+        this.messageType = 16;
+    }
+
+    messageType: number;
+
+    // Bitmask flags for optional field serialization support
+
+
+    _pew_bitmask_:number;
+
+    serializeJson( ) {
+        return JSON.stringify(this);
+    }
+
+    deserializeJson( json ) {
+        var obj = JSON.parse( json );
+    }
+
+    setPewBitmask(flag:number) : void {
+        this._pew_bitmask_ |= flag;
+    }
+
+    unsetPewBitmask(flag:number) : void {
+        this._pew_bitmask_ &= flag;
+    }
+
+    pewBitmaskIsSetFor(flag:number) : boolean {
+        return (this._pew_bitmask_ & flag) == flag;
+    }
+
+} export class WireQueueMessage implements pew.PewMessage {
+
+    constructor( ) {
+        this.messageType = 17;
     }
 
     messageType: number;
@@ -850,7 +933,7 @@ export class WireChannelDataCreate implements pew.PewMessage {
 } export class WireRpcMessage implements pew.PewMessage {
 
     constructor( ) {
-        this.messageType = 16;
+        this.messageType = 18;
     }
 
     messageType: number;

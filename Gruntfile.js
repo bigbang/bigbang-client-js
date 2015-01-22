@@ -12,7 +12,8 @@ module.exports = function (grunt) {
                 options: {
                     module: 'commonjs',
                     target: 'es5',
-                    basePath: 'src'
+                    basePath: 'src',
+                    watch: false
                 }
             },
             web: {
@@ -45,7 +46,7 @@ module.exports = function (grunt) {
         },
         exec: {
             pewGenerate: {
-                command: 'pew -c client -l typescript -i ../bigbang-io/src/main/pew/WireProtocol.pew -o lib'
+                command: 'pew -c client -l typescript -i ../pulsar/src/main/pew/WireProtocol.pew -o src'
             }
         }
     });
