@@ -20,5 +20,8 @@
     "tests",
     "lib"
   ],
-  "private" : false
+  "private": false,
+  "dependencies": {
+    "sockjs-client": "~0.3.4"
+  }
 }
