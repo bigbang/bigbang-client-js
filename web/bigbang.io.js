@@ -350,7 +350,7 @@ function base64Write (buf, string, offset, length) {
 }
 
 function utf16leWrite (buf, string, offset, length) {
-  var charsWritten = blitBuffer(utf16leToBytes(string), buf, offset, length, 2)
+  var charsWritten = blitBuffer(utf16leToBytes(string), buf, offset, length)
   return charsWritten
 }
 
@@ -838,7 +838,7 @@ Buffer.prototype.copy = function (target, target_start, start, end) {
 
   var len = end - start
 
-  if (len < 1000 || !Buffer.TYPED_ARRAY_SUPPORT) {
+  if (len < 100 || !Buffer.TYPED_ARRAY_SUPPORT) {
     for (var i = 0; i < len; i++) {
       target[i + target_start] = this[i + start]
     }
@@ -907,7 +907,6 @@ var BP = Buffer.prototype
  * Augment a Uint8Array *instance* (not the Uint8Array class!) with Buffer methods
  */
 Buffer._augment = function (arr) {
-  arr.constructor = Buffer
   arr._isBuffer = true
 
   // save reference to original Uint8Array get/set methods before overwriting
@@ -1034,8 +1033,7 @@ function base64ToBytes (str) {
   return base64.toByteArray(str)
 }
 
-function blitBuffer (src, dst, offset, length, unitSize) {
-  if (unitSize) length -= length % unitSize;
+function blitBuffer (src, dst, offset, length) {
   for (var i = 0; i < length; i++) {
     if ((i + offset >= dst.length) || (i >= src.length))
       break
@@ -2036,14 +2034,15 @@ var Client = (function (_super) {
         var ws;
 
         if (protocol === "https") {
-            ws = "wss://" + host + "/";
+            ws = "https://" + host + "/_api/connect";
         } else {
-            ws = "ws://" + host + "/";
+            ws = "http://" + host + "/_api/connect";
         }
 
-        this.socket = new WebSocket(ws);
+        this.socket = new SockJS(ws, null, { transports: ['jsonp-polling'] });
 
         this.socket.onopen = function (event) {
+            console.log("OPENED " + JSON.stringify(event));
             setTimeout(function () {
                 _this.onConnect();
             }, 0);
@@ -2056,10 +2055,6 @@ var Client = (function (_super) {
 
         this.socket.onclose = function (event) {
             _this.emit('disconnected', false);
-        };
-
-        this.socket.onerror = function (event) {
-            console.error("WebSocket error: " + event);
         };
     };
 

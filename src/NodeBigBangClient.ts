@@ -124,10 +124,10 @@ export class Client extends bigbang.AbstractBigBangClient implements wire.WirePr
         this._clientKey = clientKey;
 
         if (protocol === "https") {
-            this.socket = new ws.Client('wss://' + host);
+            this.socket = new ws.Client('wss://' + host +'/sjs/websocket');
         }
         else {
-            this.socket = new ws.Client('ws://' + host);
+            this.socket = new ws.Client('ws://' + host + '/sjs/websocket');
         }
 
         this.socket.on('open', (event) => {
