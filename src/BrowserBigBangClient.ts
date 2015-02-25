@@ -124,7 +124,6 @@ export class Client extends bigbang.AbstractBigBangClient implements wire.WirePr
         this.socket = new SockJS(ws );
 
         this.socket.onopen = (event) => {
-            console.log("OPENED " + JSON.stringify(event));
             setTimeout(()=> {
                 this.onConnect();
             }, 0);
