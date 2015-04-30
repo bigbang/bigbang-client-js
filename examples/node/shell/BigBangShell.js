@@ -14,7 +14,7 @@ var jsonMode = true;
 var client = new bigbang.Client();
 var myChannel;
 
-client.on('disconnect', function () {
+client.on('disconnected', function () {
     console.log("The socket was disconnected, bye.");
 });
 

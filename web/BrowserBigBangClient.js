@@ -104,14 +104,15 @@ var Client = (function (_super) {
         var ws;
 
         if (protocol === "https") {
-            ws = "wss://" + host + "/";
+            ws = "https://" + host + "/_api/connect";
         } else {
-            ws = "ws://" + host + "/";
+            ws = "http://" + host + "/_api/connect";
         }
 
-        this.socket = new WebSocket(ws);
+        this.socket = new SockJS(ws, null, { transports: ['jsonp-polling'] });
 
         this.socket.onopen = function (event) {
+            console.log("OPENED " + JSON.stringify(event));
             setTimeout(function () {
                 _this.onConnect();
             }, 0);
@@ -124,10 +125,6 @@ var Client = (function (_super) {
 
         this.socket.onclose = function (event) {
             _this.emit('disconnected', false);
-        };
-
-        this.socket.onerror = function (event) {
-            console.error("WebSocket error: " + event);
         };
     };
 

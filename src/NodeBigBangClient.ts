@@ -9,7 +9,6 @@ import https = require("https");
 import net = require("net");
 import bigbang = require("./BigBangClient");
 import ws = require("faye-websocket");
-//import ws = require("websocket");
 
 export class Client extends bigbang.AbstractBigBangClient implements wire.WireProtocolProtocolListener {
 
@@ -98,15 +97,6 @@ export class Client extends bigbang.AbstractBigBangClient implements wire.WirePr
                     callback(loginResult);
                 }
             });
-
-            req.on('error', function (e) {
-                var loginResult:bigbang.LoginResult = new bigbang.LoginResult();
-
-                loginResult.authenticated = false;
-                loginResult.message = e.message;
-
-                return callback(loginResult);
-            });
         }
 
 
@@ -117,8 +107,16 @@ export class Client extends bigbang.AbstractBigBangClient implements wire.WirePr
             req = http.request(options, responseHandler);
         }
 
-        req.end();
+        req.on('error', function (e) {
+            var loginResult:bigbang.LoginResult = new bigbang.LoginResult();
 
+            loginResult.authenticated = false;
+            loginResult.message = e.message;
+
+            return callback(loginResult);
+        });
+
+        req.end();
     }
 
     internalConnect(protocol:string, host:string, clientKey:string, callback:(err:bigbang.ConnectionError) =>any):void {
@@ -126,10 +124,10 @@ export class Client extends bigbang.AbstractBigBangClient implements wire.WirePr
         this._clientKey = clientKey;
 
         if (protocol === "https") {
-            this.socket = new ws.Client('wss://' + host);
+            this.socket = new ws.Client('wss://' + host +'/sjs/websocket');
         }
         else {
-            this.socket = new ws.Client('ws://' + host);
+            this.socket = new ws.Client('ws://' + host + '/sjs/websocket');
         }
 
         this.socket.on('open', (event) => {

@@ -1,6 +1,7 @@
 ///<reference path="PewRuntime.ts"/>
 ///<reference path="WireProtocol.Protocol.ts"/>
 ///<reference path="node.d.ts"/>
+///<reference path="sockjs.d.ts"/>
 import pew = require("./PewRuntime");
 import wire = require("./WireProtocol.Protocol");
 import http = require("http");
@@ -9,7 +10,9 @@ import bigbang = require("./BigBangClient");
 
 export class Client extends bigbang.AbstractBigBangClient implements wire.WireProtocolProtocolListener {
 
-    private socket:WebSocket;
+    //private socket:WebSocket;
+    private socket:SockJS;
+
 
     constructor() {
         super();
@@ -112,13 +115,13 @@ export class Client extends bigbang.AbstractBigBangClient implements wire.WirePr
         var ws:string;
 
         if(protocol === "https" ) {
-            ws = "wss://" + host + "/";
+            ws = "https://" + host + "/_api/connect";
         }
         else {
-            ws = "ws://" + host + "/";
+            ws = "http://" + host + "/_api/connect";
         }
 
-        this.socket = new WebSocket(ws);
+        this.socket = new SockJS(ws );
 
         this.socket.onopen = (event) => {
             setTimeout(()=> {
@@ -135,10 +138,12 @@ export class Client extends bigbang.AbstractBigBangClient implements wire.WirePr
             this.emit('disconnected', false);
         };
 
+        /*
         this.socket.onerror = function (event) {
             console.error("WebSocket error: " + event);
             // TODO: call disconnect?
         };
+        */
     }
 
     sendToServer(msg:pew.PewMessage):void {

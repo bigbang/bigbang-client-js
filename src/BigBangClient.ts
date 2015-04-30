@@ -732,6 +732,12 @@ export class AbstractBigBangClient extends SimpleEventEmitter implements wire.Wi
         cr.success = true;
         cr.message = null;
         this._internalConnectionResult(null, cr);
+
+        //Start up clientToServerPing at specified rate
+        setInterval(function() {
+            this.sendToServer(new wire.WirePing());
+        }.bind(this),msg.clientToServerPingMS );
+
     }
 
     onWireChannelDataCreate(msg:wire.WireChannelDataCreate):void {
@@ -792,6 +798,15 @@ export class AbstractBigBangClient extends SimpleEventEmitter implements wire.Wi
 
     onWireChannelSubscribe(msg:wire.WireChannelSubscribe) {
         console.log('Unimplemented: onWireChannelSubscribe');
+    }
+
+    onWirePing( msg:wire.WirePing) {
+        //Turn around and send it back.
+        this.sendToServer(new wire.WirePong());
+    }
+
+    onWirePong( msg:wire.WirePong ) {
+        //Check for liveness at some point if we dont get answers.
     }
 
     /**

@@ -3,6 +3,7 @@
     "serve_files": [
         "web/bigbang.io.js",
         "node_modules/chai/chai.js",
+        "bower_components/sockjs-client/dist/sockjs.js",
         "test/*.js"
     ],
     "src_files": [

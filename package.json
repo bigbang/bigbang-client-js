@@ -1,6 +1,6 @@
 {
   "name": "bigbang.io",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "main": "lib/NodeBigBangClient.js",
   "description": "Create realtime applications in seconds with Big Bang.",
   "repository": {
@@ -17,6 +17,10 @@
     "real-time",
     "websocket",
     "big bang",
+    "publish",
+    "subscribe",
+    "pubsub",
+    "socket",
     "iot"
   ],
   "devDependencies": {
