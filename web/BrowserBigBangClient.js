@@ -109,10 +109,9 @@ var Client = (function (_super) {
             ws = "http://" + host + "/_api/connect";
         }
 
-        this.socket = new SockJS(ws, null, { transports: ['jsonp-polling'] });
+        this.socket = new SockJS(ws);
 
         this.socket.onopen = function (event) {
-            console.log("OPENED " + JSON.stringify(event));
             setTimeout(function () {
                 _this.onConnect();
             }, 0);
