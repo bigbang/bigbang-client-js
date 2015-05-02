@@ -5,3 +5,4 @@ examples/web/hello/bower_components
 src/*.js
 src/*.js.map
 bower_components
+examples/web/hello/js/vendor

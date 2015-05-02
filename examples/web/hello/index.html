@@ -7,8 +7,8 @@
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
     <script type="text/javascript" src="js/pnglib.js"></script>
     <script type="text/javascript" src="js/identicon.js"></script>
-    <script type="text/javascript" src="bower_components/bigbang.io/web/bigbang.io.min.js"></script>
-
+    <script type="text/javascript" src="js/vendor/bigbang.io/web/bigbang.io.min.js"></script>
+    <script type="text/javascript" src="js/vendor/sockjs-client/dist/sockjs.js"></script>
     <link rel="stylesheet" type="text/css" href="css/style.css"/>
     <script type="text/javascript">
         $(document).ready(function () {
@@ -17,12 +17,12 @@
             var client = new BigBang.Client();
 
             //Demo application.
-            var host = "http://demo.bigbang.io";
+            var host = "https://demo.bigbang.io";
 
             client.connect(host, function (err) {
 
                 if (err) {
-                    alert("Failed to connect to " + host);
+                    alert("Failed to connect to " + host + " " + err);
                     return;
                 }
 
@@ -35,7 +35,6 @@
 
                 });
             });
-
 
             function beginChat(channel) {
 

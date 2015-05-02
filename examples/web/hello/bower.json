@@ -15,7 +15,7 @@
     "tests"
   ],
   "dependencies": {
-    "bigbang.io": "0.0.5",
+    "bigbang.io": "0.0.6",
     "bootstrap": "~3.2.0"
   }
 }
