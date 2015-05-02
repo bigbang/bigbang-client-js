@@ -11,7 +11,10 @@
 <script type="text/javascript">
     var client = new BigBang.Client();
     client.connect('http://demo.bigbang.io', function(err) {
-        if (err) return;
+        if (err) {
+            alert("Unable to connect: " + err);
+            return;
+        }
         console.log('Connected as ' + client.getClientId());
 
         client.subscribe('my-channel', function(err, channel) {
