@@ -5,7 +5,7 @@
 
 body {
     font-family: "Roboto", sans-serif;
-    font-size: 24px;
+    font-size: 20px;
     background: url('../images/bg.jpg') no-repeat center center fixed;
     -webkit-background-size: cover;
     -moz-background-size: cover;
@@ -34,42 +34,7 @@ body {
     background: white;
 }
 
-#chat-area span {
-    color: white;
-    background: #333;
-    padding: 4px 8px;
-
-}
-
-#chat-area p {
-    padding: 8px 0;
-}
-
-#name-area {
-    position: absolute;
-    top: 12px;
-    right: 0;
-    color: white;
-    font-family: "Roboto", sans-serif;
-    font-size: 20px;
-    text-align: right;
-}
-
-#sendie {
+#sender {
     font-family: "Roboto", sans-serif;
     font-size: 20px;
 }
-
-#chat-left {
-    float: left;
-    width: 32px;
-    height: 32px;
-}
-
-#chat-right {
-    float: right;
-    width: 32px;
-    height: 32px;
-}
-
-

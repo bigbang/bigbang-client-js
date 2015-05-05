@@ -1,5 +1,6 @@
 var chatChannel;
 
+
 $(document).ready(function () {
 
     //Create an instance of the BigBangClient
@@ -22,53 +23,62 @@ $(document).ready(function () {
             }
             chatChannel = channel;
 
-            beginChat(channel);
+
+            channel.on('message', function (msg) {
+                //We can take different actions depending on who sent the message.
+                var align = msg.senderId === client.getClientId() ? 'left' : 'right';
+
+                writeMessage(msg.senderId, align, msg.payload.getBytesAsJSON().msg);
+            });
+
+            channel.on('join', function (joined) {
+                var message = (joined === client.getClientId()) ? "You joined the chat." : " joined the chat.";
+                writeMessage(joined, 'left', message);
+            });
+
+            channel.on('leave', function (leave) {
+                writeMessage(leave, 'left', "left the chat.");
+            });
+
+            //Send the message if the user hits enter.
+            $('#sender').keyup(function (e) {
+                if (e.keyCode == 13) {
+                    handleClick(e);
+                }
+            });
         });
     });
 
-    function beginChat(channel) {
+    function writeMessage(clientId, align, text) {
 
-        channel.on('message', function (msg) {
-            writeMessage(msg.senderId, msg.payload.getBytesAsJSON().msg);
-        });
-
-        channel.on('join', function (joined) {
-            writeMessage(joined, "Joined the channel.");
-        });
-
-        channel.on('leave', function (leave) {
-            writeMessage(left, "Left the channel.");
-        });
-
-        $('#sendie').keyup(function (e) {
-            if (e.keyCode == 13) {
-                var text = $(this).val();
-                channel.publish({msg: text});
-                $(this).val("");
-            }
-        });
-    }
-
-    function writeMessage(clientId, text) {
         var icon = new Identicon(clientId, 32).toString();
+        var image = "<img class='media-object' src='data:image/png;base64," + icon + "'>";
+        var mediaRoot = $('<div class="media"></div>');
+        var link = $('<a href="#"></a>')
+        var mediaLeft = $('<div class="media-left media-middle"></div>')
+        var mediaRight = $('<div class="media-right media-middle"></div>')
+        var mediaBody = $('<div class="media-body"></div>').append(text);
 
-        var img;
+        link.append(image);
 
-        if( clientId === client.getClientId()) {
-            img = "<img id='chat-left' src='data:image/png;base64," + icon + "'>";
-            $('#chat-area').append($("<p>" + text + img + "<br style='clear: both;' />  </p>"));
+        if (align === 'left') {
+            mediaLeft.append(link);
+            mediaRoot.append(mediaLeft);
+            mediaRoot.append(mediaBody);
         }
         else {
-            img = "<img id='chat-right' src='data:image/png;base64," + icon + "'>";
-            $('#chat-area').append($("<p>" + text + img + "<br style='clear: both;' />  </p>"));
+            mediaRight.append(link);
+            mediaRoot.append(mediaBody);
+            mediaRoot.append(mediaRight);
         }
 
+        $('#chat-area').append(mediaRoot);
         document.getElementById('chat-area').scrollTop = document.getElementById('chat-area').scrollHeight;
     }
 });
 
 function handleClick(e) {
-    var text = $('#sendie').val();
+    var text = $('#sender').val();
     chatChannel.publish({msg: text});
-    $('#sendie').val("");
+    $('#sender').val("");
 }
