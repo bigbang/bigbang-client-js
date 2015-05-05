@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Big Bang - Hello Chat</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
+
+    <!-- custom styles for the chat example -->
+    <link rel="stylesheet" href="css/style.css"/>
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="//oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+<body>
+
+<div class="container">
+    <!-- Navbar and Logo container -->
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">
+                    <img alt="Brand" height=75 src="images/logo.png">
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h2 class="panel-title">Big Bang - Hello Chat</h2>
+                </div>
+                <div id='chat-area' class="panel-body"
+                     style="max-height: 300px; min-height:300px;overflow-y: scroll;">
+                </div>
+                <div class="panel-footer">
+                    <div class="input-group">
+                        <input id='sender' type="text" class="form-control" placeholder="chat here...">
+                <span class="input-group-btn">
+                <button class="btn btn-default" type="button" onclick='handleClick()'>CHAT</button>
+                </span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!--
+ ┌─────────────────────────────────────────────────────────────────────────┐
+ │                                                                         │
+ │        ____ ___ ____ ____    _    _   _  ____   ____  ____  _  __       │
+ │       | __ )_ _/ ___| __ )  / \  | \ | |/ ___| / ___||  _ \| |/ /       │
+ │       |  _ \| | |  _|  _ \ / _ \ |  \| | |  _  \___ \| | | | ' /        │
+ │       | |_) | | |_| | |_) / ___ \| |\  | |_| |  ___) | |_| | . \        │
+ │       |____/___\____|____/_/   \_\_| \_|\____| |____/|____/|_|\_\       │
+ │                                                                         │
+ │                                                                         │
+ └─────────────────────────────────────────────────────────────────────────┘
+  Include bigbang.js and sockjs to use the Big Bang SDK in a browser.
+-->
+<script type="text/javascript" src="js/vendor/bigbang.io.min.js"></script>
+<!-- Make sure to include SockJS as well.  Required for Big Bang SDK -->
+<script type="text/javascript" src="//cdn.jsdelivr.net/sockjs/0.3.4/sockjs.min.js"></script>
+
+
+<!-- pnglib and identicon helps us make some fun deterministic icons based on the clientID -->
+<script type="text/javascript" src="js/vendor/pnglib.js"></script>
+<script type="text/javascript" src="js/vendor/identicon.js"></script>
+<!-- Bootstrap stuff -->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<!-- Our main javascript -->
+<script src="js/main.js"></script>
+</body>
+</html>

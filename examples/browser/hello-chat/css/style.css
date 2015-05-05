@@ -1,0 +1,40 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: "Roboto", sans-serif;
+    font-size: 20px;
+    background: url('../images/bg.jpg') no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    padding-top: 150px;
+}
+
+.margin-base-vertical {
+    margin: 40px 0;
+}
+
+.navbar-brand {
+    height: 110px;
+}
+
+.navbar-collapse {
+    overflow: hidden;
+}
+
+#chat-area {
+    max-height: 300px;
+    min-height: 300px;
+    overflow-y: scroll;
+    padding: 20px;
+    background: white;
+}
+
+#sender {
+    font-family: "Roboto", sans-serif;
+    font-size: 20px;
+}
