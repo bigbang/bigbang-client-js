@@ -1,4 +1,4 @@
-Big Bang Client SDK
+Big Bang Javascript Client SDK
 =================
 
 Big Bang lets you create realtime applications in seconds.  It makes event streaming and data synchronization a snap!
