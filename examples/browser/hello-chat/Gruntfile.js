@@ -10,7 +10,7 @@ module.exports = function (grunt) {
                 // the server root directory
                 root: ".",
 
-                port: 8282,
+                port: 8080,
                 // port: function() { return 8282; }
 
                 host: "127.0.0.1",
@@ -29,4 +29,5 @@ module.exports = function (grunt) {
     });
 
     grunt.loadNpmTasks('grunt-http-server');
+    grunt.registerTask('default', ['http-server:dev']);
 }
