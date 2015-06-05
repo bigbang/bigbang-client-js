@@ -34,12 +34,11 @@ export class SimpleEventEmitter {
  */
 export interface BigBangClient {
     /**
-     * Connect to BigBang using the specified url.
-     * @param url
+     * Connect to Big Bang.
      * @param options
      * @param callback
      */
-    connect(url:any, options?:any, callback?:(err:ConnectionError) => any):void;
+    connect(options?:any, callback?:(err:ConnectionError) => any):void;
 
     /**
      * Disconnect from BigBang.
@@ -74,6 +73,21 @@ export interface BigBangClient {
      * @param listener
      */
     on(event:string, listener:(event:any) => any):void;
+
+    /**
+     * Create an email/password user
+     * @param email
+     * @param password
+     * @param callback
+     */
+    createUser( email:string, password:string, callback?:(err:CreateUserError) => any):void;
+
+    /**
+     * Reset password.
+     * @param email
+     * @param callback
+     */
+    resetPassword( email:String, callback?:(err:ResetPasswordError) => any):void;
 }
 
 export class LoginResult {
@@ -90,6 +104,30 @@ export class ConnectionError {
     }
 
     toString():string {
+        return this.message;
+    }
+}
+
+export class CreateUserError {
+    message:string;
+
+    constructor(msg:string) {
+        this.message = msg;
+    }
+
+    toString():string{
+        return this.message;
+    }
+}
+
+export class ResetPasswordError {
+    message:string;
+
+    constructor(msg:string) {
+        this.message = msg;
+    }
+
+    toString():string{
         return this.message;
     }
 }
@@ -553,6 +591,7 @@ export class AbstractBigBangClient extends SimpleEventEmitter implements wire.Wi
     _internalConnectionResult;
     _clientId:string;
     _clientKey:string;
+    _appUrl:string;
 
 
     channelSubscribeMap:{ [channeId:string]: (err:ChannelError, channel:Channel) =>any };
@@ -562,8 +601,9 @@ export class AbstractBigBangClient extends SimpleEventEmitter implements wire.Wi
 
     bufString:string = "";
 
-    constructor() {
+    constructor(appUrl:string) {
         super();
+        this._appUrl = appUrl;
         this.wireProtocol = new wire.WireProtocol();
         this.wireProtocol.listener = this;
         this.connect = this.connect.bind(this);
@@ -575,6 +615,14 @@ export class AbstractBigBangClient extends SimpleEventEmitter implements wire.Wi
     }
 
     connect(url:any, options?:any, callback?:(err:ConnectionError) => any):void {
+        throw new Error("abstract");
+    }
+
+    createUser( email:string, password:string, callback?:(err:CreateUserError) => any):void {
+        throw new Error("abstract");
+    }
+
+    resetPassword( email:String, callback?:(err:ResetPasswordError) => any):void {
         throw new Error("abstract");
     }
 

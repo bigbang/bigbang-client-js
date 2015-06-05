@@ -1,10 +1,10 @@
-var TEST_HOST = 'localhost:8888';
+var TEST_HOST = 'demo.bigbang.io';
 
 describe('client', function () {
 
     describe('#connect', function () {
         it('should connect successfuly', function (done) {
-            var bb = new BigBang.Client();
+            var bb = new BigBang.Client( 'http://' + TEST_HOST );
             bb.connect('http://' + TEST_HOST, function (err) {
                 assert.equal(err, null);
                 done();
@@ -14,8 +14,8 @@ describe('client', function () {
 
     describe('#connect', function () {
         it('should should fail gracefully', function (done) {
-            var bb = new BigBang.Client();
-            bb.connect('http://hugenondexistintdomainthingfoobar.bigbang.io', function (err) {
+            var bb = new BigBang.Client('http://hugenondexistintdomainthingfoobar.bigbang.io' );
+            bb.connect(function (err) {
                 assert(err);
                 done();
             })
@@ -25,8 +25,8 @@ describe('client', function () {
     /*
     describe('#connect', function () {
         it('should connect successfuly via https', function (done) {
-            var bb = new BigBang.Client();
-            bb.connect('https://' + TEST_HOST, function (err) {
+            var bb = new BigBang.Client('https://' + TEST_HOST);
+            bb.connect(function (err) {
                 assert.equal(err, null);
                 done();
             })
@@ -34,10 +34,11 @@ describe('client', function () {
     });
     */
 
+
     describe('#connect', function () {
         it('should should subscribe', function (done) {
-            var bb = new BigBang.Client();
-            bb.connect('http://' + TEST_HOST, function (err) {
+            var bb = new BigBang.Client('http://' + TEST_HOST);
+            bb.connect(function (err) {
                 assert.equal(err, null);
 
                 var channelName = randomstring(8);
@@ -64,9 +65,9 @@ describe('client', function () {
 
     describe('#connect', function () {
         it('should should subscribe and unsubscribe', function (done) {
-            var bb = new BigBang.Client();
+            var bb = new BigBang.Client( 'http://' + TEST_HOST );
 
-            bb.connect('http://' + TEST_HOST, function (err) {
+            bb.connect(function (err) {
                 assert.equal(err, null);
 
                 var channelName = randomstring(8);
@@ -119,8 +120,8 @@ describe('client', function () {
 
 
 function clientOnChannel(name, callback) {
-    var bb = new BigBang.Client();
-    bb.connect('http://' + TEST_HOST, function (err) {
+    var bb = new BigBang.Client( 'http://' + TEST_HOST );
+    bb.connect(function (err) {
         assert.equal(err, null);
 
         bb.subscribe(name, function (err, channel) {

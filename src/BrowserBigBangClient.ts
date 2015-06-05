@@ -6,30 +6,25 @@ import pew = require("./PewRuntime");
 import wire = require("./WireProtocol.Protocol");
 import http = require("http");
 import net = require("net");
+import url = require("url");
 import bigbang = require("./BigBangClient");
+
 
 export class Client extends bigbang.AbstractBigBangClient implements wire.WireProtocolProtocolListener {
 
-    //private socket:WebSocket;
     private socket:SockJS;
 
-
-    constructor() {
-        super();
+    constructor(appUrl:string) {
+        super(appUrl);
     }
 
-    connect(url:any, options?:any, callback?:(err:bigbang.ConnectionError) => any):void {
+    connect(options?:any, callback?:(err:bigbang.ConnectionError) => any):void {
         if (options instanceof Function) {
             callback = options;
             options = null;
         }
 
-        if (url instanceof Object) {
-            options = url;
-            url = null;
-        }
-
-        var parsedUrl = this.parseUrl(url);
+        var parsedUrl = this.parseUrl(this._appUrl);
 
         var host = parsedUrl.host;
         host += ':' + parsedUrl.port;
@@ -48,13 +43,68 @@ export class Client extends bigbang.AbstractBigBangClient implements wire.WirePr
         });
     }
 
+    createUser(email:string, password:string, callback?:(err:bigbang.CreateUserError) => any):void {
+
+        var parsedUrl = url.parse(this._appUrl);
+        var uri:string = this._appUrl;
+
+        uri += "/api/v1/createUserEmailPassword";
+
+        var requestBody = {
+            email: email,
+            password: password,
+        }
+
+        this.xhr("POST", uri, requestBody, function (err, response:any) {
+
+            if (err) {
+                callback(new bigbang.CreateUserError(err));
+                return;
+            }
+
+            if (response.created) {
+                callback(null);
+            }
+            else {
+                callback(new bigbang.CreateUserError(response.userMessage));
+            }
+        });
+    }
+
+    resetPassword(email:String, callback?:(err:bigbang.ResetPasswordError) => any):void {
+
+        var parsedUrl = url.parse(this._appUrl);
+        var uri:string = this._appUrl;
+
+        uri += "/api/v1/resetPassword";
+
+        var requestBody = {
+            email: email
+        }
+
+        this.xhr("POST", uri, requestBody, function (err, response:any) {
+            if (err) {
+                callback(new bigbang.ResetPasswordError(err));
+                return;
+            }
+
+            if (response.reset) {
+                callback(null);
+            }
+            else {
+                callback(new bigbang.ResetPasswordError(response.userMessage));
+            }
+        });
+    }
+
+
     internalLogin(protocol:string, host:string, user:string, password:string, application:string, callback:(loginResult:bigbang.LoginResult) =>any) {
         var hostname = host.split(":")[0];
         var port = host.split(":")[1];
 
         var protocolHash = this.wireProtocol.protocolHash
 
-        var uri:string = protocol +"://" + hostname + ":" + port;
+        var uri:string = protocol + "://" + hostname + ":" + port;
 
         if (!user && !password) {
             uri += "/loginAnon?application=" + application + "&wireprotocolhash=" + protocolHash;
@@ -88,7 +138,7 @@ export class Client extends bigbang.AbstractBigBangClient implements wire.WirePr
 
                 callback(loginResult);
             }
-            catch(e) {
+            catch (e) {
                 loginResult.authenticated = false;
                 loginResult.message = e.message;
                 callback(loginResult);
@@ -114,14 +164,14 @@ export class Client extends bigbang.AbstractBigBangClient implements wire.WirePr
 
         var ws:string;
 
-        if(protocol === "https" ) {
+        if (protocol === "https") {
             ws = "https://" + host + "/_api/connect";
         }
         else {
             ws = "http://" + host + "/_api/connect";
         }
 
-        this.socket = new SockJS(ws );
+        this.socket = new SockJS(ws);
 
         this.socket.onopen = (event) => {
             setTimeout(()=> {
@@ -139,11 +189,11 @@ export class Client extends bigbang.AbstractBigBangClient implements wire.WirePr
         };
 
         /*
-        this.socket.onerror = function (event) {
-            console.error("WebSocket error: " + event);
-            // TODO: call disconnect?
-        };
-        */
+         this.socket.onerror = function (event) {
+         console.error("WebSocket error: " + event);
+         // TODO: call disconnect?
+         };
+         */
     }
 
     sendToServer(msg:pew.PewMessage):void {
@@ -183,4 +233,35 @@ export class Client extends bigbang.AbstractBigBangClient implements wire.WirePr
         }
         return xhr;
     }
+
+    xhr(method, url, body, callback) {
+        var xhr = this.createCORSRequest(method, url);
+
+        if (!xhr) {
+            callback('CORS not supported', null);
+            return;
+        }
+
+        xhr.onload = function () {
+            try {
+                var body = JSON.parse(xhr.responseText);
+                callback(null, body);
+            }
+            catch (e) {
+                callback(e, null);
+            }
+        };
+
+        xhr.onerror = function () {
+            return callback("XHR error", null);
+        };
+
+        if (body) {
+            xhr.send(JSON.stringify(body));
+        }
+        else {
+            xhr.send();
+        }
+    }
+
 }

@@ -1,4 +1,5 @@
 {
+    "timeout": 5000,
     "framework": "mocha",
     "serve_files": [
         "web/bigbang.io.js",
