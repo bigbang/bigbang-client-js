@@ -19,16 +19,11 @@ export class Client extends bigbang.AbstractBigBangClient implements wire.WirePr
         super(appUrl);
     }
 
-    connect(options?:any, callback?:(err:bigbang.ConnectionError) => any):void {
+    connect(callback:(err:bigbang.ConnectionError) => any):void {
         // connect calls internalLogin
         // internalLogin's callback calls internalConnect
         // internalConnect sets it's callback to be called later
         // events call internalConnect's callback
-        if (options instanceof Function) {
-            callback = options;
-            options = null;
-        }
-
         var parsedUrl = this.parseUrl(this._appUrl);
 
         var host = parsedUrl.host;

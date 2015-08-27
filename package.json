@@ -21,7 +21,8 @@
     "subscribe",
     "pubsub",
     "socket",
-    "iot"
+    "iot",
+    "internet of things"
   ],
   "devDependencies": {
     "grunt": "^0.4.5",
@@ -31,7 +32,7 @@
     "grunt-exec": "^0.4.6",
     "grunt-jsdoc": "^0.5.7",
     "grunt-typescript": "^0.3.8",
-    "mocha": "~1.21.5",
+    "mocha": "~1.2",
     "chai": "~1.9.2"
   },
   "scripts": {

@@ -4,26 +4,17 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
+var url = require("url");
 var bigbang = require("./BigBangClient");
 
 var Client = (function (_super) {
     __extends(Client, _super);
-    function Client() {
-        _super.call(this);
+    function Client(appUrl) {
+        _super.call(this, appUrl);
     }
-    Client.prototype.connect = function (url, options, callback) {
+    Client.prototype.connect = function (callback) {
         var _this = this;
-        if (options instanceof Function) {
-            callback = options;
-            options = null;
-        }
-
-        if (url instanceof Object) {
-            options = url;
-            url = null;
-        }
-
-        var parsedUrl = this.parseUrl(url);
+        var parsedUrl = this.parseUrl(this._appUrl);
 
         var host = parsedUrl.host;
         host += ':' + parsedUrl.port;
@@ -36,6 +27,55 @@ var Client = (function (_super) {
             } else {
                 var err = new bigbang.ConnectionError(loginResult.message);
                 callback(err);
+            }
+        });
+    };
+
+    Client.prototype.createUser = function (email, password, callback) {
+        var parsedUrl = url.parse(this._appUrl);
+        var uri = this._appUrl;
+
+        uri += "/api/v1/createUserEmailPassword";
+
+        var requestBody = {
+            email: email,
+            password: password
+        };
+
+        this.xhr("POST", uri, requestBody, function (err, response) {
+            if (err) {
+                callback(new bigbang.CreateUserError(err));
+                return;
+            }
+
+            if (response.created) {
+                callback(null);
+            } else {
+                callback(new bigbang.CreateUserError(response.userMessage));
+            }
+        });
+    };
+
+    Client.prototype.resetPassword = function (email, callback) {
+        var parsedUrl = url.parse(this._appUrl);
+        var uri = this._appUrl;
+
+        uri += "/api/v1/resetPassword";
+
+        var requestBody = {
+            email: email
+        };
+
+        this.xhr("POST", uri, requestBody, function (err, response) {
+            if (err) {
+                callback(new bigbang.ResetPasswordError(err));
+                return;
+            }
+
+            if (response.reset) {
+                callback(null);
+            } else {
+                callback(new bigbang.ResetPasswordError(response.userMessage));
             }
         });
     };
@@ -155,6 +195,34 @@ var Client = (function (_super) {
             xhr = null;
         }
         return xhr;
+    };
+
+    Client.prototype.xhr = function (method, url, body, callback) {
+        var xhr = this.createCORSRequest(method, url);
+
+        if (!xhr) {
+            callback('CORS not supported', null);
+            return;
+        }
+
+        xhr.onload = function () {
+            try  {
+                var body = JSON.parse(xhr.responseText);
+                callback(null, body);
+            } catch (e) {
+                callback(e, null);
+            }
+        };
+
+        xhr.onerror = function () {
+            return callback("XHR error", null);
+        };
+
+        if (body) {
+            xhr.send(JSON.stringify(body));
+        } else {
+            xhr.send();
+        }
     };
     return Client;
 })(bigbang.AbstractBigBangClient);

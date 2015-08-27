@@ -16,8 +16,8 @@ or
 Example
 =======
 
-	var client = new BigBang.Client();
-	client.connect('http://demo.bigbang.io', function(err) {
+	var client = new BigBang.Client('https://demo.bigbang.io');
+	client.connect(function(err) {
 	    if (err) return;
 	    console.log('Connected as ' + client.getClientId());
 	    
@@ -71,20 +71,18 @@ BigBang.Client
 
 Client manages your connection to the server and lets you interface with Channels.
 
-	var client = new BigBang.Client();
-	client.connect('http://demo.bigbang.io', function(err) {
+	var client = new BigBang.Client('https://demo.bigbang.io');
+	client.connect(function(err) {
 	    if (err) return;
 	    console.log('Connected as ' + client.getClientId());
 	});
 	
 	
-### **client.connect**(url, options, function(err))
+### **client.connect**(function(err))
 
 Connect to a Big Bang application at *url*.
 
 **Params**
-
-- url `string` HTTP or HTTPS URL to your application.
 
 - callback (`Error`)
 

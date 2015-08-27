@@ -17,9 +17,11 @@ export class SimpleEventEmitter {
 
     public emit(event:string, arg1?:any, arg2?:any, arg3?:any) {
         var listeners = this._listeners[event];
+
         if (!listeners) {
             return;
         }
+
         listeners.forEach(function(listener) {
             listener(arg1, arg2, arg3);
         });
@@ -35,10 +37,9 @@ export class SimpleEventEmitter {
 export interface BigBangClient {
     /**
      * Connect to Big Bang.
-     * @param options
      * @param callback
      */
-    connect(options?:any, callback?:(err:ConnectionError) => any):void;
+    connect(callback:(err:ConnectionError) => any):void;
 
     /**
      * Disconnect from BigBang.
@@ -355,14 +356,7 @@ export class Channel extends SimpleEventEmitter {
 
     onWireChannelDataDelete(msg:wire.WireChannelDataDelete):void {
         var channelData = this.getOrCreateChannelData(msg.ks);
-
         channelData.onWireChannelDataDelete(msg);
-
-        //if we are empty, go away!
-        if(channelData.getKeys().length == 0 ) {
-            delete this.keySpaces[msg.ks];
-        }
-
     }
 
     onWireChannelLeave(msg:wire.WireChannelLeave):void {
