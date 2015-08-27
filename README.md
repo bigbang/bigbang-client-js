@@ -3,6 +3,9 @@ Big Bang Javascript Client SDK
 
 Big Bang lets you create realtime applications in seconds.  It makes event streaming and data synchronization a snap!
 
+The Javascript Client SDK works in modern browsers and Node.js.  Take your pick, or use both.  
+It is available via [npm](https://www.npmjs.com/) and [Bower](http://bower.io/) 
+
 
 Installation
 ============
@@ -35,6 +38,18 @@ Example
 	        channelData.put('colors', ['red', 'green', 'blue']);
 	    });
 	});
+
+
+Browser Note
+=======
+
+If you are using Big Bang in browser, you need to add the SockJS dependency manually.  We hope to rectify this in a future release.
+
+For example:
+
+    <script type="text/javascript" src="js/bigbang.io.min.js"></script>
+    <!-- Make sure to include SockJS as well.  Required for Big Bang SDK -->
+    <script type="text/javascript" src="//cdn.jsdelivr.net/sockjs/0.3.4/sockjs.min.js"></script>
 
 
 Servers
