@@ -2,6 +2,7 @@
   "name": "bigbang.io",
   "version": "0.0.6",
   "main": "lib/NodeBigBangClient.js",
+  "license": "BSD-3-Clause",
   "description": "Create realtime applications in seconds with Big Bang.",
   "repository": {
     "type": "git",
