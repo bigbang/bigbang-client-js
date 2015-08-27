@@ -1,7 +1,7 @@
 var BigBang = require('bigbang.io');
 
-var client = new BigBang.Client();
-client.connect('http://demo.bigbang.io', function(err) {
+var client = new BigBang.Client('https://demo.bigbang.io');
+client.connect(function(err) {
     if (err) return;
     console.log('Connected as ' + client.getClientId());
 
