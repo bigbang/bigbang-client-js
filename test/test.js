@@ -1,11 +1,12 @@
-var TEST_HOST = 'localhost:8888';
+var TEST_HOST = 'http://demo.bigbang.io';
+var SECURE_TEST_HOST = 'https://demo.bigbang.io';
 
 describe('client', function () {
 
     describe('#connect', function () {
         it('should connect successfuly', function (done) {
-            var bb = new BigBang.Client();
-            bb.connect('http://' + TEST_HOST, function (err) {
+            var bb = new BigBang.Client(TEST_HOST);
+            bb.connect(function (err) {
                 assert.equal(err, null);
                 done();
             })
@@ -14,30 +15,30 @@ describe('client', function () {
 
     describe('#connect', function () {
         it('should should fail gracefully', function (done) {
-            var bb = new BigBang.Client();
-            bb.connect('http://hugenondexistintdomainthingfoobar.bigbang.io', function (err) {
+            var bb = new BigBang.Client('http://hugenondexistintdomainthingfoobar.bigbang.io');
+            bb.connect(function (err) {
                 assert(err);
                 done();
             })
         })
     });
 
-    /*
+
     describe('#connect', function () {
         it('should connect successfuly via https', function (done) {
-            var bb = new BigBang.Client();
-            bb.connect('https://' + TEST_HOST, function (err) {
+            var bb = new BigBang.Client(SECURE_TEST_HOST);
+            bb.connect(function (err) {
                 assert.equal(err, null);
                 done();
             })
         })
     });
-    */
+
 
     describe('#connect', function () {
         it('should should subscribe', function (done) {
-            var bb = new BigBang.Client();
-            bb.connect('http://' + TEST_HOST, function (err) {
+            var bb = new BigBang.Client(TEST_HOST);
+            bb.connect(function (err) {
                 assert.equal(err, null);
 
                 var channelName = randomstring(8);
@@ -64,9 +65,8 @@ describe('client', function () {
 
     describe('#connect', function () {
         it('should should subscribe and unsubscribe', function (done) {
-            var bb = new BigBang.Client();
-
-            bb.connect('http://' + TEST_HOST, function (err) {
+            var bb = new BigBang.Client(TEST_HOST);
+            bb.connect(function (err) {
                 assert.equal(err, null);
 
                 var channelName = randomstring(8);
@@ -78,7 +78,7 @@ describe('client', function () {
                         assert.equal(bb.getClientId(), joined);
                     });
 
-                    channel.unsubscribe( function() {
+                    channel.unsubscribe(function () {
                         done();
                     });
                 })
@@ -93,12 +93,12 @@ describe('client', function () {
 
                 var ks = randomstring();
                 var thekey = randomstring();
-                var obj = {foo: randomstring(), bar: randomstring() };
+                var obj = {foo: randomstring(), bar: randomstring()};
 
                 channel.getChannelData(ks).on('add', function (key, value) {
                     assert.equal(key, thekey);
                     assert.deepEqual(value, obj);
-                    assert.ok( channel.getNamespaces().indexOf(ks) != -1);
+                    assert.ok(channel.getNamespaces().indexOf(ks) != -1);
 
                 });
 
@@ -115,12 +115,49 @@ describe('client', function () {
             });
         });
     })
+
+    describe('#channelData', function () {
+        it('multi-add-and-remove ', function (done) {
+
+            clientOnChannel(randomstring(), function (client, channel) {
+
+                //This test addresses an issue where channelData
+                //was emptied and deleted, which caused the eventEmitter
+                //calls to disappear
+                var ks = randomstring();
+                var thekey = randomstring();
+                var obj = {foo: randomstring(), bar: randomstring()};
+
+                var addCount = 0;
+                channel.getChannelData(ks).on('add', function (key, value) {
+                    assert.equal(key, thekey);
+                    assert.deepEqual(value, obj);
+                    assert.ok(channel.getNamespaces().indexOf(ks) != -1);
+                    addCount++;
+                    //Arbitrary number > 1
+                    if (addCount == 3) {
+                        done();
+                    }
+                });
+
+                channel.getChannelData(ks).on('remove', function (key) {
+                    assert.equal(key, thekey);
+                });
+
+                channel.getChannelData(ks).put(thekey, obj);
+                channel.getChannelData(ks).remove(thekey);
+                channel.getChannelData(ks).put(thekey, obj);
+                channel.getChannelData(ks).remove(thekey);
+                channel.getChannelData(ks).put(thekey, obj);
+            });
+        });
+    })
 });
 
 
 function clientOnChannel(name, callback) {
-    var bb = new BigBang.Client();
-    bb.connect('http://' + TEST_HOST, function (err) {
+    var bb = new BigBang.Client(TEST_HOST);
+    bb.connect(function (err) {
         assert.equal(err, null);
 
         bb.subscribe(name, function (err, channel) {

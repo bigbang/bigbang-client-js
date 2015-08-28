@@ -21,9 +21,11 @@ var SimpleEventEmitter = (function () {
 
     SimpleEventEmitter.prototype.emit = function (event, arg1, arg2, arg3) {
         var listeners = this._listeners[event];
+
         if (!listeners) {
             return;
         }
+
         listeners.forEach(function (listener) {
             listener(arg1, arg2, arg3);
         });
@@ -50,6 +52,28 @@ var ConnectionError = (function () {
     return ConnectionError;
 })();
 exports.ConnectionError = ConnectionError;
+
+var CreateUserError = (function () {
+    function CreateUserError(msg) {
+        this.message = msg;
+    }
+    CreateUserError.prototype.toString = function () {
+        return this.message;
+    };
+    return CreateUserError;
+})();
+exports.CreateUserError = CreateUserError;
+
+var ResetPasswordError = (function () {
+    function ResetPasswordError(msg) {
+        this.message = msg;
+    }
+    ResetPasswordError.prototype.toString = function () {
+        return this.message;
+    };
+    return ResetPasswordError;
+})();
+exports.ResetPasswordError = ResetPasswordError;
 
 var ConnectionResult = (function () {
     function ConnectionResult() {
@@ -208,12 +232,7 @@ var Channel = (function (_super) {
 
     Channel.prototype.onWireChannelDataDelete = function (msg) {
         var channelData = this.getOrCreateChannelData(msg.ks);
-
         channelData.onWireChannelDataDelete(msg);
-
-        if (channelData.getKeys().length == 0) {
-            delete this.keySpaces[msg.ks];
-        }
     };
 
     Channel.prototype.onWireChannelLeave = function (msg) {
@@ -396,9 +415,10 @@ exports.ChannelData = ChannelData;
 
 var AbstractBigBangClient = (function (_super) {
     __extends(AbstractBigBangClient, _super);
-    function AbstractBigBangClient() {
+    function AbstractBigBangClient(appUrl) {
         _super.call(this);
         this.bufString = "";
+        this._appUrl = appUrl;
         this.wireProtocol = new wire.WireProtocol();
         this.wireProtocol.listener = this;
         this.connect = this.connect.bind(this);
@@ -408,6 +428,14 @@ var AbstractBigBangClient = (function (_super) {
         this.channelMap = {};
     }
     AbstractBigBangClient.prototype.connect = function (url, options, callback) {
+        throw new Error("abstract");
+    };
+
+    AbstractBigBangClient.prototype.createUser = function (email, password, callback) {
+        throw new Error("abstract");
+    };
+
+    AbstractBigBangClient.prototype.resetPassword = function (email, callback) {
         throw new Error("abstract");
     };
 

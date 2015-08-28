@@ -10,8 +10,8 @@
 <script src="../../../web/bigbang.io.js" type="text/javascript"></script>
 <script src="//cdn.jsdelivr.net/sockjs/0.3.4/sockjs.min.js"></script>
 <script type="text/javascript">
-    var client = new BigBang.Client();
-    client.connect('http://demo.bigbang.io', function(err) {
+    var client = new BigBang.Client('https://demo.bigbang.io');
+    client.connect(function(err) {
         if (err) {
             alert("Unable to connect: " + err);
             return;

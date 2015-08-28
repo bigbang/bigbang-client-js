@@ -11,7 +11,7 @@ var rl = readline.createInterface({ "input": process.stdin, "output": process.st
 var host = process.argv[2];
 var jsonMode = true;
 
-var client = new bigbang.Client();
+var client = new bigbang.Client( host );
 var myChannel;
 
 client.on('disconnected', function () {
@@ -22,7 +22,7 @@ console.log("Connecting to host " + host);
 
 //Make anonymous connection to your Big Bang instance.
 //Currently host needs to be in form of 'host:port'
-client.connect(host, function (err) {
+client.connect(function (err) {
     if (err) {
         console.log('Failed to connect. ' + err);
     } else {

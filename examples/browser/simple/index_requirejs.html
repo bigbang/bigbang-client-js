@@ -11,8 +11,8 @@
 <script src="//cdn.jsdelivr.net/sockjs/0.3.4/sockjs.min.js"></script>
 <script type="text/javascript">
     require(['../../../web/bigbang.io'], function (BigBang) {
-        var client = new BigBang.Client();
-        client.connect('http://demo.bigbang.io', function (err) {
+        var client = new BigBang.Client('https://demo.bigbang.io');
+        client.connect(function (err) {
             if (err) {
                 console.error(err);
                 return;

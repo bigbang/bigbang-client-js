@@ -6,7 +6,7 @@
     "author": "Jason von Nieda",
     "license": "MIT",
     "dependencies": {
-        "bigbang.io": "0.0.6",
+        "bigbang.io": "0.0.7",
         "ascii-tree":"0.1.1"
     }
 }

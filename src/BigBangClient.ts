@@ -1,6 +1,22 @@
 /// <reference path="PewRuntime.ts"/>
 /// <reference path="WireProtocol.Protocol.ts"/>
 
+/*
+ BSD LICENSE
+
+ Copyright (c) 2015, Big Bang IO, LLC
+ All rights reserved.
+
+ Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+ 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+
+ 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+ 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 import pew      = require("./PewRuntime");
 import wire     = require("./WireProtocol.Protocol");
 
@@ -17,9 +33,11 @@ export class SimpleEventEmitter {
 
     public emit(event:string, arg1?:any, arg2?:any, arg3?:any) {
         var listeners = this._listeners[event];
+
         if (!listeners) {
             return;
         }
+
         listeners.forEach(function(listener) {
             listener(arg1, arg2, arg3);
         });
@@ -34,12 +52,10 @@ export class SimpleEventEmitter {
  */
 export interface BigBangClient {
     /**
-     * Connect to BigBang using the specified url.
-     * @param url
-     * @param options
+     * Connect to Big Bang.
      * @param callback
      */
-    connect(url:any, options?:any, callback?:(err:ConnectionError) => any):void;
+    connect(callback:(err:ConnectionError) => any):void;
 
     /**
      * Disconnect from BigBang.
@@ -74,6 +90,21 @@ export interface BigBangClient {
      * @param listener
      */
     on(event:string, listener:(event:any) => any):void;
+
+    /**
+     * Create an email/password user
+     * @param email
+     * @param password
+     * @param callback
+     */
+    createUser( email:string, password:string, callback?:(err:CreateUserError) => any):void;
+
+    /**
+     * Reset password.
+     * @param email
+     * @param callback
+     */
+    resetPassword( email:String, callback?:(err:ResetPasswordError) => any):void;
 }
 
 export class LoginResult {
@@ -90,6 +121,30 @@ export class ConnectionError {
     }
 
     toString():string {
+        return this.message;
+    }
+}
+
+export class CreateUserError {
+    message:string;
+
+    constructor(msg:string) {
+        this.message = msg;
+    }
+
+    toString():string{
+        return this.message;
+    }
+}
+
+export class ResetPasswordError {
+    message:string;
+
+    constructor(msg:string) {
+        this.message = msg;
+    }
+
+    toString():string{
         return this.message;
     }
 }
@@ -317,14 +372,7 @@ export class Channel extends SimpleEventEmitter {
 
     onWireChannelDataDelete(msg:wire.WireChannelDataDelete):void {
         var channelData = this.getOrCreateChannelData(msg.ks);
-
         channelData.onWireChannelDataDelete(msg);
-
-        //if we are empty, go away!
-        if(channelData.getKeys().length == 0 ) {
-            delete this.keySpaces[msg.ks];
-        }
-
     }
 
     onWireChannelLeave(msg:wire.WireChannelLeave):void {
@@ -553,6 +601,7 @@ export class AbstractBigBangClient extends SimpleEventEmitter implements wire.Wi
     _internalConnectionResult;
     _clientId:string;
     _clientKey:string;
+    _appUrl:string;
 
 
     channelSubscribeMap:{ [channeId:string]: (err:ChannelError, channel:Channel) =>any };
@@ -562,8 +611,9 @@ export class AbstractBigBangClient extends SimpleEventEmitter implements wire.Wi
 
     bufString:string = "";
 
-    constructor() {
+    constructor(appUrl:string) {
         super();
+        this._appUrl = appUrl;
         this.wireProtocol = new wire.WireProtocol();
         this.wireProtocol.listener = this;
         this.connect = this.connect.bind(this);
@@ -575,6 +625,14 @@ export class AbstractBigBangClient extends SimpleEventEmitter implements wire.Wi
     }
 
     connect(url:any, options?:any, callback?:(err:ConnectionError) => any):void {
+        throw new Error("abstract");
+    }
+
+    createUser( email:string, password:string, callback?:(err:CreateUserError) => any):void {
+        throw new Error("abstract");
+    }
+
+    resetPassword( email:String, callback?:(err:ResetPasswordError) => any):void {
         throw new Error("abstract");
     }
 

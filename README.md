@@ -3,6 +3,9 @@ Big Bang Javascript Client SDK
 
 Big Bang lets you create realtime applications in seconds.  It makes event streaming and data synchronization a snap!
 
+The Javascript Client SDK works in modern browsers and Node.js.  Take your pick, or use both.  
+It is available via [npm](https://www.npmjs.com/) and [Bower](http://bower.io/) 
+
 
 Installation
 ============
@@ -16,8 +19,8 @@ or
 Example
 =======
 
-	var client = new BigBang.Client();
-	client.connect('http://demo.bigbang.io', function(err) {
+	var client = new BigBang.Client('https://demo.bigbang.io');
+	client.connect(function(err) {
 	    if (err) return;
 	    console.log('Connected as ' + client.getClientId());
 	    
@@ -35,6 +38,18 @@ Example
 	        channelData.put('colors', ['red', 'green', 'blue']);
 	    });
 	});
+
+
+Browser Note
+=======
+
+If you are using Big Bang in browser, you need to add the SockJS dependency manually.  We hope to rectify this in a future release.
+
+For example:
+
+    <script type="text/javascript" src="js/bigbang.io.min.js"></script>
+    <!-- Make sure to include SockJS as well.  Required for Big Bang SDK -->
+    <script type="text/javascript" src="//cdn.jsdelivr.net/sockjs/0.3.4/sockjs.min.js"></script>
 
 
 Servers
@@ -71,20 +86,18 @@ BigBang.Client
 
 Client manages your connection to the server and lets you interface with Channels.
 
-	var client = new BigBang.Client();
-	client.connect('http://demo.bigbang.io', function(err) {
+	var client = new BigBang.Client('https://demo.bigbang.io');
+	client.connect(function(err) {
 	    if (err) return;
 	    console.log('Connected as ' + client.getClientId());
 	});
 	
 	
-### **client.connect**(url, options, function(err))
+### **client.connect**(function(err))
 
 Connect to a Big Bang application at *url*.
 
 **Params**
-
-- url `string` HTTP or HTTPS URL to your application.
 
 - callback (`Error`)
 

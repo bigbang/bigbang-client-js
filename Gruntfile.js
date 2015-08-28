@@ -26,6 +26,12 @@ module.exports = function (grunt) {
                 }
             }
         },
+        watch: {
+            react: {
+                files: ['src/**/*.ts'],
+                tasks: ['default']
+            }
+        },
         browserify: {
             js: {
                 src : 'web/BrowserBigBangClient.js',
@@ -55,6 +61,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-typescript');
     grunt.loadNpmTasks('grunt-browserify');
     grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-exec');
 
     grunt.registerTask('default', ['clean', 'typescript', 'browserify', 'uglify']);
