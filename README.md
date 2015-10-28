@@ -1,6 +1,8 @@
 Big Bang Javascript Client SDK
 =================
 
+[![NPM](https://nodei.co/npm/bigbang.io.png)](https://npmjs.org/package/bigbang.io)
+
 Big Bang lets you create realtime applications in seconds.  It makes event streaming and data synchronization a snap!
 
 The Javascript Client SDK works in modern browsers and Node.js.  Take your pick, or use both.  

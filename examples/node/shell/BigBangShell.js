@@ -57,6 +57,12 @@ function startCli() {
             jsonMode = !jsonMode;
             console.log("JSON mode is " + jsonMode);
         }
+        else if (startsWith(line, "tp")) {
+            testPublish();
+        }
+        else if ( startsWith(line, "pp")) {
+            testPut();
+        }
         else if (line.length == 0) {
             //swallow empty commands
             rl.prompt();
@@ -218,6 +224,30 @@ function doPublish(line) {
 function whoami() {
     printToConsole("You are " + client.getClientId());
 }
+
+var tpnum =0;
+function testPublish() {
+
+    var msg = {
+        foo:"bar",
+        num:tpnum
+    }
+    doPublish("tp " +JSON.stringify(msg));
+    tpnum+=1;
+}
+
+var drools =0;
+function testPut() {
+    var msg ={
+        drool: "bat",
+        drools: drools
+     };
+     drools+=1;
+
+     doPut( "put foo " + JSON.stringify(msg));
+
+}
+
 
 function startsWith(s, search) {
     return s.substring(0, search.length) == search;
