@@ -1,14 +1,18 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.BigBang = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function (global){
 /*!
  * The buffer module from node.js, for the browser.
  *
  * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
  * @license  MIT
  */
+/* eslint-disable no-proto */
+
+'use strict'
 
 var base64 = require('base64-js')
 var ieee754 = require('ieee754')
-var isArray = require('is-array')
+var isArray = require('isarray')
 
 exports.Buffer = Buffer
 exports.SlowBuffer = SlowBuffer
@@ -44,7 +48,11 @@ var rootParent = {}
  * We detect these buggy browsers and set `Buffer.TYPED_ARRAY_SUPPORT` to `false` so they
  * get the Object implementation, which is slower but behaves correctly.
  */
-Buffer.TYPED_ARRAY_SUPPORT = (function () {
+Buffer.TYPED_ARRAY_SUPPORT = global.TYPED_ARRAY_SUPPORT !== undefined
+  ? global.TYPED_ARRAY_SUPPORT
+  : typedArraySupport()
+
+function typedArraySupport () {
   function Bar () {}
   try {
     var arr = new Uint8Array(1)
@@ -57,7 +65,7 @@ Buffer.TYPED_ARRAY_SUPPORT = (function () {
   } catch (e) {
     return false
   }
-})()
+}
 
 function kMaxLength () {
   return Buffer.TYPED_ARRAY_SUPPORT
@@ -84,8 +92,10 @@ function Buffer (arg) {
     return new Buffer(arg)
   }
 
-  this.length = 0
-  this.parent = undefined
+  if (!Buffer.TYPED_ARRAY_SUPPORT) {
+    this.length = 0
+    this.parent = undefined
+  }
 
   // Common case.
   if (typeof arg === 'number') {
@@ -213,10 +223,20 @@ function fromJsonObject (that, object) {
   return that
 }
 
+if (Buffer.TYPED_ARRAY_SUPPORT) {
+  Buffer.prototype.__proto__ = Uint8Array.prototype
+  Buffer.__proto__ = Uint8Array
+} else {
+  // pre-set for values that may exist in the future
+  Buffer.prototype.length = undefined
+  Buffer.prototype.parent = undefined
+}
+
 function allocate (that, length) {
   if (Buffer.TYPED_ARRAY_SUPPORT) {
     // Return an augmented `Uint8Array` instance, for best performance
     that = Buffer._augment(new Uint8Array(length))
+    that.__proto__ = Buffer.prototype
   } else {
     // Fallback: Return an object instance of the Buffer class
     that.length = length
@@ -359,10 +379,6 @@ function byteLength (string, encoding) {
   }
 }
 Buffer.byteLength = byteLength
-
-// pre-set for values that may exist in the future
-Buffer.prototype.length = undefined
-Buffer.prototype.parent = undefined
 
 function slowToString (encoding, start, end) {
   var loweredCase = false
@@ -1005,7 +1021,7 @@ Buffer.prototype.writeUInt8 = function writeUInt8 (value, offset, noAssert) {
   offset = offset | 0
   if (!noAssert) checkInt(this, value, offset, 1, 0xff, 0)
   if (!Buffer.TYPED_ARRAY_SUPPORT) value = Math.floor(value)
-  this[offset] = value
+  this[offset] = (value & 0xff)
   return offset + 1
 }
 
@@ -1022,7 +1038,7 @@ Buffer.prototype.writeUInt16LE = function writeUInt16LE (value, offset, noAssert
   offset = offset | 0
   if (!noAssert) checkInt(this, value, offset, 2, 0xffff, 0)
   if (Buffer.TYPED_ARRAY_SUPPORT) {
-    this[offset] = value
+    this[offset] = (value & 0xff)
     this[offset + 1] = (value >>> 8)
   } else {
     objectWriteUInt16(this, value, offset, true)
@@ -1036,7 +1052,7 @@ Buffer.prototype.writeUInt16BE = function writeUInt16BE (value, offset, noAssert
   if (!noAssert) checkInt(this, value, offset, 2, 0xffff, 0)
   if (Buffer.TYPED_ARRAY_SUPPORT) {
     this[offset] = (value >>> 8)
-    this[offset + 1] = value
+    this[offset + 1] = (value & 0xff)
   } else {
     objectWriteUInt16(this, value, offset, false)
   }
@@ -1058,7 +1074,7 @@ Buffer.prototype.writeUInt32LE = function writeUInt32LE (value, offset, noAssert
     this[offset + 3] = (value >>> 24)
     this[offset + 2] = (value >>> 16)
     this[offset + 1] = (value >>> 8)
-    this[offset] = value
+    this[offset] = (value & 0xff)
   } else {
     objectWriteUInt32(this, value, offset, true)
   }
@@ -1073,7 +1089,7 @@ Buffer.prototype.writeUInt32BE = function writeUInt32BE (value, offset, noAssert
     this[offset] = (value >>> 24)
     this[offset + 1] = (value >>> 16)
     this[offset + 2] = (value >>> 8)
-    this[offset + 3] = value
+    this[offset + 3] = (value & 0xff)
   } else {
     objectWriteUInt32(this, value, offset, false)
   }
@@ -1126,7 +1142,7 @@ Buffer.prototype.writeInt8 = function writeInt8 (value, offset, noAssert) {
   if (!noAssert) checkInt(this, value, offset, 1, 0x7f, -0x80)
   if (!Buffer.TYPED_ARRAY_SUPPORT) value = Math.floor(value)
   if (value < 0) value = 0xff + value + 1
-  this[offset] = value
+  this[offset] = (value & 0xff)
   return offset + 1
 }
 
@@ -1135,7 +1151,7 @@ Buffer.prototype.writeInt16LE = function writeInt16LE (value, offset, noAssert) 
   offset = offset | 0
   if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -0x8000)
   if (Buffer.TYPED_ARRAY_SUPPORT) {
-    this[offset] = value
+    this[offset] = (value & 0xff)
     this[offset + 1] = (value >>> 8)
   } else {
     objectWriteUInt16(this, value, offset, true)
@@ -1149,7 +1165,7 @@ Buffer.prototype.writeInt16BE = function writeInt16BE (value, offset, noAssert) 
   if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -0x8000)
   if (Buffer.TYPED_ARRAY_SUPPORT) {
     this[offset] = (value >>> 8)
-    this[offset + 1] = value
+    this[offset + 1] = (value & 0xff)
   } else {
     objectWriteUInt16(this, value, offset, false)
   }
@@ -1161,7 +1177,7 @@ Buffer.prototype.writeInt32LE = function writeInt32LE (value, offset, noAssert) 
   offset = offset | 0
   if (!noAssert) checkInt(this, value, offset, 4, 0x7fffffff, -0x80000000)
   if (Buffer.TYPED_ARRAY_SUPPORT) {
-    this[offset] = value
+    this[offset] = (value & 0xff)
     this[offset + 1] = (value >>> 8)
     this[offset + 2] = (value >>> 16)
     this[offset + 3] = (value >>> 24)
@@ -1180,7 +1196,7 @@ Buffer.prototype.writeInt32BE = function writeInt32BE (value, offset, noAssert) 
     this[offset] = (value >>> 24)
     this[offset + 1] = (value >>> 16)
     this[offset + 2] = (value >>> 8)
-    this[offset + 3] = value
+    this[offset + 3] = (value & 0xff)
   } else {
     objectWriteUInt32(this, value, offset, false)
   }
@@ -1455,7 +1471,7 @@ function utf8ToBytes (string, units) {
       }
 
       // valid surrogate pair
-      codePoint = leadSurrogate - 0xD800 << 10 | codePoint - 0xDC00 | 0x10000
+      codePoint = (leadSurrogate - 0xD800 << 10 | codePoint - 0xDC00) + 0x10000
     } else if (leadSurrogate) {
       // valid bmp char, but last char was a lead
       if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
@@ -1533,7 +1549,8 @@ function blitBuffer (src, dst, offset, length) {
   return i
 }
 
-},{"base64-js":2,"ieee754":3,"is-array":4}],2:[function(require,module,exports){
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"base64-js":2,"ieee754":3,"isarray":4}],2:[function(require,module,exports){
 var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
 ;(function (exports) {
@@ -1746,43 +1763,15 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 }
 
 },{}],4:[function(require,module,exports){
+var toString = {}.toString;
 
-/**
- * isArray
- */
-
-var isArray = Array.isArray;
-
-/**
- * toString
- */
-
-var str = Object.prototype.toString;
-
-/**
- * Whether or not the given `val`
- * is an array.
- *
- * example:
- *
- *        isArray([]);
- *        // > true
- *        isArray(arguments);
- *        // > false
- *        isArray('');
- *        // > false
- *
- * @param {mixed} val
- * @return {bool}
- */
-
-module.exports = isArray || function (val) {
-  return !! val && '[object Array]' == str.call(val);
+module.exports = Array.isArray || function (arr) {
+  return toString.call(arr) == '[object Array]';
 };
 
 },{}],5:[function(require,module,exports){
 (function (global){
-/*! https://mths.be/punycode v1.3.2 by @mathias */
+/*! https://mths.be/punycode v1.4.1 by @mathias */
 ;(function(root) {
 
 	/** Detect free variables */
@@ -1848,7 +1837,7 @@ module.exports = isArray || function (val) {
 	 * @returns {Error} Throws a `RangeError` with the applicable error message.
 	 */
 	function error(type) {
-		throw RangeError(errors[type]);
+		throw new RangeError(errors[type]);
 	}
 
 	/**
@@ -1995,7 +1984,7 @@ module.exports = isArray || function (val) {
 
 	/**
 	 * Bias adaptation function as per section 3.4 of RFC 3492.
-	 * http://tools.ietf.org/html/rfc3492#section-3.4
+	 * https://tools.ietf.org/html/rfc3492#section-3.4
 	 * @private
 	 */
 	function adapt(delta, numPoints, firstTime) {
@@ -2270,7 +2259,7 @@ module.exports = isArray || function (val) {
 		 * @memberOf punycode
 		 * @type String
 		 */
-		'version': '1.3.2',
+		'version': '1.4.1',
 		/**
 		 * An object of methods to convert from JavaScript's internal character
 		 * representation (UCS-2) to Unicode code points, and back.
@@ -2300,14 +2289,17 @@ module.exports = isArray || function (val) {
 			return punycode;
 		});
 	} else if (freeExports && freeModule) {
-		if (module.exports == freeExports) { // in Node.js or RingoJS v0.8.0+
+		if (module.exports == freeExports) {
+			// in Node.js, io.js, or RingoJS v0.8.0+
 			freeModule.exports = punycode;
-		} else { // in Narwhal or RingoJS v0.7.0-
+		} else {
+			// in Narwhal or RingoJS v0.7.0-
 			for (key in punycode) {
 				punycode.hasOwnProperty(key) && (freeExports[key] = punycode[key]);
 			}
 		}
-	} else { // in Rhino or a web browser
+	} else {
+		// in Rhino or a web browser
 		root.punycode = punycode;
 	}
 
@@ -3258,6 +3250,27 @@ var ConnectionError = (function () {
 })();
 exports.ConnectionError = ConnectionError;
 
+var CreateDeviceError = (function () {
+    function CreateDeviceError(msg) {
+        this.message = msg;
+    }
+    CreateDeviceError.prototype.toString = function () {
+        return this.message;
+    };
+    return CreateDeviceError;
+})();
+exports.CreateDeviceError = CreateDeviceError;
+
+var CreateDeviceInfo = (function () {
+    function CreateDeviceInfo(id, secret, tags) {
+        this.id = id;
+        this.secret = secret;
+        this.tags = tags;
+    }
+    return CreateDeviceInfo;
+})();
+exports.CreateDeviceInfo = CreateDeviceInfo;
+
 var CreateUserError = (function () {
     function CreateUserError(msg) {
         this.message = msg;
@@ -3636,11 +3649,19 @@ var AbstractBigBangClient = (function (_super) {
         throw new Error("abstract");
     };
 
+    AbstractBigBangClient.prototype.connectAsDevice = function (id, secret, callback) {
+        throw new Error("abstract");
+    };
+
     AbstractBigBangClient.prototype.createUser = function (email, password, callback) {
         throw new Error("abstract");
     };
 
     AbstractBigBangClient.prototype.resetPassword = function (email, callback) {
+        throw new Error("abstract");
+    };
+
+    AbstractBigBangClient.prototype.createDevice = function (tags, callback) {
         throw new Error("abstract");
     };
 
@@ -3666,6 +3687,20 @@ var AbstractBigBangClient = (function (_super) {
 
     AbstractBigBangClient.prototype.getChannel = function (channel) {
         return this.channelMap[channel];
+    };
+
+    AbstractBigBangClient.prototype.getDeviceChannel = function (callback) {
+        var c = this.getChannel(this._deviceId);
+
+        if (c) {
+            callback(c);
+            return;
+        } else {
+            this.subscribe(this._deviceId, function (err, channel) {
+                callback(channel);
+                return;
+            });
+        }
     };
 
     AbstractBigBangClient.prototype.sendToServer = function (msg) {
@@ -3730,7 +3765,12 @@ var AbstractBigBangClient = (function (_super) {
     AbstractBigBangClient.prototype.onWireChannelJoin = function (msg) {
         var callback = this.channelSubscribeMap[msg.name];
 
-        var channel = new Channel(this, msg.name);
+        var channel = this.channelMap[msg.name];
+
+        if (!channel) {
+            channel = new Channel(this, msg.name);
+        }
+
         channel.setChannelPermissions(msg.channelPermissions);
 
         this.channelMap[channel.getName()] = channel;
@@ -3778,7 +3818,7 @@ var AbstractBigBangClient = (function (_super) {
         cr.clientId = msg.clientId;
         cr.success = true;
         cr.message = null;
-        this._internalConnectionResult(null, cr);
+        this._internalConnectionResult(cr);
 
         setInterval(function () {
             this.sendToServer(new wire.WirePing());
@@ -3898,6 +3938,29 @@ var Client = (function (_super) {
         });
     };
 
+    Client.prototype.connectAsDevice = function (id, secret, callback) {
+        var _this = this;
+        var parsedUrl = this.parseUrl(this._appUrl);
+
+        var host = parsedUrl.host;
+        host += ':' + parsedUrl.port;
+
+        this.authenticateDevice(id, secret, function (err, result) {
+            if (err) {
+                callback(err);
+                return;
+            }
+
+            if (result.authenticated) {
+                _this._deviceId = id;
+                _this.internalConnect(parsedUrl.protocol, host, result.clientKey, callback);
+            } else {
+                callback(err);
+                return;
+            }
+        });
+    };
+
     Client.prototype.createUser = function (email, password, callback) {
         var parsedUrl = url.parse(this._appUrl);
         var uri = this._appUrl;
@@ -3944,6 +4007,49 @@ var Client = (function (_super) {
             } else {
                 callback(new bigbang.ResetPasswordError(response.userMessage));
             }
+        });
+    };
+
+    Client.prototype.createDevice = function (tags, callback) {
+        var parsedUrl = url.parse(this._appUrl);
+        var uri = this._appUrl;
+
+        uri += "/api/v1/createDevice";
+
+        var requestBody = {
+            tags: tags
+        };
+
+        this.xhr("POST", uri, requestBody, function (err, response) {
+            if (err) {
+                callback(new bigbang.CreateDeviceError(err), null);
+                return;
+            }
+
+            callback(null, new bigbang.CreateDeviceInfo(response.id, response.secret, response.tags));
+            return;
+        });
+    };
+
+    Client.prototype.authenticateDevice = function (id, secret, callback) {
+        var parsedUrl = url.parse(this._appUrl);
+        var uri = this._appUrl;
+
+        uri += "/api/v1/authDevice";
+
+        var requestBody = {
+            id: id,
+            secret: secret
+        };
+
+        this.xhr("POST", uri, requestBody, function (err, response) {
+            if (err) {
+                callback(new bigbang.CreateUserError("Invalid response.  Check your server URL and try again."), null);
+                return;
+            }
+
+            callback(null, response);
+            return;
         });
     };
 
@@ -4005,15 +4111,44 @@ var Client = (function (_super) {
 
     Client.prototype.internalConnect = function (protocol, host, clientKey, callback) {
         var _this = this;
-        this._internalConnectionResult = callback;
         this._clientKey = clientKey;
+
+        var deviceCalled = false;
+
+        if (this._deviceId) {
+            this._internalConnectionResult = function (cr) {
+                _this.getDeviceChannel(function (channel) {
+                    if (!deviceCalled) {
+                        if (cr.success) {
+                            deviceCalled = true;
+                            callback(null);
+                            return;
+                        } else {
+                            deviceCalled = true;
+                            callback(new bigbang.ConnectionError(cr.failureMessage));
+                            return;
+                        }
+                    }
+                });
+            };
+        } else {
+            this._internalConnectionResult = function (cr) {
+                if (cr.success) {
+                    callback(null);
+                    return;
+                } else {
+                    callback(new bigbang.ConnectionError(cr.failureMessage));
+                    return;
+                }
+            };
+        }
 
         var ws;
 
         if (protocol === "https") {
-            ws = "https://" + host + "/_api/connect";
+            ws = "https://" + host + "/sjs";
         } else {
-            ws = "http://" + host + "/_api/connect";
+            ws = "http://" + host + "/sjs";
         }
 
         this.socket = new SockJS(ws);

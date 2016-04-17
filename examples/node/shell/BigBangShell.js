@@ -24,7 +24,7 @@ console.log("Connecting to host " + host);
 //Currently host needs to be in form of 'host:port'
 client.connect(function (err) {
     if (err) {
-        console.log('Failed to connect. ' + err);
+        console.log('Failed to connect. ' + JSON.stringify(err));
     } else {
         printToConsole("Connected!");
         startCli();

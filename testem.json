@@ -1,27 +1,28 @@
 {
-    "timeout": 5000,
-    "framework": "mocha",
-    "serve_files": [
-        "web/bigbang.io.js",
-        "node_modules/chai/chai.js",
-        "bower_components/sockjs-client/dist/sockjs.js",
-        "test/*.js"
-    ],
-    "src_files": [
-        "node_modules/chai/chai.js",
-        "node_modules/sinon/pkg/sinon-1.7.3.js",
-        "vendor/*",
-        "lib/*",
-        "test/setup.js",
-        "test/.test.js"
-    ],
-    "launchers": {
-        "node": {
-            "command": "./node_modules/.bin/mocha -r test/setup.js -R tap -t 5000 test/test.js",
-            "protocol": "tap"
-        }
-    },
-    "launch_in_dev": [
-        "node","Chrome"
-    ]
+  "timeout": 5000,
+  "framework": "mocha",
+  "serve_files": [
+    "web/bigbang.io.js",
+    "node_modules/chai/chai.js",
+    "bower_components/sockjs-client/dist/sockjs.js",
+    "test/*.js"
+  ],
+  "src_files": [
+    "node_modules/chai/chai.js",
+    "node_modules/sinon/pkg/sinon-1.7.3.js",
+    "vendor/*",
+    "lib/*",
+    "test/setup.js",
+    "test/.test.js"
+  ],
+  "launchers": {
+    "node": {
+      "command": "./node_modules/.bin/mocha -r test/setup.js -R tap -t 5000 test/test.js",
+      "protocol": "tap"
+    }
+  },
+  "launch_in_dev": [
+
+    "chrome"
+  ]
 }

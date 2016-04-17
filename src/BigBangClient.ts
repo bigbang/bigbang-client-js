@@ -38,7 +38,7 @@ export class SimpleEventEmitter {
             return;
         }
 
-        listeners.forEach(function(listener) {
+        listeners.forEach(function (listener) {
             listener(arg1, arg2, arg3);
         });
     }
@@ -56,6 +56,8 @@ export interface BigBangClient {
      * @param callback
      */
     connect(callback:(err:ConnectionError) => any):void;
+
+    connectAsDevice(id, secret, callback:(err:ConnectionError) => any):void;
 
     /**
      * Disconnect from BigBang.
@@ -84,6 +86,10 @@ export interface BigBangClient {
      */
     getChannel(channelName:string):Channel;
 
+
+
+    getDeviceChannel(callback:(channel:Channel) => any):void;
+
     /**
      * Register an event listener for the specified event.
      * @param event
@@ -97,14 +103,17 @@ export interface BigBangClient {
      * @param password
      * @param callback
      */
-    createUser( email:string, password:string, callback?:(err:CreateUserError) => any):void;
+    createUser(email:string, password:string, callback?:(err:CreateUserError) => any):void;
 
     /**
      * Reset password.
      * @param email
      * @param callback
      */
-    resetPassword( email:String, callback?:(err:ResetPasswordError) => any):void;
+    resetPassword(email:String, callback?:(err:ResetPasswordError) => any):void;
+
+    createDevice(tags:Array<string>, callback?:(err:CreateDeviceError, device:CreateDeviceInfo) =>any):void;
+
 }
 
 export class LoginResult {
@@ -125,6 +134,31 @@ export class ConnectionError {
     }
 }
 
+export class CreateDeviceError {
+    message:string;
+
+    constructor(msg:string) {
+        this.message = msg;
+    }
+
+    toString():string {
+        return this.message;
+    }
+}
+
+export class CreateDeviceInfo {
+    id:string;
+    secret:string;
+    tags:Array<string>;
+
+    constructor(id:string, secret:string, tags:Array<string>) {
+        this.id = id;
+        this.secret = secret;
+        this.tags = tags;
+    }
+}
+
+
 export class CreateUserError {
     message:string;
 
@@ -132,7 +166,7 @@ export class CreateUserError {
         this.message = msg;
     }
 
-    toString():string{
+    toString():string {
         return this.message;
     }
 }
@@ -144,7 +178,7 @@ export class ResetPasswordError {
         this.message = msg;
     }
 
-    toString():string{
+    toString():string {
         return this.message;
     }
 }
@@ -279,8 +313,8 @@ export class Channel extends SimpleEventEmitter {
     public getNamespaces():Array<string> {
         var names:Array<string> = [];
 
-        Object.keys( this.keySpaces).forEach(function(key) {
-            if( key !== '_meta') {
+        Object.keys(this.keySpaces).forEach(function (key) {
+            if (key !== '_meta') {
                 names.push(key);
             }
         });
@@ -315,7 +349,7 @@ export class Channel extends SimpleEventEmitter {
      * Unsubscribe from the specified channel.
      * @param channel
      */
-     public unsubscribe(callback:() => any):void {
+    public unsubscribe(callback:() => any):void {
         var msg:wire.WireChannelUnSubscribe = new wire.WireChannelUnSubscribe();
         msg.name = this.getName();
         this.client.sendToServer(msg);
@@ -376,7 +410,7 @@ export class Channel extends SimpleEventEmitter {
     }
 
     onWireChannelLeave(msg:wire.WireChannelLeave):void {
-        if(this.unsubscribeCallback) {
+        if (this.unsubscribeCallback) {
             this.unsubscribeCallback();
         }
     }
@@ -602,6 +636,7 @@ export class AbstractBigBangClient extends SimpleEventEmitter implements wire.Wi
     _clientId:string;
     _clientKey:string;
     _appUrl:string;
+    _deviceId:string;
 
 
     channelSubscribeMap:{ [channeId:string]: (err:ChannelError, channel:Channel) =>any };
@@ -628,11 +663,19 @@ export class AbstractBigBangClient extends SimpleEventEmitter implements wire.Wi
         throw new Error("abstract");
     }
 
-    createUser( email:string, password:string, callback?:(err:CreateUserError) => any):void {
+    connectAsDevice(id, secret, callback:(err:ConnectionError) => any):void {
         throw new Error("abstract");
     }
 
-    resetPassword( email:String, callback?:(err:ResetPasswordError) => any):void {
+    createUser(email:string, password:string, callback?:(err:CreateUserError) => any):void {
+        throw new Error("abstract");
+    }
+
+    resetPassword(email:String, callback?:(err:ResetPasswordError) => any):void {
+        throw new Error("abstract");
+    }
+
+    createDevice(tags:Array<string>, callback?:(err:CreateDeviceError, device:CreateDeviceInfo) =>any):void {
         throw new Error("abstract");
     }
 
@@ -658,6 +701,21 @@ export class AbstractBigBangClient extends SimpleEventEmitter implements wire.Wi
 
     getChannel(channel:string):Channel {
         return this.channelMap[channel];
+    }
+
+    getDeviceChannel(callback:(channel:Channel) => any):void {
+        var c = this.getChannel(this._deviceId);
+
+        if (c) {
+            callback(c);
+            return;
+        }
+        else {
+            this.subscribe(this._deviceId, (err, channel) => {
+                callback(channel);
+                return;
+            })
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -739,7 +797,12 @@ export class AbstractBigBangClient extends SimpleEventEmitter implements wire.Wi
     onWireChannelJoin(msg:wire.WireChannelJoin) {
         var callback = this.channelSubscribeMap[msg.name];
 
-        var channel:Channel = new Channel(this, msg.name);
+        var channel:Channel = this.channelMap[msg.name];
+
+        if(!channel) {
+            channel = new Channel(this, msg.name);
+        }
+
         channel.setChannelPermissions(msg.channelPermissions);
 
         this.channelMap[channel.getName()] = channel;
@@ -789,12 +852,12 @@ export class AbstractBigBangClient extends SimpleEventEmitter implements wire.Wi
         cr.clientId = msg.clientId;
         cr.success = true;
         cr.message = null;
-        this._internalConnectionResult(null, cr);
+        this._internalConnectionResult(cr);
 
         //Start up clientToServerPing at specified rate
-        setInterval(function() {
+        setInterval(function () {
             this.sendToServer(new wire.WirePing());
-        }.bind(this),msg.clientToServerPingMS );
+        }.bind(this), msg.clientToServerPingMS);
 
     }
 
@@ -858,12 +921,12 @@ export class AbstractBigBangClient extends SimpleEventEmitter implements wire.Wi
         console.log('Unimplemented: onWireChannelSubscribe');
     }
 
-    onWirePing( msg:wire.WirePing) {
+    onWirePing(msg:wire.WirePing) {
         //Turn around and send it back.
         this.sendToServer(new wire.WirePong());
     }
 
-    onWirePong( msg:wire.WirePong ) {
+    onWirePong(msg:wire.WirePong) {
         //Check for liveness at some point if we dont get answers.
     }
 
@@ -879,9 +942,9 @@ export class AbstractBigBangClient extends SimpleEventEmitter implements wire.Wi
         var host = comps[1];
         var port:Number = Number(comps[2]) || (protocol === 'http' ? 80 : 443);
         return {
-            protocol : protocol,
-            host : host,
-            port : port
+            protocol: protocol,
+            host: host,
+            port: port
         };
     }
 }

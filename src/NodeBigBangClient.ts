@@ -38,6 +38,107 @@ export class Client extends bigbang.AbstractBigBangClient implements wire.WirePr
         super(appUrl);
     }
 
+    connectAsDevice(id, secret, callback:(err:bigbang.ConnectionError) => any):void {
+        // connect calls internalLogin
+        // internalLogin's callback calls internalConnect
+        // internalConnect sets it's callback to be called later
+        // events call internalConnect's callback
+        var parsedUrl = this.parseUrl(this._appUrl);
+
+
+        var host = parsedUrl.host;
+        host += ':' + parsedUrl.port;
+
+        this.authenticateDevice(id, secret, function (err, result) {
+
+            if (err) {
+                callback(err);
+                return;
+            }
+
+            if (result.authenticated) {
+                this._deviceId = id;
+                this.internalConnect(parsedUrl.protocol, host, result.clientKey, callback);
+            }
+            else {
+                callback(err);
+                return;
+            }
+        }.bind(this));
+    }
+
+    authenticateDevice(id, secret, callback):void {
+
+
+        var parsedUrl = url.parse(this._appUrl);
+        var uri:string = this._appUrl;
+
+        uri += "/api/v1/authDevice";
+
+
+        var requestString = JSON.stringify({
+            id: id,
+            secret: secret
+        });
+
+
+        var headers = {
+            'Content-Type': 'application/json',
+            'Content-Length': requestString.length
+        };
+
+        var options = {
+            hostname: parsedUrl.hostname,
+            port: parseInt(parsedUrl.port),
+            path: uri,
+            headers: headers,
+            method: 'POST'
+        };
+
+        var req = null;
+
+        var responseHandler = function (res) {
+
+            res.setEncoding("UTF-8");
+            var responseStr = "";
+
+            res.on('data', function (data) {
+                responseStr += data;
+            });
+
+            res.on('end', function () {
+                var json:any = null;
+                try {
+                    var json = JSON.parse(responseStr);
+                    callback(null, json);
+
+                }
+                catch (e) {
+                    console.error(e);
+                    callback(new bigbang.CreateUserError("Invalid response.  Check your server URL and try again."), null);
+                }
+            });
+        }
+
+
+        if (parsedUrl.protocol == 'https') {
+            req = https.request(options, responseHandler);
+        }
+        else {
+            req = http.request(options, responseHandler);
+        }
+
+        req.on('error', function (e) {
+            console.error(e);
+            callback(new bigbang.CreateUserError("Invalid response.  Check your server URL and try again."));
+        });
+
+        req.write(requestString);
+        req.end();
+
+
+    }
+
     connect(callback:(err:bigbang.ConnectionError) => any):void {
         // connect calls internalLogin
         // internalLogin's callback calls internalConnect
@@ -84,6 +185,7 @@ export class Client extends bigbang.AbstractBigBangClient implements wire.WirePr
             hostname: parsedUrl.hostname,
             port: parseInt(parsedUrl.port),
             path: uri,
+            headers: headers,
             method: 'POST'
         };
 
@@ -135,7 +237,7 @@ export class Client extends bigbang.AbstractBigBangClient implements wire.WirePr
         req.end();
     }
 
-    resetPassword( email:String, callback?:(err:bigbang.ResetPasswordError) => any):void {
+    resetPassword(email:String, callback?:(err:bigbang.ResetPasswordError) => any):void {
         var parsedUrl = url.parse(this._appUrl);
 
         var uri:string = this._appUrl;
@@ -157,6 +259,7 @@ export class Client extends bigbang.AbstractBigBangClient implements wire.WirePr
             hostname: parsedUrl.hostname,
             port: parseInt(parsedUrl.port),
             path: uri,
+            headers: headers,
             method: 'POST'
         };
 
@@ -204,6 +307,77 @@ export class Client extends bigbang.AbstractBigBangClient implements wire.WirePr
             callback(new bigbang.ResetPasswordError("Invalid response.  Check your server URL and try again."));
         });
 
+
+        req.write(requestString);
+        req.end();
+    }
+
+
+    createDevice(tags:Array<string>, callback?:(err:bigbang.CreateDeviceError, device:bigbang.CreateDeviceInfo) =>any):void {
+        var parsedUrl = url.parse(this._appUrl);
+
+        var uri:string = this._appUrl;
+
+        uri += "/api/v1/createDevice";
+
+        var requestBody = {
+            tags: tags
+        }
+
+        var requestString = JSON.stringify(requestBody);
+
+        var headers = {
+            'Content-Type': 'application/json',
+            'Content-Length': requestString.length
+        };
+
+        var options = {
+            hostname: parsedUrl.hostname,
+            port: parseInt(parsedUrl.port),
+            path: uri,
+            headers: headers,
+            method: 'POST'
+        };
+
+        var req = null;
+
+        var responseHandler = function (res) {
+
+            res.setEncoding("UTF-8");
+            var responseStr = "";
+
+            res.on('data', function (data) {
+                responseStr += data;
+            });
+
+            res.on('end', function () {
+                var json:any = null;
+                try {
+                    var json = JSON.parse(responseStr);
+                    callback(null, new bigbang.CreateDeviceInfo(json.id, json.secret, json.tags));
+                    return;
+
+                }
+                catch (e) {
+                    console.error(e);
+                    callback(new bigbang.CreateDeviceError("Invalid response.  Check your server URL and try again."), null);
+                    return;
+                }
+            });
+        }
+
+
+        if (parsedUrl.protocol == 'https') {
+            req = https.request(options, responseHandler);
+        }
+        else {
+            req = http.request(options, responseHandler);
+        }
+
+        req.on('error', function (e) {
+            console.error(e);
+            callback(new bigbang.CreateDeviceError("Invalid response.  Check your server URL and try again."), null);
+        });
 
         req.write(requestString);
         req.end();
@@ -285,8 +459,41 @@ export class Client extends bigbang.AbstractBigBangClient implements wire.WirePr
     }
 
     internalConnect(protocol:string, host:string, clientKey:string, callback:(err:bigbang.ConnectionError) =>any):void {
-        this._internalConnectionResult = callback;
         this._clientKey = clientKey;
+        //TODO could be more elegant here.
+        var deviceCalled = false;
+
+        if (this._deviceId) {
+            this._internalConnectionResult = (cr) => {
+                this.getDeviceChannel((channel) => {
+                    if (!deviceCalled) {
+                        if (cr.success) {
+                            deviceCalled = true;
+                            callback(null);
+                            return;
+                        }
+                        else {
+                            deviceCalled = true;
+                            callback(new bigbang.ConnectionError(cr.failureMessage));
+                            return;
+                        }
+                    }
+                })
+            };
+        }
+        else {
+            this._internalConnectionResult = (cr) => {
+                if (cr.success) {
+                    callback(null);
+                    return;
+                }
+                else {
+                    callback(new bigbang.ConnectionError(cr.failureMessage));
+                    return;
+                }
+            };
+        }
+
 
         if (protocol === "https") {
             this.socket = new ws.Client('wss://' + host + '/sjs/websocket');
