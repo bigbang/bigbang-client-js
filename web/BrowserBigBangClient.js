@@ -31,6 +31,29 @@ var Client = (function (_super) {
         });
     };
 
+    Client.prototype.connectAsDevice = function (id, secret, callback) {
+        var _this = this;
+        var parsedUrl = this.parseUrl(this._appUrl);
+
+        var host = parsedUrl.host;
+        host += ':' + parsedUrl.port;
+
+        this.authenticateDevice(id, secret, function (err, result) {
+            if (err) {
+                callback(err);
+                return;
+            }
+
+            if (result.authenticated) {
+                _this._deviceId = id;
+                _this.internalConnect(parsedUrl.protocol, host, result.clientKey, callback);
+            } else {
+                callback(err);
+                return;
+            }
+        });
+    };
+
     Client.prototype.createUser = function (email, password, callback) {
         var parsedUrl = url.parse(this._appUrl);
         var uri = this._appUrl;
@@ -77,6 +100,49 @@ var Client = (function (_super) {
             } else {
                 callback(new bigbang.ResetPasswordError(response.userMessage));
             }
+        });
+    };
+
+    Client.prototype.createDevice = function (tags, callback) {
+        var parsedUrl = url.parse(this._appUrl);
+        var uri = this._appUrl;
+
+        uri += "/api/v1/createDevice";
+
+        var requestBody = {
+            tags: tags
+        };
+
+        this.xhr("POST", uri, requestBody, function (err, response) {
+            if (err) {
+                callback(new bigbang.CreateDeviceError(err), null);
+                return;
+            }
+
+            callback(null, new bigbang.CreateDeviceInfo(response.id, response.secret, response.tags));
+            return;
+        });
+    };
+
+    Client.prototype.authenticateDevice = function (id, secret, callback) {
+        var parsedUrl = url.parse(this._appUrl);
+        var uri = this._appUrl;
+
+        uri += "/api/v1/authDevice";
+
+        var requestBody = {
+            id: id,
+            secret: secret
+        };
+
+        this.xhr("POST", uri, requestBody, function (err, response) {
+            if (err) {
+                callback(new bigbang.CreateUserError("Invalid response.  Check your server URL and try again."), null);
+                return;
+            }
+
+            callback(null, response);
+            return;
         });
     };
 
@@ -138,15 +204,44 @@ var Client = (function (_super) {
 
     Client.prototype.internalConnect = function (protocol, host, clientKey, callback) {
         var _this = this;
-        this._internalConnectionResult = callback;
         this._clientKey = clientKey;
+
+        var deviceCalled = false;
+
+        if (this._deviceId) {
+            this._internalConnectionResult = function (cr) {
+                _this.getDeviceChannel(function (channel) {
+                    if (!deviceCalled) {
+                        if (cr.success) {
+                            deviceCalled = true;
+                            callback(null);
+                            return;
+                        } else {
+                            deviceCalled = true;
+                            callback(new bigbang.ConnectionError(cr.failureMessage));
+                            return;
+                        }
+                    }
+                });
+            };
+        } else {
+            this._internalConnectionResult = function (cr) {
+                if (cr.success) {
+                    callback(null);
+                    return;
+                } else {
+                    callback(new bigbang.ConnectionError(cr.failureMessage));
+                    return;
+                }
+            };
+        }
 
         var ws;
 
         if (protocol === "https") {
-            ws = "https://" + host + "/_api/connect";
+            ws = "https://" + host + "/sjs";
         } else {
-            ws = "http://" + host + "/_api/connect";
+            ws = "http://" + host + "/sjs";
         }
 
         this.socket = new SockJS(ws);

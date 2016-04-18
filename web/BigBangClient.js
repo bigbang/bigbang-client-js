@@ -53,6 +53,27 @@ var ConnectionError = (function () {
 })();
 exports.ConnectionError = ConnectionError;
 
+var CreateDeviceError = (function () {
+    function CreateDeviceError(msg) {
+        this.message = msg;
+    }
+    CreateDeviceError.prototype.toString = function () {
+        return this.message;
+    };
+    return CreateDeviceError;
+})();
+exports.CreateDeviceError = CreateDeviceError;
+
+var CreateDeviceInfo = (function () {
+    function CreateDeviceInfo(id, secret, tags) {
+        this.id = id;
+        this.secret = secret;
+        this.tags = tags;
+    }
+    return CreateDeviceInfo;
+})();
+exports.CreateDeviceInfo = CreateDeviceInfo;
+
 var CreateUserError = (function () {
     function CreateUserError(msg) {
         this.message = msg;
@@ -431,11 +452,19 @@ var AbstractBigBangClient = (function (_super) {
         throw new Error("abstract");
     };
 
+    AbstractBigBangClient.prototype.connectAsDevice = function (id, secret, callback) {
+        throw new Error("abstract");
+    };
+
     AbstractBigBangClient.prototype.createUser = function (email, password, callback) {
         throw new Error("abstract");
     };
 
     AbstractBigBangClient.prototype.resetPassword = function (email, callback) {
+        throw new Error("abstract");
+    };
+
+    AbstractBigBangClient.prototype.createDevice = function (tags, callback) {
         throw new Error("abstract");
     };
 
@@ -461,6 +490,20 @@ var AbstractBigBangClient = (function (_super) {
 
     AbstractBigBangClient.prototype.getChannel = function (channel) {
         return this.channelMap[channel];
+    };
+
+    AbstractBigBangClient.prototype.getDeviceChannel = function (callback) {
+        var c = this.getChannel(this._deviceId);
+
+        if (c) {
+            callback(c);
+            return;
+        } else {
+            this.subscribe(this._deviceId, function (err, channel) {
+                callback(channel);
+                return;
+            });
+        }
     };
 
     AbstractBigBangClient.prototype.sendToServer = function (msg) {
@@ -525,7 +568,12 @@ var AbstractBigBangClient = (function (_super) {
     AbstractBigBangClient.prototype.onWireChannelJoin = function (msg) {
         var callback = this.channelSubscribeMap[msg.name];
 
-        var channel = new Channel(this, msg.name);
+        var channel = this.channelMap[msg.name];
+
+        if (!channel) {
+            channel = new Channel(this, msg.name);
+        }
+
         channel.setChannelPermissions(msg.channelPermissions);
 
         this.channelMap[channel.getName()] = channel;
@@ -573,7 +621,7 @@ var AbstractBigBangClient = (function (_super) {
         cr.clientId = msg.clientId;
         cr.success = true;
         cr.message = null;
-        this._internalConnectionResult(null, cr);
+        this._internalConnectionResult(cr);
 
         setInterval(function () {
             this.sendToServer(new wire.WirePing());

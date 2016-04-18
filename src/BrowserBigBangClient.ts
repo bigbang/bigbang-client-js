@@ -37,6 +37,7 @@ export class Client extends bigbang.AbstractBigBangClient implements wire.WirePr
         super(appUrl);
     }
 
+
     connect(callback:(err:bigbang.ConnectionError) => any):void {
 
         var parsedUrl = this.parseUrl(this._appUrl);
@@ -54,6 +55,31 @@ export class Client extends bigbang.AbstractBigBangClient implements wire.WirePr
             else {
                 var err:bigbang.ConnectionError = new bigbang.ConnectionError(loginResult.message);
                 callback(err);
+            }
+        });
+    }
+
+    connectAsDevice(id, secret, callback:(err:bigbang.ConnectionError) => any):void {
+        var parsedUrl = this.parseUrl(this._appUrl);
+
+        var host = parsedUrl.host;
+        host += ':' + parsedUrl.port;
+
+
+        this.authenticateDevice(id, secret, (err, result) => {
+
+            if (err) {
+                callback(err);
+                return;
+            }
+
+            if (result.authenticated) {
+                this._deviceId = id;
+                this.internalConnect(parsedUrl.protocol, host, result.clientKey, callback);
+            }
+            else {
+                callback(err);
+                return;
             }
         });
     }
@@ -110,6 +136,54 @@ export class Client extends bigbang.AbstractBigBangClient implements wire.WirePr
                 callback(new bigbang.ResetPasswordError(response.userMessage));
             }
         });
+    }
+
+    createDevice(tags:Array<string>, callback?:(err:bigbang.CreateDeviceError, device:bigbang.CreateDeviceInfo) =>any):void {
+
+        var parsedUrl = url.parse(this._appUrl);
+        var uri:string = this._appUrl;
+
+        uri += "/api/v1/createDevice";
+
+        var requestBody = {
+            tags: tags
+        }
+
+        this.xhr("POST", uri, requestBody, function (err, response:any) {
+            if (err) {
+                callback(new bigbang.CreateDeviceError(err), null);
+                return;
+            }
+
+            callback(null, new bigbang.CreateDeviceInfo(response.id, response.secret, response.tags));
+            return;
+        });
+    }
+
+
+    authenticateDevice(id, secret, callback):void {
+
+        var parsedUrl = url.parse(this._appUrl);
+        var uri:string = this._appUrl;
+
+        uri += "/api/v1/authDevice";
+
+        var requestBody = {
+            id: id,
+            secret: secret
+        }
+
+        this.xhr("POST", uri, requestBody, function (err, response:any) {
+            if (err) {
+                callback(new bigbang.CreateUserError("Invalid response.  Check your server URL and try again."), null);
+                return;
+            }
+
+            callback(null, response);
+            return;
+        });
+
+
     }
 
 
@@ -174,16 +248,51 @@ export class Client extends bigbang.AbstractBigBangClient implements wire.WirePr
     }
 
     internalConnect(protocol:string, host:string, clientKey:string, callback:(err:bigbang.ConnectionError) =>any):void {
-        this._internalConnectionResult = callback;
+
         this._clientKey = clientKey;
+        //TODO could be more elegant here.
+        var deviceCalled = false;
+
+
+        if (this._deviceId) {
+            this._internalConnectionResult = (cr) => {
+                this.getDeviceChannel((channel) => {
+                    if (!deviceCalled) {
+                        if (cr.success) {
+                            deviceCalled = true;
+                            callback(null);
+                            return;
+                        }
+                        else {
+                            deviceCalled = true;
+                            callback(new bigbang.ConnectionError(cr.failureMessage));
+                            return;
+                        }
+                    }
+                })
+            };
+        }
+        else {
+            this._internalConnectionResult = (cr) => {
+                if (cr.success) {
+                    callback(null);
+                    return;
+                }
+                else {
+                    callback(new bigbang.ConnectionError(cr.failureMessage));
+                    return;
+                }
+            }
+        }
+
 
         var ws:string;
 
         if (protocol === "https") {
-            ws = "https://" + host + "/_api/connect";
+            ws = "https://" + host + "/sjs";
         }
         else {
-            ws = "http://" + host + "/_api/connect";
+            ws = "http://" + host + "/sjs";
         }
 
         this.socket = new SockJS(ws);
@@ -202,13 +311,6 @@ export class Client extends bigbang.AbstractBigBangClient implements wire.WirePr
         this.socket.onclose = (event) => {
             this.emit('disconnected', false);
         };
-
-        /*
-         this.socket.onerror = function (event) {
-         console.error("WebSocket error: " + event);
-         // TODO: call disconnect?
-         };
-         */
     }
 
     sendToServer(msg:pew.PewMessage):void {
