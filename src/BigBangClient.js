@@ -1,7 +1,7 @@
-/// <reference path="PewRuntime.ts"/>
-/// <reference path="WireProtocol.Protocol.ts"/>
-import * as pew from "./PewRuntime";
-import * as wire from "./WireProtocol.Protocol.js";
+const pew = require("./PewRuntime");
+const wire = require("./WireProtocol.Protocol.js");
+const RestApiClient = require('./rest/index.js');
+
 export class SimpleEventEmitter {
     constructor() {
         this._listeners = {};
@@ -462,12 +462,19 @@ export class AbstractBigBangClient extends SimpleEventEmitter {
         this.channelMap = {};
     }
 
+    _getRestClient() {
+        var api = new RestApiClient.DefaultApi();
+        api.apiClient.basePath = this._appUrl + '/api/v1';
+        return api;
+    }
+
     connect(url, options, callback) {
         throw new Error("abstract");
     }
 
     connectAsDevice(id, secret, callback) {
-        throw new Error("abstract");
+        throw new Error('abstract');
+
     }
 
     createUser(email, password, callback) {
@@ -479,7 +486,21 @@ export class AbstractBigBangClient extends SimpleEventEmitter {
     }
 
     createDevice(tags, callback) {
-        throw new Error("abstract");
+        var api = this._getRestClient();
+        var body = new RestApiClient.CreateDeviceRequest();
+        body.tags = tags;
+
+        api.create(body, (err, data, response) => {
+            if (err) {
+                console.error(err);
+                callback(new CreateDeviceError("Invalid response.  Check your server URL and try again."), null);
+                return;
+            } else {
+                const json = response.body;
+                callback(null, new CreateDeviceInfo(json.id, json.secret, json.tags));
+                return;
+            }
+        });
     }
 
     disconnect() {

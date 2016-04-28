@@ -1,13 +1,11 @@
-///<reference path="PewRuntime.ts"/>
-///<reference path="WireProtocol.Protocol.ts"/>
-///<reference path="node.d.ts"/>
-///<reference path="sockjs.d.ts"/>
-import * as url from "url";
-import * as bigbang from "./BigBangClient";
-export class Client extends bigbang.AbstractBigBangClient {
+const url = require("url");
+const bigbang = require("./BigBangClient");
+
+class BrowserBigBangClient extends bigbang.AbstractBigBangClient {
     constructor(appUrl) {
         super(appUrl);
     }
+
     connect(callback) {
         var parsedUrl = this.parseUrl(this._appUrl);
         var host = parsedUrl.host;
@@ -24,6 +22,7 @@ export class Client extends bigbang.AbstractBigBangClient {
             }
         });
     }
+
     connectAsDevice(id, secret, callback) {
         var parsedUrl = this.parseUrl(this._appUrl);
         var host = parsedUrl.host;
@@ -43,6 +42,7 @@ export class Client extends bigbang.AbstractBigBangClient {
             }
         });
     }
+
     createUser(email, password, callback) {
         var parsedUrl = url.parse(this._appUrl);
         var uri = this._appUrl;
@@ -64,6 +64,7 @@ export class Client extends bigbang.AbstractBigBangClient {
             }
         });
     }
+
     resetPassword(email, callback) {
         var parsedUrl = url.parse(this._appUrl);
         var uri = this._appUrl;
@@ -84,22 +85,7 @@ export class Client extends bigbang.AbstractBigBangClient {
             }
         });
     }
-    createDevice(tags, callback) {
-        var parsedUrl = url.parse(this._appUrl);
-        var uri = this._appUrl;
-        uri += "/api/v1/createDevice";
-        var requestBody = {
-            tags: tags
-        };
-        this.xhr("POST", uri, requestBody, function (err, response) {
-            if (err) {
-                callback(new bigbang.CreateDeviceError(err), null);
-                return;
-            }
-            callback(null, new bigbang.CreateDeviceInfo(response.id, response.secret, response.tags));
-            return;
-        });
-    }
+
     authenticateDevice(id, secret, callback) {
         var parsedUrl = url.parse(this._appUrl);
         var uri = this._appUrl;
@@ -117,6 +103,7 @@ export class Client extends bigbang.AbstractBigBangClient {
             return;
         });
     }
+
     internalLogin(protocol, host, user, password, application, callback) {
         var hostname = host.split(":")[0];
         var port = host.split(":")[1];
@@ -161,6 +148,7 @@ export class Client extends bigbang.AbstractBigBangClient {
         };
         xhr.send();
     }
+
     internalConnect(protocol, host, clientKey, callback) {
         this._clientKey = clientKey;
         //TODO could be more elegant here.
@@ -216,6 +204,7 @@ export class Client extends bigbang.AbstractBigBangClient {
             this.emit('disconnected', false);
         };
     }
+
     sendToServer(msg) {
         var s = this.wireProtocol.wrapNetstring(msg);
         if (this.socket) {
@@ -225,12 +214,14 @@ export class Client extends bigbang.AbstractBigBangClient {
             console.error("Send while socket is null.");
         }
     }
+
     onDisconnect(notify) {
         if (!notify) {
             this.socket.onclose = null;
         }
         this.socket.close();
     }
+
     createCORSRequest(method, url) {
         var xhr = new XMLHttpRequest();
         if ("withCredentials" in xhr) {
@@ -244,6 +235,7 @@ export class Client extends bigbang.AbstractBigBangClient {
         }
         return xhr;
     }
+
     xhr(method, url, body, callback) {
         var xhr = this.createCORSRequest(method, url);
         if (!xhr) {
@@ -269,4 +261,8 @@ export class Client extends bigbang.AbstractBigBangClient {
             xhr.send();
         }
     }
+}
+
+module.exports = {
+    Client: BrowserBigBangClient
 }

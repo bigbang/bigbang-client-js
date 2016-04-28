@@ -1,3 +1,5 @@
+var webpack = require('webpack');
+
 module.exports = function (grunt) {
 
     grunt.initConfig({
@@ -15,13 +17,14 @@ module.exports = function (grunt) {
             node: {
                 options: {
                     sourceMap: true,
-                    presets: ['babel-preset-node5']
+                    presets: ['babel-preset-node5'],
                 },
                 files: [
                     {src: 'src/BigBangClient.js', dest: 'lib/BigBangClient.js'},
                     {src: 'src/NodeBigBangClient.js', dest: 'lib/NodeBigBangClient.js'},
                     {src: 'src/PewRuntime.js', dest: 'lib/PewRuntime.js'},
                     {src: 'src/WireProtocol.Protocol.js', dest: 'lib/WireProtocol.Protocol.js'},
+                    {expand:true, src:"**/*.js",  cwd:'src/rest', dest:'lib/rest'}
                 ]
             },
             web: {
@@ -34,12 +37,13 @@ module.exports = function (grunt) {
                     {src: 'src/BrowserBigBangClient.js', dest: 'web/BrowserBigBangClient.js'},
                     {src: 'src/PewRuntime.js', dest: 'web/PewRuntime.js'},
                     {src: 'src/WireProtocol.Protocol.js', dest: 'web/WireProtocol.Protocol.js'},
+                    {expand:true, src:"**/*.js",  cwd:'src/rest', dest:'web/rest'}
                 ]
             }
         },
 
         webpack: {
-            someName: {
+            web: {
                 // webpack options
                 entry: "./web/BrowserBigBangClient.js",
                 output: {
@@ -50,6 +54,20 @@ module.exports = function (grunt) {
                     libraryTarget: 'var'
                 },
 
+                plugins: [
+                    new webpack.DefinePlugin({ "global.GENTLY": false }),
+
+                    /*new webpack.optimize.UglifyJsPlugin({
+                        compress: {
+                            warnings: false
+                        }
+                    })
+                    */
+                ],
+
+                node: {
+                    fs: 'empty'
+                },
 
                 stats: {
                     // Configure the console output
@@ -77,7 +95,7 @@ module.exports = function (grunt) {
                 inline: true,  // embed the webpack-dev-server runtime into the bundle
                 // Defaults to false
 
-                hot: true, // adds the HotModuleReplacementPlugin and switch the server to hot mode
+                hot: false, // adds the HotModuleReplacementPlugin and switch the server to hot mode
                 // Use this in combination with the inline option
 
             }
