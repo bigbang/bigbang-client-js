@@ -1,5 +1,6 @@
 const url = require("url");
 const bigbang = require("./BigBangClient");
+const SockJS = require("sockjs-client");
 
 class BrowserBigBangClient extends bigbang.AbstractBigBangClient {
     constructor(appUrl) {
@@ -42,7 +43,6 @@ class BrowserBigBangClient extends bigbang.AbstractBigBangClient {
             }
         });
     }
-
 
     internalLogin(protocol, host, user, password, application, callback) {
         if (!user && !password) {

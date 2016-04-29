@@ -4,7 +4,7 @@ module.exports = function (grunt) {
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
-        clean: ['lib/', 'web/'],
+        clean: ['lib/', 'web/', 'build/'],
 
         watch: {
             react: {
@@ -33,11 +33,11 @@ module.exports = function (grunt) {
                     presets: ['babel-preset-es2015']
                 },
                 files: [
-                    {src: 'src/BigBangClient.js', dest: 'web/BigBangClient.js'},
-                    {src: 'src/BrowserBigBangClient.js', dest: 'web/BrowserBigBangClient.js'},
-                    {src: 'src/PewRuntime.js', dest: 'web/PewRuntime.js'},
-                    {src: 'src/WireProtocol.Protocol.js', dest: 'web/WireProtocol.Protocol.js'},
-                    {expand:true, src:"**/*.js",  cwd:'src/rest', dest:'web/rest'}
+                    {src: 'src/BigBangClient.js', dest: 'build/web/BigBangClient.js'},
+                    {src: 'src/BrowserBigBangClient.js', dest: 'build/web/BrowserBigBangClient.js'},
+                    {src: 'src/PewRuntime.js', dest: 'build/web/PewRuntime.js'},
+                    {src: 'src/WireProtocol.Protocol.js', dest: 'build/web/WireProtocol.Protocol.js'},
+                    {expand:true, src:"**/*.js",  cwd:'src/rest', dest:'build/web/rest'}
                 ]
             }
         },
@@ -45,7 +45,7 @@ module.exports = function (grunt) {
         webpack: {
             web: {
                 // webpack options
-                entry: "./web/BrowserBigBangClient.js",
+                entry: "./build/web/BrowserBigBangClient.js",
                 output: {
                     path: './web',
                     filename: 'bigbang.io.js',
@@ -57,13 +57,6 @@ module.exports = function (grunt) {
                 plugins: [
                     /* the node fs:empty below may be taking care of this, might be able to remove */
                     new webpack.DefinePlugin({ "global.GENTLY": false }),
-
-                    /*new webpack.optimize.UglifyJsPlugin({
-                        compress: {
-                            warnings: false
-                        }
-                    })
-                    */
                 ],
 
                 node: {
@@ -101,6 +94,17 @@ module.exports = function (grunt) {
 
             }
         },
+
+        uglify: {
+            options: {
+                mangle: true
+            },
+            my_target: {
+                files: {
+                    'web/bigbang.io.min.js': ['web/bigbang.io.js']
+                }
+            }
+        },
         exec: {
             pewGenerate: {
                 command: 'pew -c client -l typescript -i ../pulsar/src/main/pew/WireProtocol.pew -o src'
@@ -117,6 +121,6 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-babel')
     grunt.loadNpmTasks('grunt-webpack');
     grunt.loadNpmTasks('grunt-exec');
-
-    grunt.registerTask('default', ['clean', 'babel', 'webpack']);
+    grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.registerTask('default', ['clean', 'babel', 'webpack','uglify']);
 };

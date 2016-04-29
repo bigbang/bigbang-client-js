@@ -1,6 +1,6 @@
 {
   "name": "bigbang.io",
-  "version": "0.0.7",
+  "version": "0.0.9",
   "homepage": "https://github.com/bigbang/bigbang-client-js",
   "authors": [
     "Jason von Nieda <jason@vonnieda.org>"
@@ -22,6 +22,6 @@
   ],
   "private": false,
   "dependencies": {
-    "sockjs-client": "~0.3.4"
+    "sockjs-client": "1.0.3"
   }
 }
