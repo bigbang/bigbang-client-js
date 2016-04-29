@@ -2,7 +2,15 @@
 node_modules
 lib/*
 examples/web/hello/bower_components
-src/*.js
 src/*.js.map
 bower_components
 examples/web/hello/js/vendor
+web/rest
+web/BigBangClient.js
+web/BigBangClient.js.map
+web/BrowserBigBangClient.js
+web/BrowserBigBangClient.js.map
+web/PewRuntime.js
+web/PewRuntime.js.map
+web/WireProtocol.Protocol.js
+web/WireProtocol.Protocol.js.map

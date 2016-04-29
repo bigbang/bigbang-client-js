@@ -8,7 +8,7 @@ Clone this repository
 
 ### Start local web server
 
-Install [Node.JS](https://nodejs.org/) and [Grunt](http://gruntjs.com/) if you don't have them installed.
+Install [Node.JS](https://nodejs.org/) if you don't have it installed.
 
 
 Install the build dependencies
@@ -16,20 +16,23 @@ Install the build dependencies
     npm install
 
 
-Run the web server
+Run the local web server
 
-    grunt 
+    npm start
     
     
-You should see a message like the following
+You should see a message like the following:
     
-    Running "http-server:dev" (http-server) task
-    Server running on  127.0.0.1:8080
-    Hit CTRL-C to stop the server
+    * Static server successfully started.
+    * Serving files at: http://localhost:8080
+    * Press Ctrl+C to shutdown.
     
 If you did, everything is totally groovy. Browse over to the example page
     
-    http://localhost:8080/index.html
+    [http://localhost:8080/index.html](http://localhost:8080/index.html)
+    
+    
+Check out `js/main.js`, this is where all of the work happens.    
 
 
     

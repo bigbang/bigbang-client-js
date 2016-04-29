@@ -2,15 +2,11 @@ var chatChannel;
 
 
 $(document).ready(function () {
-
-
-
     //Big Bang demo server.
     var host = "https://demo.bigbang.io";
 
     //Create an instance of the BigBangClient
-    var client = new BigBang.Client( host );
-
+    var client = new BigBang.Client(host);
 
     client.connect(function (err) {
 

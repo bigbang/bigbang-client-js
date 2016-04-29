@@ -1,68 +1,134 @@
+var webpack = require('webpack');
+
 module.exports = function (grunt) {
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
+        clean: ['lib/', 'web/', 'build/'],
 
-        clean: ['lib/', 'web/'],
-
-        typescript: {
-            node: {
-                src: ['src/BigBangClient.ts', 'src/NodeBigBangClient.ts', 'src/PewRuntime.ts', 'src/WireProtocol.Protocol.ts'],
-                dest: 'lib',
-                options: {
-                    module: 'commonjs',
-                    target: 'es5',
-                    basePath: 'src',
-                    watch: false
-                }
-            },
-            web: {
-                src: ['src/BigBangClient.ts', 'src/BrowserBigBangClient.ts', 'src/PewRuntime.ts', 'src/WireProtocol.Protocol.ts'],
-                dest: 'web',
-                options: {
-                    module: 'commonjs',
-                    target: 'es5',
-                    basePath: 'src'
-                }
-            }
-        },
         watch: {
             react: {
                 files: ['src/**/*.ts'],
                 tasks: ['default']
             }
         },
-        browserify: {
-            js: {
-                src : 'web/BrowserBigBangClient.js',
-                dest : 'web/bigbang.io.js',
-                options : {
-                    browserifyOptions : {
-                        standalone : 'BigBang'
-                    }
-                }
+
+        babel: {
+            node: {
+                options: {
+                    sourceMap: true,
+                    presets: ['babel-preset-node5'],
+                },
+                files: [
+                    {src: 'src/BigBangClient.js', dest: 'lib/BigBangClient.js'},
+                    {src: 'src/NodeBigBangClient.js', dest: 'lib/NodeBigBangClient.js'},
+                    {src: 'src/PewRuntime.js', dest: 'lib/PewRuntime.js'},
+                    {src: 'src/WireProtocol.Protocol.js', dest: 'lib/WireProtocol.Protocol.js'},
+                    {expand:true, src:"**/*.js",  cwd:'src/rest', dest:'lib/rest'}
+                ]
+            },
+            web: {
+                options: {
+                    sourceMap: true,
+                    presets: ['babel-preset-es2015']
+                },
+                files: [
+                    {src: 'src/BigBangClient.js', dest: 'build/web/BigBangClient.js'},
+                    {src: 'src/BrowserBigBangClient.js', dest: 'build/web/BrowserBigBangClient.js'},
+                    {src: 'src/PewRuntime.js', dest: 'build/web/PewRuntime.js'},
+                    {src: 'src/WireProtocol.Protocol.js', dest: 'build/web/WireProtocol.Protocol.js'},
+                    {expand:true, src:"**/*.js",  cwd:'src/rest', dest:'build/web/rest'}
+                ]
             }
         },
+
+        webpack: {
+            web: {
+                // webpack options
+                entry: "./build/web/BrowserBigBangClient.js",
+                output: {
+                    path: './web',
+                    filename: 'bigbang.io.js',
+                    sourceMapFilename: "[file].map",
+                    library: "BigBang",
+                    libraryTarget: 'var'
+                },
+
+                plugins: [
+                    /* the node fs:empty below may be taking care of this, might be able to remove */
+                    new webpack.DefinePlugin({ "global.GENTLY": false }),
+                ],
+
+                node: {
+                    fs: 'empty'
+                },
+
+                stats: {
+                    // Configure the console output
+                    colors: true,
+                    modules: true,
+                    reasons: true
+                },
+                // stats: false disables the stats output
+
+                storeStatsTo: "xyz", // writes the status to a variable named xyz
+                // you may use it later in grunt i.e. <%= xyz.hash %>
+
+                progress: false, // Don't show progress
+                // Defaults to true
+
+                failOnError: false, // don't report error to grunt if webpack find errors
+                // Use this if webpack errors are tolerable and grunt should continue
+
+                watch: false, // use webpacks watcher
+                // You need to keep the grunt process alive
+
+                keepalive: false, // don't finish the grunt task
+                // Use this in combination with the watch option
+
+                inline: true,  // embed the webpack-dev-server runtime into the bundle
+                // Defaults to false
+
+                hot: false, // adds the HotModuleReplacementPlugin and switch the server to hot mode
+                // Use this in combination with the inline option
+
+            }
+        },
+
         uglify: {
+            options: {
+                mangle: true
+            },
             my_target: {
                 files: {
                     'web/bigbang.io.min.js': ['web/bigbang.io.js']
                 }
             }
         },
+        copy: {
+            main: {
+                files: [
+                    {src: ['./web/bigbang.io.min.js'], dest: './examples/browser/hello-chat/js/vendor/bigbang.io.min.js', flatten:true},
+                ],
+            },
+        },
         exec: {
             pewGenerate: {
                 command: 'pew -c client -l typescript -i ../pulsar/src/main/pew/WireProtocol.pew -o src'
+            },
+            swagger: {
+                command: "java -jar './../pulsar.js/tools/swagger-codegen-cli.jar' generate -i './../pulsar.js/api/swagger/swagger.yaml' -l javascript -o build && cp -r build/src/ src/rest"
             }
+
         }
     });
 
     grunt.loadNpmTasks('grunt-contrib-clean');
-    grunt.loadNpmTasks('grunt-typescript');
-    grunt.loadNpmTasks('grunt-browserify');
-    grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-babel')
+    grunt.loadNpmTasks('grunt-webpack');
     grunt.loadNpmTasks('grunt-exec');
-
-    grunt.registerTask('default', ['clean', 'typescript', 'browserify', 'uglify']);
+    grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.registerTask('default', ['clean', 'babel', 'webpack','uglify', 'copy']);
 };
