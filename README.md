@@ -45,14 +45,9 @@ Example
 Browser Note
 =======
 
-If you are using Big Bang in browser, you need to add the SockJS dependency manually.  We hope to rectify this in a future release.
-
-For example:
+If you are using Big Bang in browser without any sort of dependency management, just add the minified .js file.  There are no longer any external dependencies, everything included!
 
     <script type="text/javascript" src="js/bigbang.io.min.js"></script>
-    <!-- Make sure to include SockJS as well.  Required for Big Bang SDK -->
-    <script type="text/javascript" src="//cdn.jsdelivr.net/sockjs/0.3.4/sockjs.min.js"></script>
-
 
 Servers
 =======
