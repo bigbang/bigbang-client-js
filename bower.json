@@ -22,6 +22,6 @@
   ],
   "private": false,
   "dependencies": {
-    "sockjs-client": "1.0.3"
+
   }
 }
