@@ -105,6 +105,13 @@ module.exports = function (grunt) {
                 }
             }
         },
+        copy: {
+            main: {
+                files: [
+                    {src: ['./web/bigbang.io.min.js'], dest: './examples/browser/hello-chat/js/vendor/bigbang.io.min.js', flatten:true},
+                ],
+            },
+        },
         exec: {
             pewGenerate: {
                 command: 'pew -c client -l typescript -i ../pulsar/src/main/pew/WireProtocol.pew -o src'
@@ -118,9 +125,10 @@ module.exports = function (grunt) {
 
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-babel')
     grunt.loadNpmTasks('grunt-webpack');
     grunt.loadNpmTasks('grunt-exec');
     grunt.loadNpmTasks('grunt-contrib-uglify');
-    grunt.registerTask('default', ['clean', 'babel', 'webpack','uglify']);
+    grunt.registerTask('default', ['clean', 'babel', 'webpack','uglify', 'copy']);
 };
