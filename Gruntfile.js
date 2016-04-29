@@ -55,6 +55,7 @@ module.exports = function (grunt) {
                 },
 
                 plugins: [
+                    /* the node fs:empty below may be taking care of this, might be able to remove */
                     new webpack.DefinePlugin({ "global.GENTLY": false }),
 
                     /*new webpack.optimize.UglifyJsPlugin({

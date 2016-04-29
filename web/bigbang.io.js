@@ -109,110 +109,13 @@ var BigBang =
 	            });
 	        }
 	    }, {
-	        key: "createUser",
-	        value: function createUser(email, password, callback) {
-	            var parsedUrl = url.parse(this._appUrl);
-	            var uri = this._appUrl;
-	            uri += "/api/v1/createUserEmailPassword";
-	            var requestBody = {
-	                email: email,
-	                password: password
-	            };
-	            this.xhr("POST", uri, requestBody, function (err, response) {
-	                if (err) {
-	                    callback(new bigbang.CreateUserError(err));
-	                    return;
-	                }
-	                if (response.created) {
-	                    callback(null);
-	                } else {
-	                    callback(new bigbang.CreateUserError(response.userMessage));
-	                }
-	            });
-	        }
-	    }, {
-	        key: "resetPassword",
-	        value: function resetPassword(email, callback) {
-	            var parsedUrl = url.parse(this._appUrl);
-	            var uri = this._appUrl;
-	            uri += "/api/v1/resetPassword";
-	            var requestBody = {
-	                email: email
-	            };
-	            this.xhr("POST", uri, requestBody, function (err, response) {
-	                if (err) {
-	                    callback(new bigbang.ResetPasswordError(err));
-	                    return;
-	                }
-	                if (response.reset) {
-	                    callback(null);
-	                } else {
-	                    callback(new bigbang.ResetPasswordError(response.userMessage));
-	                }
-	            });
-	        }
-	    }, {
-	        key: "authenticateDevice",
-	        value: function authenticateDevice(id, secret, callback) {
-	            var parsedUrl = url.parse(this._appUrl);
-	            var uri = this._appUrl;
-	            uri += "/api/v1/authDevice";
-	            var requestBody = {
-	                id: id,
-	                secret: secret
-	            };
-	            this.xhr("POST", uri, requestBody, function (err, response) {
-	                if (err) {
-	                    callback(new bigbang.CreateUserError("Invalid response.  Check your server URL and try again."), null);
-	                    return;
-	                }
-	                callback(null, response);
-	                return;
-	            });
-	        }
-	    }, {
 	        key: "internalLogin",
 	        value: function internalLogin(protocol, host, user, password, application, callback) {
-	            var hostname = host.split(":")[0];
-	            var port = host.split(":")[1];
-	            var protocolHash = this.wireProtocol.protocolHash;
-	            var uri = protocol + "://" + hostname + ":" + port;
 	            if (!user && !password) {
-	                uri += "/loginAnon?application=" + application + "&wireprotocolhash=" + protocolHash;
+	                this.authAnon(callback);
 	            } else {
-	                uri += "/login?username=" + user + "&password=" + password + "&application=" + application + "&wireprotocolhash=" + protocolHash;
+	                this.authUser(user, password, callback);
 	            }
-	            var xhr = this.createCORSRequest('GET', uri);
-	            if (!xhr) {
-	                var loginResult = new bigbang.LoginResult();
-	                loginResult.authenticated = false;
-	                loginResult.message = 'CORS not supported';
-	                return callback(loginResult);
-	                return;
-	            }
-	            // Response handlers.
-	            xhr.onload = function () {
-	                var loginResult = new bigbang.LoginResult();
-	                var json = null;
-	                try {
-	                    json = JSON.parse(xhr.responseText);
-	                    loginResult.authenticated = json.authenticated;
-	                    loginResult.clientKey = json.clientKey;
-	                    loginResult.message = json.message;
-	                    callback(loginResult);
-	                } catch (e) {
-	                    loginResult.authenticated = false;
-	                    loginResult.message = e.message;
-	                    callback(loginResult);
-	                }
-	            };
-	            xhr.onerror = function () {
-	                var loginResult = new bigbang.LoginResult();
-	                loginResult.authenticated = false;
-	                loginResult.message = 'XHR error';
-	                return callback(loginResult);
-	            };
-	            xhr.send();
 	        }
 	    }, {
 	        key: "internalConnect",
@@ -286,45 +189,6 @@ var BigBang =
 	                this.socket.onclose = null;
 	            }
 	            this.socket.close();
-	        }
-	    }, {
-	        key: "createCORSRequest",
-	        value: function createCORSRequest(method, url) {
-	            var xhr = new XMLHttpRequest();
-	            if ("withCredentials" in xhr) {
-	                // Check if the XMLHttpRequest object has a "withCredentials" property.
-	                // "withCredentials" only exists on XMLHTTPRequest2 objects.
-	                xhr.open(method, url, true);
-	            } else {
-	                // Otherwise, CORS is not supported by the browser.
-	                xhr = null;
-	            }
-	            return xhr;
-	        }
-	    }, {
-	        key: "xhr",
-	        value: function xhr(method, url, body, callback) {
-	            var xhr = this.createCORSRequest(method, url);
-	            if (!xhr) {
-	                callback('CORS not supported', null);
-	                return;
-	            }
-	            xhr.onload = function () {
-	                try {
-	                    var body = JSON.parse(xhr.responseText);
-	                    callback(null, body);
-	                } catch (e) {
-	                    callback(e, null);
-	                }
-	            };
-	            xhr.onerror = function () {
-	                return callback("XHR error", null);
-	            };
-	            if (body) {
-	                xhr.send(JSON.stringify(body));
-	            } else {
-	                xhr.send();
-	            }
 	        }
 	    }]);
 
@@ -2393,12 +2257,104 @@ var BigBang =
 	    }, {
 	        key: "createUser",
 	        value: function createUser(email, password, callback) {
-	            throw new Error("abstract");
+	            var api = this._getRestClient();
+	            var body = new RestApiClient.CreateUserRequest();
+	            body.email = email;
+	            body.password = password;
+
+	            api.createUser(body, function (err, data, response) {
+	                if (err) {
+	                    callback(new CreateUserError("Invalid response.  Check your server URL and try again."));
+	                    return;
+	                } else {
+	                    var json = response.body;
+	                    if (json.created) {
+	                        callback(null);
+	                        return;
+	                    } else {
+	                        callback(new CreateUserError(json.userMessage));
+	                        return;
+	                    }
+	                }
+	            });
+	        }
+	    }, {
+	        key: "authUser",
+	        value: function authUser(user, password, callback) {
+	            var api = this._getRestClient();
+	            var body = new RestApiClient.AuthUserRequest();
+	            body.email = user;
+	            body.password = password;
+
+	            api.authUser(body, function (err, data, response) {
+	                if (err) {
+	                    console.error(err);
+	                    callback(new ConnectionError('Unable to authenticate user.'), null);
+	                    return;
+	                } else {
+	                    var json = response.body;
+	                    var loginResult = new LoginResult();
+	                    try {
+	                        loginResult.authenticated = json.authenticated;
+	                        loginResult.clientKey = json.clientKey;
+	                        loginResult.message = json.message;
+	                        callback(loginResult);
+	                        return;
+	                    } catch (e) {
+	                        loginResult.authenticated = false;
+	                        loginResult.message = e.message;
+	                        callback(loginResult);
+	                        return;
+	                    }
+	                }
+	            });
+	        }
+	    }, {
+	        key: "authAnon",
+	        value: function authAnon(callback) {
+	            var api = this._getRestClient();
+
+	            api.authAnon(function (err, data, response) {
+	                if (err) {
+	                    console.error(err);
+	                    callback(new ConnectionError('Unable to authenticate user.'), null);
+	                    return;
+	                } else {
+	                    var json = response.body;
+	                    var loginResult = new LoginResult();
+	                    try {
+	                        loginResult.authenticated = json.authenticated;
+	                        loginResult.clientKey = json.clientKey;
+	                        loginResult.message = json.message;
+	                        callback(loginResult);
+	                        return;
+	                    } catch (e) {
+	                        loginResult.authenticated = false;
+	                        loginResult.message = e.message;
+	                        callback(loginResult);
+	                        return;
+	                    }
+	                }
+	            });
 	        }
 	    }, {
 	        key: "resetPassword",
 	        value: function resetPassword(email, callback) {
-	            throw new Error("abstract");
+	            var api = this._getRestClient();
+	            api.resetPassword(email, function (err, data, response) {
+	                if (err) {
+	                    console.error(err);
+	                    callback(new ResetPasswordError("Invalid response.  Check your server URL and try again."));
+	                    return;
+	                } else {
+	                    var json = response.body;
+	                    if (json.reset) {
+	                        callback(null);
+	                    } else {
+	                        callback(new ResetPasswordError(json.message));
+	                    }
+	                }
+	            });
 	        }
 	    }, {
 	        key: "createDevice",
@@ -2415,6 +2371,26 @@ var BigBang =
 	                } else {
 	                    var json = response.body;
 	                    callback(null, new CreateDeviceInfo(json.id, json.secret, json.tags));
+	                    return;
+	                }
+	            });
+	        }
+	    }, {
+	        key: "authenticateDevice",
+	        value: function authenticateDevice(id, secret, callback) {
+	            var api = this._getRestClient();
+	            var body = new RestApiClient.AuthDeviceRequest();
+	            body.id = id;
+	            body.secret = secret;
+
+	            api.authDevice(body, function (err, data, response) {
+	                if (err) {
+	                    console.error(err);
+	                    callback(new ConnectionError('Unable to authenticate device.'), null);
+	                    return;
+	                } else {
+	                    var json = response.body;
+	                    callback(null, json);
 	                    return;
 	                }
 	            });
@@ -5672,12 +5648,12 @@ var BigBang =
 	(function (factory) {
 	  if (true) {
 	    // AMD. Register as an anonymous module.
-	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(15), __webpack_require__(20), __webpack_require__(21), __webpack_require__(22), __webpack_require__(23), __webpack_require__(24), __webpack_require__(25), __webpack_require__(26)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(16), __webpack_require__(15), __webpack_require__(21), __webpack_require__(22), __webpack_require__(23), __webpack_require__(24), __webpack_require__(31), __webpack_require__(25), __webpack_require__(26), __webpack_require__(27), __webpack_require__(28), __webpack_require__(29), __webpack_require__(30)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 	  } else if ((typeof module === 'undefined' ? 'undefined' : _typeof(module)) === 'object' && module.exports) {
 	    // CommonJS-like environments that support module.exports, like Node.
-	    module.exports = factory(require('./ApiClient'), require('./model/AuthDeviceRequest'), require('./model/AuthDeviceResponse'), require('./model/CreateDeviceRequest'), require('./model/CreateDeviceResponse'), require('./model/PingResponse'), require('./model/QueryDevicesResponse'), require('./api/DefaultApi'));
+	    module.exports = factory(require('./ApiClient'), require('./model/AuthDeviceRequest'), require('./model/AuthDeviceResponse'), require('./model/AuthResponse'), require('./model/AuthUserRequest'), require('./model/AuthUserResponse'), require('./model/CreateDeviceRequest'), require('./model/CreateDeviceResponse'), require('./model/CreateUserRequest'), require('./model/CreateUserResponse'), require('./model/PingResponse'), require('./model/QueryDevicesResponse'), require('./api/DefaultApi'));
 	  }
-	})(function (ApiClient, AuthDeviceRequest, AuthDeviceResponse, CreateDeviceRequest, CreateDeviceResponse, PingResponse, QueryDevicesResponse, DefaultApi) {
+	})(function (ApiClient, AuthDeviceRequest, AuthDeviceResponse, AuthResponse, AuthUserRequest, AuthUserResponse, CreateDeviceRequest, CreateDeviceResponse, CreateUserRequest, CreateUserResponse, PingResponse, QueryDevicesResponse, DefaultApi) {
 	  'use strict';
 
 	  /**
@@ -5729,6 +5705,21 @@ var BigBang =
 	     */
 	    AuthDeviceResponse: AuthDeviceResponse,
 	    /**
+	     * The AuthResponse model constructor.
+	     * @property {module:model/AuthResponse}
+	     */
+	    AuthResponse: AuthResponse,
+	    /**
+	     * The AuthUserRequest model constructor.
+	     * @property {module:model/AuthUserRequest}
+	     */
+	    AuthUserRequest: AuthUserRequest,
+	    /**
+	     * The AuthUserResponse model constructor.
+	     * @property {module:model/AuthUserResponse}
+	     */
+	    AuthUserResponse: AuthUserResponse,
+	    /**
 	     * The CreateDeviceRequest model constructor.
 	     * @property {module:model/CreateDeviceRequest}
 	     */
@@ -5738,6 +5729,16 @@ var BigBang =
 	     * @property {module:model/CreateDeviceResponse}
 	     */
 	    CreateDeviceResponse: CreateDeviceResponse,
+	    /**
+	     * The CreateUserRequest model constructor.
+	     * @property {module:model/CreateUserRequest}
+	     */
+	    CreateUserRequest: CreateUserRequest,
+	    /**
+	     * The CreateUserResponse model constructor.
+	     * @property {module:model/CreateUserResponse}
+	     */
+	    CreateUserResponse: CreateUserResponse,
 	    /**
 	     * The PingResponse model constructor.
 	     * @property {module:model/PingResponse}
@@ -5764,7 +5765,7 @@ var BigBang =
 /* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(Buffer) {'use strict';
+	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
@@ -5772,6 +5773,87 @@ var BigBang =
 	  if (true) {
 	    // AMD. Register as an anonymous module.
 	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(16)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	  } else if ((typeof module === 'undefined' ? 'undefined' : _typeof(module)) === 'object' && module.exports) {
+	    // CommonJS-like environments that support module.exports, like Node.
+	    module.exports = factory(require('../ApiClient'));
+	  } else {
+	    // Browser globals (root is window)
+	    if (!root.BigBangRestApi) {
+	      root.BigBangRestApi = {};
+	    }
+	    root.BigBangRestApi.AuthDeviceRequest = factory(root.BigBangRestApi.ApiClient);
+	  }
+	})(undefined, function (ApiClient) {
+	  'use strict';
+
+	  /**
+	   * The AuthDeviceRequest model module.
+	   * @module model/AuthDeviceRequest
+	   * @version 0.0.1
+	   */
+
+	  /**
+	   * Constructs a new <code>AuthDeviceRequest</code>.
+	   * @alias module:model/AuthDeviceRequest
+	   * @class
+	   * @param id
+	   * @param secret
+	   */
+
+	  var exports = function exports(id, secret) {
+
+	    this['id'] = id;
+	    this['secret'] = secret;
+	  };
+
+	  /**
+	   * Constructs a <code>AuthDeviceRequest</code> from a plain JavaScript object, optionally creating a new instance.
+	   * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
+	   * @param {Object} data The plain JavaScript object bearing properties of interest.
+	   * @param {module:model/AuthDeviceRequest} obj Optional instance to populate.
+	   * @return {module:model/AuthDeviceRequest} The populated <code>AuthDeviceRequest</code> instance.
+	   */
+	  exports.constructFromObject = function (data, obj) {
+	    if (data) {
+	      obj = obj || new exports();
+
+	      if (data.hasOwnProperty('id')) {
+	        obj['id'] = ApiClient.convertToType(data['id'], 'String');
+	      }
+	      if (data.hasOwnProperty('secret')) {
+	        obj['secret'] = ApiClient.convertToType(data['secret'], 'String');
+	      }
+	    }
+	    return obj;
+	  };
+
+	  /**
+	   * @member {String} id
+	   */
+	  exports.prototype['id'] = undefined;
+
+	  /**
+	   * @member {String} secret
+	   */
+	  exports.prototype['secret'] = undefined;
+
+	  return exports;
+	});
+	//# sourceMappingURL=AuthDeviceRequest.js.map
+
+
+/***/ },
+/* 16 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(Buffer) {'use strict';
+
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+	(function (root, factory) {
+	  if (true) {
+	    // AMD. Register as an anonymous module.
+	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(17)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 	  } else if ((typeof module === 'undefined' ? 'undefined' : _typeof(module)) === 'object' && module.exports) {
 	    // CommonJS-like environments that support module.exports, like Node.
 	    module.exports = factory(require('superagent'));
@@ -5903,7 +5985,7 @@ var BigBang =
 	   */
 	  exports.prototype.isFileParam = function (param) {
 	    // fs.ReadStream in Node.js (but not in runtime like browserify)
-	    if (typeof window === 'undefined' && "function" === 'function' && __webpack_require__(19) && param instanceof __webpack_require__(19).ReadStream) {
+	    if (typeof window === 'undefined' && "function" === 'function' && __webpack_require__(20) && param instanceof __webpack_require__(20).ReadStream) {
 	      return true;
 	    }
 	    // Buffer in Node.js
@@ -6239,15 +6321,15 @@ var BigBang =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
 
 /***/ },
-/* 16 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
 	 * Module dependencies.
 	 */
 
-	var Emitter = __webpack_require__(17);
-	var reduce = __webpack_require__(18);
+	var Emitter = __webpack_require__(18);
+	var reduce = __webpack_require__(19);
 
 	/**
 	 * Root reference for iframes.
@@ -7436,7 +7518,7 @@ var BigBang =
 
 
 /***/ },
-/* 17 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -7605,7 +7687,7 @@ var BigBang =
 
 
 /***/ },
-/* 18 */
+/* 19 */
 /***/ function(module, exports) {
 
 	
@@ -7634,91 +7716,10 @@ var BigBang =
 	};
 
 /***/ },
-/* 19 */
+/* 20 */
 /***/ function(module, exports) {
 
 	
-
-/***/ },
-/* 20 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
-
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
-	(function (root, factory) {
-	  if (true) {
-	    // AMD. Register as an anonymous module.
-	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(15)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	  } else if ((typeof module === 'undefined' ? 'undefined' : _typeof(module)) === 'object' && module.exports) {
-	    // CommonJS-like environments that support module.exports, like Node.
-	    module.exports = factory(require('../ApiClient'));
-	  } else {
-	    // Browser globals (root is window)
-	    if (!root.BigBangRestApi) {
-	      root.BigBangRestApi = {};
-	    }
-	    root.BigBangRestApi.AuthDeviceRequest = factory(root.BigBangRestApi.ApiClient);
-	  }
-	})(undefined, function (ApiClient) {
-	  'use strict';
-
-	  /**
-	   * The AuthDeviceRequest model module.
-	   * @module model/AuthDeviceRequest
-	   * @version 0.0.1
-	   */
-
-	  /**
-	   * Constructs a new <code>AuthDeviceRequest</code>.
-	   * @alias module:model/AuthDeviceRequest
-	   * @class
-	   * @param id
-	   * @param secret
-	   */
-
-	  var exports = function exports(id, secret) {
-
-	    this['id'] = id;
-	    this['secret'] = secret;
-	  };
-
-	  /**
-	   * Constructs a <code>AuthDeviceRequest</code> from a plain JavaScript object, optionally creating a new instance.
-	   * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
-	   * @param {Object} data The plain JavaScript object bearing properties of interest.
-	   * @param {module:model/AuthDeviceRequest} obj Optional instance to populate.
-	   * @return {module:model/AuthDeviceRequest} The populated <code>AuthDeviceRequest</code> instance.
-	   */
-	  exports.constructFromObject = function (data, obj) {
-	    if (data) {
-	      obj = obj || new exports();
-
-	      if (data.hasOwnProperty('id')) {
-	        obj['id'] = ApiClient.convertToType(data['id'], 'String');
-	      }
-	      if (data.hasOwnProperty('secret')) {
-	        obj['secret'] = ApiClient.convertToType(data['secret'], 'String');
-	      }
-	    }
-	    return obj;
-	  };
-
-	  /**
-	   * @member {String} id
-	   */
-	  exports.prototype['id'] = undefined;
-
-	  /**
-	   * @member {String} secret
-	   */
-	  exports.prototype['secret'] = undefined;
-
-	  return exports;
-	});
-	//# sourceMappingURL=AuthDeviceRequest.js.map
-
 
 /***/ },
 /* 21 */
@@ -7731,7 +7732,7 @@ var BigBang =
 	(function (root, factory) {
 	  if (true) {
 	    // AMD. Register as an anonymous module.
-	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(15)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(16)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 	  } else if ((typeof module === 'undefined' ? 'undefined' : _typeof(module)) === 'object' && module.exports) {
 	    // CommonJS-like environments that support module.exports, like Node.
 	    module.exports = factory(require('../ApiClient'));
@@ -7802,7 +7803,7 @@ var BigBang =
 	(function (root, factory) {
 	  if (true) {
 	    // AMD. Register as an anonymous module.
-	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(15)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(16)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 	  } else if ((typeof module === 'undefined' ? 'undefined' : _typeof(module)) === 'object' && module.exports) {
 	    // CommonJS-like environments that support module.exports, like Node.
 	    module.exports = factory(require('../ApiClient'));
@@ -7811,51 +7812,63 @@ var BigBang =
 	    if (!root.BigBangRestApi) {
 	      root.BigBangRestApi = {};
 	    }
-	    root.BigBangRestApi.CreateDeviceRequest = factory(root.BigBangRestApi.ApiClient);
+	    root.BigBangRestApi.AuthResponse = factory(root.BigBangRestApi.ApiClient);
 	  }
 	})(undefined, function (ApiClient) {
 	  'use strict';
 
 	  /**
-	   * The CreateDeviceRequest model module.
-	   * @module model/CreateDeviceRequest
+	   * The AuthResponse model module.
+	   * @module model/AuthResponse
 	   * @version 0.0.1
 	   */
 
 	  /**
-	   * Constructs a new <code>CreateDeviceRequest</code>.
-	   * @alias module:model/CreateDeviceRequest
+	   * Constructs a new <code>AuthResponse</code>.
+	   * @alias module:model/AuthResponse
 	   * @class
+	   * @param authenticated
 	   */
 
-	  var exports = function exports() {};
+	  var exports = function exports(authenticated) {
+
+	    this['authenticated'] = authenticated;
+	  };
 
 	  /**
-	   * Constructs a <code>CreateDeviceRequest</code> from a plain JavaScript object, optionally creating a new instance.
+	   * Constructs a <code>AuthResponse</code> from a plain JavaScript object, optionally creating a new instance.
 	   * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
 	   * @param {Object} data The plain JavaScript object bearing properties of interest.
-	   * @param {module:model/CreateDeviceRequest} obj Optional instance to populate.
-	   * @return {module:model/CreateDeviceRequest} The populated <code>CreateDeviceRequest</code> instance.
+	   * @param {module:model/AuthResponse} obj Optional instance to populate.
+	   * @return {module:model/AuthResponse} The populated <code>AuthResponse</code> instance.
 	   */
 	  exports.constructFromObject = function (data, obj) {
 	    if (data) {
 	      obj = obj || new exports();
 
-	      if (data.hasOwnProperty('tags')) {
-	        obj['tags'] = ApiClient.convertToType(data['tags'], ['String']);
+	      if (data.hasOwnProperty('authenticated')) {
+	        obj['authenticated'] = ApiClient.convertToType(data['authenticated'], 'Boolean');
+	      }
+	      if (data.hasOwnProperty('clientKey')) {
+	        obj['clientKey'] = ApiClient.convertToType(data['clientKey'], 'String');
 	      }
 	    }
 	    return obj;
 	  };
 
 	  /**
-	   * @member {Array.<String>} tags
+	   * @member {Boolean} authenticated
 	   */
-	  exports.prototype['tags'] = undefined;
+	  exports.prototype['authenticated'] = undefined;
+
+	  /**
+	   * @member {String} clientKey
+	   */
+	  exports.prototype['clientKey'] = undefined;
 
 	  return exports;
 	});
-	//# sourceMappingURL=CreateDeviceRequest.js.map
+	//# sourceMappingURL=AuthResponse.js.map
 
 
 /***/ },
@@ -7869,7 +7882,159 @@ var BigBang =
 	(function (root, factory) {
 	  if (true) {
 	    // AMD. Register as an anonymous module.
-	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(15)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(16)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	  } else if ((typeof module === 'undefined' ? 'undefined' : _typeof(module)) === 'object' && module.exports) {
+	    // CommonJS-like environments that support module.exports, like Node.
+	    module.exports = factory(require('../ApiClient'));
+	  } else {
+	    // Browser globals (root is window)
+	    if (!root.BigBangRestApi) {
+	      root.BigBangRestApi = {};
+	    }
+	    root.BigBangRestApi.AuthUserRequest = factory(root.BigBangRestApi.ApiClient);
+	  }
+	})(undefined, function (ApiClient) {
+	  'use strict';
+
+	  /**
+	   * The AuthUserRequest model module.
+	   * @module model/AuthUserRequest
+	   * @version 0.0.1
+	   */
+
+	  /**
+	   * Constructs a new <code>AuthUserRequest</code>.
+	   * @alias module:model/AuthUserRequest
+	   * @class
+	   * @param email
+	   * @param password
+	   */
+
+	  var exports = function exports(email, password) {
+
+	    this['email'] = email;
+	    this['password'] = password;
+	  };
+
+	  /**
+	   * Constructs a <code>AuthUserRequest</code> from a plain JavaScript object, optionally creating a new instance.
+	   * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
+	   * @param {Object} data The plain JavaScript object bearing properties of interest.
+	   * @param {module:model/AuthUserRequest} obj Optional instance to populate.
+	   * @return {module:model/AuthUserRequest} The populated <code>AuthUserRequest</code> instance.
+	   */
+	  exports.constructFromObject = function (data, obj) {
+	    if (data) {
+	      obj = obj || new exports();
+
+	      if (data.hasOwnProperty('email')) {
+	        obj['email'] = ApiClient.convertToType(data['email'], 'String');
+	      }
+	      if (data.hasOwnProperty('password')) {
+	        obj['password'] = ApiClient.convertToType(data['password'], 'String');
+	      }
+	    }
+	    return obj;
+	  };
+
+	  /**
+	   * @member {String} email
+	   */
+	  exports.prototype['email'] = undefined;
+
+	  /**
+	   * @member {String} password
+	   */
+	  exports.prototype['password'] = undefined;
+
+	  return exports;
+	});
+	//# sourceMappingURL=AuthUserRequest.js.map
+
+
+/***/ },
+/* 24 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
+
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+	(function (root, factory) {
+	  if (true) {
+	    // AMD. Register as an anonymous module.
+	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(16)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	  } else if ((typeof module === 'undefined' ? 'undefined' : _typeof(module)) === 'object' && module.exports) {
+	    // CommonJS-like environments that support module.exports, like Node.
+	    module.exports = factory(require('../ApiClient'));
+	  } else {
+	    // Browser globals (root is window)
+	    if (!root.BigBangRestApi) {
+	      root.BigBangRestApi = {};
+	    }
+	    root.BigBangRestApi.AuthUserResponse = factory(root.BigBangRestApi.ApiClient);
+	  }
+	})(undefined, function (ApiClient) {
+	  'use strict';
+
+	  /**
+	   * The AuthUserResponse model module.
+	   * @module model/AuthUserResponse
+	   * @version 0.0.1
+	   */
+
+	  /**
+	   * Constructs a new <code>AuthUserResponse</code>.
+	   * @alias module:model/AuthUserResponse
+	   * @class
+	   * @param authenticated
+	   */
+
+	  var exports = function exports(authenticated) {
+
+	    this['authenticated'] = authenticated;
+	  };
+
+	  /**
+	   * Constructs a <code>AuthUserResponse</code> from a plain JavaScript object, optionally creating a new instance.
+	   * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
+	   * @param {Object} data The plain JavaScript object bearing properties of interest.
+	   * @param {module:model/AuthUserResponse} obj Optional instance to populate.
+	   * @return {module:model/AuthUserResponse} The populated <code>AuthUserResponse</code> instance.
+	   */
+	  exports.constructFromObject = function (data, obj) {
+	    if (data) {
+	      obj = obj || new exports();
+
+	      if (data.hasOwnProperty('authenticated')) {
+	        obj['authenticated'] = ApiClient.convertToType(data['authenticated'], 'Boolean');
+	      }
+	    }
+	    return obj;
+	  };
+
+	  /**
+	   * @member {Boolean} authenticated
+	   */
+	  exports.prototype['authenticated'] = undefined;
+
+	  return exports;
+	});
+	//# sourceMappingURL=AuthUserResponse.js.map
+
+
+/***/ },
+/* 25 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
+
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+	(function (root, factory) {
+	  if (true) {
+	    // AMD. Register as an anonymous module.
+	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(16)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 	  } else if ((typeof module === 'undefined' ? 'undefined' : _typeof(module)) === 'object' && module.exports) {
 	    // CommonJS-like environments that support module.exports, like Node.
 	    module.exports = factory(require('../ApiClient'));
@@ -7930,7 +8095,7 @@ var BigBang =
 
 
 /***/ },
-/* 24 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
@@ -7940,7 +8105,159 @@ var BigBang =
 	(function (root, factory) {
 	  if (true) {
 	    // AMD. Register as an anonymous module.
-	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(15)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(16)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	  } else if ((typeof module === 'undefined' ? 'undefined' : _typeof(module)) === 'object' && module.exports) {
+	    // CommonJS-like environments that support module.exports, like Node.
+	    module.exports = factory(require('../ApiClient'));
+	  } else {
+	    // Browser globals (root is window)
+	    if (!root.BigBangRestApi) {
+	      root.BigBangRestApi = {};
+	    }
+	    root.BigBangRestApi.CreateUserRequest = factory(root.BigBangRestApi.ApiClient);
+	  }
+	})(undefined, function (ApiClient) {
+	  'use strict';
+
+	  /**
+	   * The CreateUserRequest model module.
+	   * @module model/CreateUserRequest
+	   * @version 0.0.1
+	   */
+
+	  /**
+	   * Constructs a new <code>CreateUserRequest</code>.
+	   * @alias module:model/CreateUserRequest
+	   * @class
+	   * @param email
+	   * @param password
+	   */
+
+	  var exports = function exports(email, password) {
+
+	    this['email'] = email;
+	    this['password'] = password;
+	  };
+
+	  /**
+	   * Constructs a <code>CreateUserRequest</code> from a plain JavaScript object, optionally creating a new instance.
+	   * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
+	   * @param {Object} data The plain JavaScript object bearing properties of interest.
+	   * @param {module:model/CreateUserRequest} obj Optional instance to populate.
+	   * @return {module:model/CreateUserRequest} The populated <code>CreateUserRequest</code> instance.
+	   */
+	  exports.constructFromObject = function (data, obj) {
+	    if (data) {
+	      obj = obj || new exports();
+
+	      if (data.hasOwnProperty('email')) {
+	        obj['email'] = ApiClient.convertToType(data['email'], 'String');
+	      }
+	      if (data.hasOwnProperty('password')) {
+	        obj['password'] = ApiClient.convertToType(data['password'], 'String');
+	      }
+	    }
+	    return obj;
+	  };
+
+	  /**
+	   * @member {String} email
+	   */
+	  exports.prototype['email'] = undefined;
+
+	  /**
+	   * @member {String} password
+	   */
+	  exports.prototype['password'] = undefined;
+
+	  return exports;
+	});
+	//# sourceMappingURL=CreateUserRequest.js.map
+
+
+/***/ },
+/* 27 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
+
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+	(function (root, factory) {
+	  if (true) {
+	    // AMD. Register as an anonymous module.
+	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(16)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	  } else if ((typeof module === 'undefined' ? 'undefined' : _typeof(module)) === 'object' && module.exports) {
+	    // CommonJS-like environments that support module.exports, like Node.
+	    module.exports = factory(require('../ApiClient'));
+	  } else {
+	    // Browser globals (root is window)
+	    if (!root.BigBangRestApi) {
+	      root.BigBangRestApi = {};
+	    }
+	    root.BigBangRestApi.CreateUserResponse = factory(root.BigBangRestApi.ApiClient);
+	  }
+	})(undefined, function (ApiClient) {
+	  'use strict';
+
+	  /**
+	   * The CreateUserResponse model module.
+	   * @module model/CreateUserResponse
+	   * @version 0.0.1
+	   */
+
+	  /**
+	   * Constructs a new <code>CreateUserResponse</code>.
+	   * @alias module:model/CreateUserResponse
+	   * @class
+	   * @param created
+	   */
+
+	  var exports = function exports(created) {
+
+	    this['created'] = created;
+	  };
+
+	  /**
+	   * Constructs a <code>CreateUserResponse</code> from a plain JavaScript object, optionally creating a new instance.
+	   * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
+	   * @param {Object} data The plain JavaScript object bearing properties of interest.
+	   * @param {module:model/CreateUserResponse} obj Optional instance to populate.
+	   * @return {module:model/CreateUserResponse} The populated <code>CreateUserResponse</code> instance.
+	   */
+	  exports.constructFromObject = function (data, obj) {
+	    if (data) {
+	      obj = obj || new exports();
+
+	      if (data.hasOwnProperty('created')) {
+	        obj['created'] = ApiClient.convertToType(data['created'], 'Boolean');
+	      }
+	    }
+	    return obj;
+	  };
+
+	  /**
+	   * @member {Boolean} created
+	   */
+	  exports.prototype['created'] = undefined;
+
+	  return exports;
+	});
+	//# sourceMappingURL=CreateUserResponse.js.map
+
+
+/***/ },
+/* 28 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
+
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+	(function (root, factory) {
+	  if (true) {
+	    // AMD. Register as an anonymous module.
+	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(16)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 	  } else if ((typeof module === 'undefined' ? 'undefined' : _typeof(module)) === 'object' && module.exports) {
 	    // CommonJS-like environments that support module.exports, like Node.
 	    module.exports = factory(require('../ApiClient'));
@@ -8001,7 +8318,7 @@ var BigBang =
 
 
 /***/ },
-/* 25 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
@@ -8011,7 +8328,7 @@ var BigBang =
 	(function (root, factory) {
 	  if (true) {
 	    // AMD. Register as an anonymous module.
-	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(15)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(16)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 	  } else if ((typeof module === 'undefined' ? 'undefined' : _typeof(module)) === 'object' && module.exports) {
 	    // CommonJS-like environments that support module.exports, like Node.
 	    module.exports = factory(require('../ApiClient'));
@@ -8068,7 +8385,7 @@ var BigBang =
 
 
 /***/ },
-/* 26 */
+/* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
@@ -8078,18 +8395,18 @@ var BigBang =
 	(function (root, factory) {
 	  if (true) {
 	    // AMD. Register as an anonymous module.
-	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(15), __webpack_require__(21), __webpack_require__(20), __webpack_require__(23), __webpack_require__(22), __webpack_require__(24), __webpack_require__(25)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(16), __webpack_require__(22), __webpack_require__(21), __webpack_require__(15), __webpack_require__(24), __webpack_require__(23), __webpack_require__(25), __webpack_require__(31), __webpack_require__(27), __webpack_require__(26), __webpack_require__(28), __webpack_require__(29)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 	  } else if ((typeof module === 'undefined' ? 'undefined' : _typeof(module)) === 'object' && module.exports) {
 	    // CommonJS-like environments that support module.exports, like Node.
-	    module.exports = factory(require('../ApiClient'), require('../model/AuthDeviceResponse'), require('../model/AuthDeviceRequest'), require('../model/CreateDeviceResponse'), require('../model/CreateDeviceRequest'), require('../model/PingResponse'), require('../model/QueryDevicesResponse'));
+	    module.exports = factory(require('../ApiClient'), require('../model/AuthResponse'), require('../model/AuthDeviceResponse'), require('../model/AuthDeviceRequest'), require('../model/AuthUserResponse'), require('../model/AuthUserRequest'), require('../model/CreateDeviceResponse'), require('../model/CreateDeviceRequest'), require('../model/CreateUserResponse'), require('../model/CreateUserRequest'), require('../model/PingResponse'), require('../model/QueryDevicesResponse'));
 	  } else {
 	    // Browser globals (root is window)
 	    if (!root.BigBangRestApi) {
 	      root.BigBangRestApi = {};
 	    }
-	    root.BigBangRestApi.DefaultApi = factory(root.BigBangRestApi.ApiClient, root.BigBangRestApi.AuthDeviceResponse, root.BigBangRestApi.AuthDeviceRequest, root.BigBangRestApi.CreateDeviceResponse, root.BigBangRestApi.CreateDeviceRequest, root.BigBangRestApi.PingResponse, root.BigBangRestApi.QueryDevicesResponse);
+	    root.BigBangRestApi.DefaultApi = factory(root.BigBangRestApi.ApiClient, root.BigBangRestApi.AuthResponse, root.BigBangRestApi.AuthDeviceResponse, root.BigBangRestApi.AuthDeviceRequest, root.BigBangRestApi.AuthUserResponse, root.BigBangRestApi.AuthUserRequest, root.BigBangRestApi.CreateDeviceResponse, root.BigBangRestApi.CreateDeviceRequest, root.BigBangRestApi.CreateUserResponse, root.BigBangRestApi.CreateUserRequest, root.BigBangRestApi.PingResponse, root.BigBangRestApi.QueryDevicesResponse);
 	  }
-	})(undefined, function (ApiClient, AuthDeviceResponse, AuthDeviceRequest, CreateDeviceResponse, CreateDeviceRequest, PingResponse, QueryDevicesResponse) {
+	})(undefined, function (ApiClient, AuthResponse, AuthDeviceResponse, AuthDeviceRequest, AuthUserResponse, AuthUserRequest, CreateDeviceResponse, CreateDeviceRequest, CreateUserResponse, CreateUserRequest, PingResponse, QueryDevicesResponse) {
 	  'use strict';
 
 	  /**
@@ -8108,6 +8425,35 @@ var BigBang =
 
 	  var exports = function exports(apiClient) {
 	    this.apiClient = apiClient || ApiClient.instance;
+
+	    /**
+	     * Callback function to receive the result of the authAnon operation.
+	     * @callback module:api/DefaultApi~authAnonCallback
+	     * @param {String} error Error message, if any.
+	     * @param {module:model/AuthResponse} data The data returned by the service call.
+	     * @param {String} response The complete HTTP response.
+	     */
+
+	    /**
+	     * Authenticates a user and returns a token.
+	     * @param {module:api/DefaultApi~authAnonCallback} callback The callback function, accepting three arguments: error, data, response
+	     * data is of type: {module:model/AuthResponse}
+	     */
+	    this.authAnon = function (callback) {
+	      var postBody = null;
+
+	      var pathParams = {};
+	      var queryParams = {};
+	      var headerParams = {};
+	      var formParams = {};
+
+	      var authNames = [];
+	      var contentTypes = ['application/json', 'application/octet-stream'];
+	      var accepts = ['application/json'];
+	      var returnType = AuthResponse;
+
+	      return this.apiClient.callApi('/auth/anonymous', 'POST', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType, callback);
+	    };
 
 	    /**
 	     * Callback function to receive the result of the authDevice operation.
@@ -8145,6 +8491,41 @@ var BigBang =
 	    };
 
 	    /**
+	     * Callback function to receive the result of the authUser operation.
+	     * @callback module:api/DefaultApi~authUserCallback
+	     * @param {String} error Error message, if any.
+	     * @param {module:model/AuthUserResponse} data The data returned by the service call.
+	     * @param {String} response The complete HTTP response.
+	     */
+
+	    /**
+	     * Authenticates a user and returns a token.
+	     * @param {module:model/AuthUserRequest} body body
+	     * @param {module:api/DefaultApi~authUserCallback} callback The callback function, accepting three arguments: error, data, response
+	     * data is of type: {module:model/AuthUserResponse}
+	     */
+	    this.authUser = function (body, callback) {
+	      var postBody = body;
+
+	      // verify the required parameter 'body' is set
+	      if (body == undefined || body == null) {
+	        throw "Missing the required parameter 'body' when calling authUser";
+	      }
+
+	      var pathParams = {};
+	      var queryParams = {};
+	      var headerParams = {};
+	      var formParams = {};
+
+	      var authNames = [];
+	      var contentTypes = ['application/json'];
+	      var accepts = ['application/json'];
+	      var returnType = AuthUserResponse;
+
+	      return this.apiClient.callApi('/auth/user', 'POST', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType, callback);
+	    };
+
+	    /**
 	     * Callback function to receive the result of the create operation.
 	     * @callback module:api/DefaultApi~createCallback
 	     * @param {String} error Error message, if any.
@@ -8177,6 +8558,41 @@ var BigBang =
 	      var returnType = CreateDeviceResponse;
 
 	      return this.apiClient.callApi('/devices', 'POST', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType, callback);
+	    };
+
+	    /**
+	     * Callback function to receive the result of the createUser operation.
+	     * @callback module:api/DefaultApi~createUserCallback
+	     * @param {String} error Error message, if any.
+	     * @param {module:model/CreateUserResponse} data The data returned by the service call.
+	     * @param {String} response The complete HTTP response.
+	     */
+
+	    /**
+	     * Creates a user
+	     * @param {module:model/CreateUserRequest} body the body
+	     * @param {module:api/DefaultApi~createUserCallback} callback The callback function, accepting three arguments: error, data, response
+	     * data is of type: {module:model/CreateUserResponse}
+	     */
+	    this.createUser = function (body, callback) {
+	      var postBody = body;
+
+	      // verify the required parameter 'body' is set
+	      if (body == undefined || body == null) {
+	        throw "Missing the required parameter 'body' when calling createUser";
+	      }
+
+	      var pathParams = {};
+	      var queryParams = {};
+	      var headerParams = {};
+	      var formParams = {};
+
+	      var authNames = [];
+	      var contentTypes = ['application/json'];
+	      var accepts = ['application/json'];
+	      var returnType = CreateUserResponse;
+
+	      return this.apiClient.callApi('/users', 'POST', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType, callback);
 	    };
 
 	    /**
@@ -8270,11 +8686,115 @@ var BigBang =
 
 	      return this.apiClient.callApi('/devices', 'GET', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType, callback);
 	    };
+
+	    /**
+	     * Callback function to receive the result of the resetPassword operation.
+	     * @callback module:api/DefaultApi~resetPasswordCallback
+	     * @param {String} error Error message, if any.
+	     * @param {module:model/CreateUserResponse} data The data returned by the service call.
+	     * @param {String} response The complete HTTP response.
+	     */
+
+	    /**
+	     * Creates a user
+	     * @param {String} email user email
+	     * @param {module:api/DefaultApi~resetPasswordCallback} callback The callback function, accepting three arguments: error, data, response
+	     * data is of type: {module:model/CreateUserResponse}
+	     */
+	    this.resetPassword = function (email, callback) {
+	      var postBody = null;
+
+	      // verify the required parameter 'email' is set
+	      if (email == undefined || email == null) {
+	        throw "Missing the required parameter 'email' when calling resetPassword";
+	      }
+
+	      var pathParams = {
+	        'email': email
+	      };
+	      var queryParams = {};
+	      var headerParams = {};
+	      var formParams = {};
+
+	      var authNames = [];
+	      var contentTypes = ['application/json', 'application/octet-stream'];
+	      var accepts = ['application/json'];
+	      var returnType = CreateUserResponse;
+
+	      return this.apiClient.callApi('/users/{email}/resetPassword', 'POST', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType, callback);
+	    };
 	  };
 
 	  return exports;
 	});
 	//# sourceMappingURL=DefaultApi.js.map
+
+
+/***/ },
+/* 31 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
+
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+	(function (root, factory) {
+	  if (true) {
+	    // AMD. Register as an anonymous module.
+	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(16)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	  } else if ((typeof module === 'undefined' ? 'undefined' : _typeof(module)) === 'object' && module.exports) {
+	    // CommonJS-like environments that support module.exports, like Node.
+	    module.exports = factory(require('../ApiClient'));
+	  } else {
+	    // Browser globals (root is window)
+	    if (!root.BigBangRestApi) {
+	      root.BigBangRestApi = {};
+	    }
+	    root.BigBangRestApi.CreateDeviceRequest = factory(root.BigBangRestApi.ApiClient);
+	  }
+	})(undefined, function (ApiClient) {
+	  'use strict';
+
+	  /**
+	   * The CreateDeviceRequest model module.
+	   * @module model/CreateDeviceRequest
+	   * @version 0.0.1
+	   */
+
+	  /**
+	   * Constructs a new <code>CreateDeviceRequest</code>.
+	   * @alias module:model/CreateDeviceRequest
+	   * @class
+	   */
+
+	  var exports = function exports() {};
+
+	  /**
+	   * Constructs a <code>CreateDeviceRequest</code> from a plain JavaScript object, optionally creating a new instance.
+	   * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
+	   * @param {Object} data The plain JavaScript object bearing properties of interest.
+	   * @param {module:model/CreateDeviceRequest} obj Optional instance to populate.
+	   * @return {module:model/CreateDeviceRequest} The populated <code>CreateDeviceRequest</code> instance.
+	   */
+	  exports.constructFromObject = function (data, obj) {
+	    if (data) {
+	      obj = obj || new exports();
+
+	      if (data.hasOwnProperty('tags')) {
+	        obj['tags'] = ApiClient.convertToType(data['tags'], ['String']);
+	      }
+	    }
+	    return obj;
+	  };
+
+	  /**
+	   * @member {Array.<String>} tags
+	   */
+	  exports.prototype['tags'] = undefined;
+
+	  return exports;
+	});
+	//# sourceMappingURL=CreateDeviceRequest.js.map
 
 
 /***/ }

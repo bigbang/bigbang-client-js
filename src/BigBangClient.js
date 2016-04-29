@@ -478,11 +478,110 @@ export class AbstractBigBangClient extends SimpleEventEmitter {
     }
 
     createUser(email, password, callback) {
-        throw new Error("abstract");
+        const api = this._getRestClient();
+        var body = new RestApiClient.CreateUserRequest();
+        body.email = email;
+        body.password = password;
+
+        api.createUser(body, (err, data, response)=> {
+            if (err) {
+                callback(new CreateUserError("Invalid response.  Check your server URL and try again."));
+                return;
+            }
+            else {
+                const json = response.body;
+                if (json.created) {
+                    callback(null);
+                    return;
+                }
+                else {
+                    callback(new CreateUserError(json.userMessage));
+                    return;
+                }
+            }
+        });
     }
 
+    authUser(user, password, callback) {
+        var api = this._getRestClient();
+        var body = new RestApiClient.AuthUserRequest;
+        body.email = user;
+        body.password = password;
+
+        api.authUser(body, (err, data, response)=> {
+            if (err) {
+                console.error(err);
+                callback(new ConnectionError('Unable to authenticate user.'), null);
+                return;
+            }
+            else {
+                const json = response.body;
+                var loginResult = new LoginResult();
+                try {
+                    loginResult.authenticated = json.authenticated;
+                    loginResult.clientKey = json.clientKey;
+                    loginResult.message = json.message;
+                    callback(loginResult);
+                    return;
+                }
+                catch (e) {
+                    loginResult.authenticated = false;
+                    loginResult.message = e.message;
+                    callback(loginResult);
+                    return;
+                }
+            }
+        });
+    }
+
+    authAnon(callback) {
+        var api = this._getRestClient();
+
+        api.authAnon((err, data, response) => {
+            if (err) {
+                console.error(err);
+                callback(new ConnectionError('Unable to authenticate user.'), null);
+                return;
+            }
+            else {
+                const json = response.body;
+                var loginResult = new LoginResult();
+                try {
+                    loginResult.authenticated = json.authenticated;
+                    loginResult.clientKey = json.clientKey;
+                    loginResult.message = json.message;
+                    callback(loginResult);
+                    return;
+                }
+                catch (e) {
+                    loginResult.authenticated = false;
+                    loginResult.message = e.message;
+                    callback(loginResult);
+                    return;
+                }
+            }
+        })
+    }
+
+
     resetPassword(email, callback) {
-        throw new Error("abstract");
+        var api = this._getRestClient();
+        api.resetPassword(email, (err, data, response) => {
+            if (err) {
+                console.error(err);
+                callback(new ResetPasswordError("Invalid response.  Check your server URL and try again."));
+                return;
+            }
+            else {
+                const json = response.body;
+                if (json.reset) {
+                    callback(null);
+                }
+                else {
+                    callback(new ResetPasswordError(json.message));
+                }
+            }
+        });
     }
 
     createDevice(tags, callback) {
@@ -502,6 +601,27 @@ export class AbstractBigBangClient extends SimpleEventEmitter {
             }
         });
     }
+
+    authenticateDevice(id, secret, callback) {
+        var api = this._getRestClient();
+        var body = new RestApiClient.AuthDeviceRequest();
+        body.id = id;
+        body.secret = secret;
+
+        api.authDevice(body, (err, data, response)=> {
+            if (err) {
+                console.error(err);
+                callback(new ConnectionError('Unable to authenticate device.'), null);
+                return;
+            }
+            else {
+                const json = response.body;
+                callback(null, json);
+                return;
+            }
+        });
+    }
+
 
     disconnect() {
         this.sendToServer(new wire.WireDisconnectRequest());

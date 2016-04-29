@@ -1,18 +1,18 @@
 (function(root, factory) {
   if (typeof define === 'function' && define.amd) {
     // AMD. Register as an anonymous module.
-    define(['../ApiClient', '../model/AuthDeviceResponse', '../model/AuthDeviceRequest', '../model/CreateDeviceResponse', '../model/CreateDeviceRequest', '../model/PingResponse', '../model/QueryDevicesResponse'], factory);
+    define(['../ApiClient', '../model/AuthResponse', '../model/AuthDeviceResponse', '../model/AuthDeviceRequest', '../model/AuthUserResponse', '../model/AuthUserRequest', '../model/CreateDeviceResponse', '../model/CreateDeviceRequest', '../model/CreateUserResponse', '../model/CreateUserRequest', '../model/PingResponse', '../model/QueryDevicesResponse'], factory);
   } else if (typeof module === 'object' && module.exports) {
     // CommonJS-like environments that support module.exports, like Node.
-    module.exports = factory(require('../ApiClient'), require('../model/AuthDeviceResponse'), require('../model/AuthDeviceRequest'), require('../model/CreateDeviceResponse'), require('../model/CreateDeviceRequest'), require('../model/PingResponse'), require('../model/QueryDevicesResponse'));
+    module.exports = factory(require('../ApiClient'), require('../model/AuthResponse'), require('../model/AuthDeviceResponse'), require('../model/AuthDeviceRequest'), require('../model/AuthUserResponse'), require('../model/AuthUserRequest'), require('../model/CreateDeviceResponse'), require('../model/CreateDeviceRequest'), require('../model/CreateUserResponse'), require('../model/CreateUserRequest'), require('../model/PingResponse'), require('../model/QueryDevicesResponse'));
   } else {
     // Browser globals (root is window)
     if (!root.BigBangRestApi) {
       root.BigBangRestApi = {};
     }
-    root.BigBangRestApi.DefaultApi = factory(root.BigBangRestApi.ApiClient, root.BigBangRestApi.AuthDeviceResponse, root.BigBangRestApi.AuthDeviceRequest, root.BigBangRestApi.CreateDeviceResponse, root.BigBangRestApi.CreateDeviceRequest, root.BigBangRestApi.PingResponse, root.BigBangRestApi.QueryDevicesResponse);
+    root.BigBangRestApi.DefaultApi = factory(root.BigBangRestApi.ApiClient, root.BigBangRestApi.AuthResponse, root.BigBangRestApi.AuthDeviceResponse, root.BigBangRestApi.AuthDeviceRequest, root.BigBangRestApi.AuthUserResponse, root.BigBangRestApi.AuthUserRequest, root.BigBangRestApi.CreateDeviceResponse, root.BigBangRestApi.CreateDeviceRequest, root.BigBangRestApi.CreateUserResponse, root.BigBangRestApi.CreateUserRequest, root.BigBangRestApi.PingResponse, root.BigBangRestApi.QueryDevicesResponse);
   }
-}(this, function(ApiClient, AuthDeviceResponse, AuthDeviceRequest, CreateDeviceResponse, CreateDeviceRequest, PingResponse, QueryDevicesResponse) {
+}(this, function(ApiClient, AuthResponse, AuthDeviceResponse, AuthDeviceRequest, AuthUserResponse, AuthUserRequest, CreateDeviceResponse, CreateDeviceRequest, CreateUserResponse, CreateUserRequest, PingResponse, QueryDevicesResponse) {
   'use strict';
 
   /**
@@ -31,6 +31,44 @@
   var exports = function(apiClient) {
     this.apiClient = apiClient || ApiClient.instance;
 
+
+    /**
+     * Callback function to receive the result of the authAnon operation.
+     * @callback module:api/DefaultApi~authAnonCallback
+     * @param {String} error Error message, if any.
+     * @param {module:model/AuthResponse} data The data returned by the service call.
+     * @param {String} response The complete HTTP response.
+     */
+
+    /**
+     * Authenticates a user and returns a token.
+     * @param {module:api/DefaultApi~authAnonCallback} callback The callback function, accepting three arguments: error, data, response
+     * data is of type: {module:model/AuthResponse}
+     */
+    this.authAnon = function(callback) {
+      var postBody = null;
+
+
+      var pathParams = {
+      };
+      var queryParams = {
+      };
+      var headerParams = {
+      };
+      var formParams = {
+      };
+
+      var authNames = [];
+      var contentTypes = ['application/json', 'application/octet-stream'];
+      var accepts = ['application/json'];
+      var returnType = AuthResponse;
+
+      return this.apiClient.callApi(
+        '/auth/anonymous', 'POST',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType, callback
+      );
+    }
 
     /**
      * Callback function to receive the result of the authDevice operation.
@@ -77,6 +115,50 @@
     }
 
     /**
+     * Callback function to receive the result of the authUser operation.
+     * @callback module:api/DefaultApi~authUserCallback
+     * @param {String} error Error message, if any.
+     * @param {module:model/AuthUserResponse} data The data returned by the service call.
+     * @param {String} response The complete HTTP response.
+     */
+
+    /**
+     * Authenticates a user and returns a token.
+     * @param {module:model/AuthUserRequest} body body
+     * @param {module:api/DefaultApi~authUserCallback} callback The callback function, accepting three arguments: error, data, response
+     * data is of type: {module:model/AuthUserResponse}
+     */
+    this.authUser = function(body, callback) {
+      var postBody = body;
+
+      // verify the required parameter 'body' is set
+      if (body == undefined || body == null) {
+        throw "Missing the required parameter 'body' when calling authUser";
+      }
+
+
+      var pathParams = {
+      };
+      var queryParams = {
+      };
+      var headerParams = {
+      };
+      var formParams = {
+      };
+
+      var authNames = [];
+      var contentTypes = ['application/json'];
+      var accepts = ['application/json'];
+      var returnType = AuthUserResponse;
+
+      return this.apiClient.callApi(
+        '/auth/user', 'POST',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType, callback
+      );
+    }
+
+    /**
      * Callback function to receive the result of the create operation.
      * @callback module:api/DefaultApi~createCallback
      * @param {String} error Error message, if any.
@@ -115,6 +197,50 @@
 
       return this.apiClient.callApi(
         '/devices', 'POST',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType, callback
+      );
+    }
+
+    /**
+     * Callback function to receive the result of the createUser operation.
+     * @callback module:api/DefaultApi~createUserCallback
+     * @param {String} error Error message, if any.
+     * @param {module:model/CreateUserResponse} data The data returned by the service call.
+     * @param {String} response The complete HTTP response.
+     */
+
+    /**
+     * Creates a user
+     * @param {module:model/CreateUserRequest} body the body
+     * @param {module:api/DefaultApi~createUserCallback} callback The callback function, accepting three arguments: error, data, response
+     * data is of type: {module:model/CreateUserResponse}
+     */
+    this.createUser = function(body, callback) {
+      var postBody = body;
+
+      // verify the required parameter 'body' is set
+      if (body == undefined || body == null) {
+        throw "Missing the required parameter 'body' when calling createUser";
+      }
+
+
+      var pathParams = {
+      };
+      var queryParams = {
+      };
+      var headerParams = {
+      };
+      var formParams = {
+      };
+
+      var authNames = [];
+      var contentTypes = ['application/json'];
+      var accepts = ['application/json'];
+      var returnType = CreateUserResponse;
+
+      return this.apiClient.callApi(
+        '/users', 'POST',
         pathParams, queryParams, headerParams, formParams, postBody,
         authNames, contentTypes, accepts, returnType, callback
       );
@@ -233,6 +359,51 @@
 
       return this.apiClient.callApi(
         '/devices', 'GET',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType, callback
+      );
+    }
+
+    /**
+     * Callback function to receive the result of the resetPassword operation.
+     * @callback module:api/DefaultApi~resetPasswordCallback
+     * @param {String} error Error message, if any.
+     * @param {module:model/CreateUserResponse} data The data returned by the service call.
+     * @param {String} response The complete HTTP response.
+     */
+
+    /**
+     * Creates a user
+     * @param {String} email user email
+     * @param {module:api/DefaultApi~resetPasswordCallback} callback The callback function, accepting three arguments: error, data, response
+     * data is of type: {module:model/CreateUserResponse}
+     */
+    this.resetPassword = function(email, callback) {
+      var postBody = null;
+
+      // verify the required parameter 'email' is set
+      if (email == undefined || email == null) {
+        throw "Missing the required parameter 'email' when calling resetPassword";
+      }
+
+
+      var pathParams = {
+        'email': email
+      };
+      var queryParams = {
+      };
+      var headerParams = {
+      };
+      var formParams = {
+      };
+
+      var authNames = [];
+      var contentTypes = ['application/json', 'application/octet-stream'];
+      var accepts = ['application/json'];
+      var returnType = CreateUserResponse;
+
+      return this.apiClient.callApi(
+        '/users/{email}/resetPassword', 'POST',
         pathParams, queryParams, headerParams, formParams, postBody,
         authNames, contentTypes, accepts, returnType, callback
       );

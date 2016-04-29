@@ -43,110 +43,14 @@ class BrowserBigBangClient extends bigbang.AbstractBigBangClient {
         });
     }
 
-    createUser(email, password, callback) {
-        var parsedUrl = url.parse(this._appUrl);
-        var uri = this._appUrl;
-        uri += "/api/v1/createUserEmailPassword";
-        var requestBody = {
-            email: email,
-            password: password,
-        };
-        this.xhr("POST", uri, requestBody, function (err, response) {
-            if (err) {
-                callback(new bigbang.CreateUserError(err));
-                return;
-            }
-            if (response.created) {
-                callback(null);
-            }
-            else {
-                callback(new bigbang.CreateUserError(response.userMessage));
-            }
-        });
-    }
-
-    resetPassword(email, callback) {
-        var parsedUrl = url.parse(this._appUrl);
-        var uri = this._appUrl;
-        uri += "/api/v1/resetPassword";
-        var requestBody = {
-            email: email
-        };
-        this.xhr("POST", uri, requestBody, function (err, response) {
-            if (err) {
-                callback(new bigbang.ResetPasswordError(err));
-                return;
-            }
-            if (response.reset) {
-                callback(null);
-            }
-            else {
-                callback(new bigbang.ResetPasswordError(response.userMessage));
-            }
-        });
-    }
-
-    authenticateDevice(id, secret, callback) {
-        var parsedUrl = url.parse(this._appUrl);
-        var uri = this._appUrl;
-        uri += "/api/v1/authDevice";
-        var requestBody = {
-            id: id,
-            secret: secret
-        };
-        this.xhr("POST", uri, requestBody, function (err, response) {
-            if (err) {
-                callback(new bigbang.CreateUserError("Invalid response.  Check your server URL and try again."), null);
-                return;
-            }
-            callback(null, response);
-            return;
-        });
-    }
 
     internalLogin(protocol, host, user, password, application, callback) {
-        var hostname = host.split(":")[0];
-        var port = host.split(":")[1];
-        var protocolHash = this.wireProtocol.protocolHash;
-        var uri = protocol + "://" + hostname + ":" + port;
         if (!user && !password) {
-            uri += "/loginAnon?application=" + application + "&wireprotocolhash=" + protocolHash;
+            this.authAnon(callback);
         }
         else {
-            uri += "/login?username=" + user + "&password=" + password + "&application=" + application + "&wireprotocolhash=" + protocolHash;
+            this.authUser(user, password, callback);
         }
-        var xhr = this.createCORSRequest('GET', uri);
-        if (!xhr) {
-            var loginResult = new bigbang.LoginResult();
-            loginResult.authenticated = false;
-            loginResult.message = 'CORS not supported';
-            return callback(loginResult);
-            return;
-        }
-        // Response handlers.
-        xhr.onload = function () {
-            var loginResult = new bigbang.LoginResult();
-            var json = null;
-            try {
-                json = JSON.parse(xhr.responseText);
-                loginResult.authenticated = json.authenticated;
-                loginResult.clientKey = json.clientKey;
-                loginResult.message = json.message;
-                callback(loginResult);
-            }
-            catch (e) {
-                loginResult.authenticated = false;
-                loginResult.message = e.message;
-                callback(loginResult);
-            }
-        };
-        xhr.onerror = function () {
-            var loginResult = new bigbang.LoginResult();
-            loginResult.authenticated = false;
-            loginResult.message = 'XHR error';
-            return callback(loginResult);
-        };
-        xhr.send();
     }
 
     internalConnect(protocol, host, clientKey, callback) {
@@ -220,46 +124,6 @@ class BrowserBigBangClient extends bigbang.AbstractBigBangClient {
             this.socket.onclose = null;
         }
         this.socket.close();
-    }
-
-    createCORSRequest(method, url) {
-        var xhr = new XMLHttpRequest();
-        if ("withCredentials" in xhr) {
-            // Check if the XMLHttpRequest object has a "withCredentials" property.
-            // "withCredentials" only exists on XMLHTTPRequest2 objects.
-            xhr.open(method, url, true);
-        }
-        else {
-            // Otherwise, CORS is not supported by the browser.
-            xhr = null;
-        }
-        return xhr;
-    }
-
-    xhr(method, url, body, callback) {
-        var xhr = this.createCORSRequest(method, url);
-        if (!xhr) {
-            callback('CORS not supported', null);
-            return;
-        }
-        xhr.onload = function () {
-            try {
-                var body = JSON.parse(xhr.responseText);
-                callback(null, body);
-            }
-            catch (e) {
-                callback(e, null);
-            }
-        };
-        xhr.onerror = function () {
-            return callback("XHR error", null);
-        };
-        if (body) {
-            xhr.send(JSON.stringify(body));
-        }
-        else {
-            xhr.send();
-        }
     }
 }
 

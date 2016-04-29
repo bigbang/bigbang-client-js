@@ -11,7 +11,6 @@ class NodeBigBangClient extends bigbang.AbstractBigBangClient {
         super(appUrl);
     }
 
-
     connectAsDevice(id, secret, callback) {
         // connect calls internalLogin
         // internalLogin's callback calls internalConnect
@@ -36,25 +35,7 @@ class NodeBigBangClient extends bigbang.AbstractBigBangClient {
         }.bind(this));
     }
 
-    authenticateDevice(id, secret, callback) {
-        var api = this._getRestClient();
-        var body = new RestApiClient.AuthDeviceRequest();
-        body.id = id;
-        body.secret = secret;
 
-        api.authDevice(body, (err, data, response)=> {
-            if (err) {
-                console.error(err);
-                callback(new ConnectionError('Unable to authenticate device.'), null);
-                return;
-            }
-            else {
-                const json = response.body;
-                callback(null, json);
-                return;
-            }
-        });
-    }
 
     connect(callback) {
         // connect calls internalLogin
@@ -77,175 +58,16 @@ class NodeBigBangClient extends bigbang.AbstractBigBangClient {
         });
     }
 
-    createUser(email, password, callback) {
-        var parsedUrl = url.parse(this._appUrl);
-        var uri = this._appUrl;
-        uri += "/api/v1/createUserEmailPassword";
-        var requestBody = {
-            email: email,
-            password: password,
-        };
-        var requestString = JSON.stringify(requestBody);
-        var headers = {
-            'Content-Type': 'application/json',
-            'Content-Length': requestString.length
-        };
-        var options = {
-            hostname: parsedUrl.hostname,
-            port: parseInt(parsedUrl.port),
-            path: uri,
-            headers: headers,
-            method: 'POST'
-        };
-        var req = null;
-        var responseHandler = function (res) {
-            res.setEncoding("UTF-8");
-            var responseStr = "";
-            res.on('data', function (data) {
-                responseStr += data;
-            });
-            res.on('end', function () {
-                var json = null;
-                try {
-                    var json = JSON.parse(responseStr);
-                    if (json.created) {
-                        callback(null);
-                    }
-                    else {
-                        callback(new bigbang.CreateUserError(json.message));
-                    }
-                }
-                catch (e) {
-                    console.error(e);
-                    callback(new bigbang.CreateUserError("Invalid response.  Check your server URL and try again."));
-                }
-            });
-        };
-        if (parsedUrl.protocol == 'https') {
-            req = https.request(options, responseHandler);
-        }
-        else {
-            req = http.request(options, responseHandler);
-        }
-        req.on('error', function (e) {
-            console.error(e);
-            callback(new bigbang.CreateUserError("Invalid response.  Check your server URL and try again."));
-        });
-        req.write(requestString);
-        req.end();
-    }
-
-    resetPassword(email, callback) {
-        var parsedUrl = url.parse(this._appUrl);
-        var uri = this._appUrl;
-        uri += "/api/v1/resetPassword";
-        var requestBody = {
-            email: email
-        };
-        var requestString = JSON.stringify(requestBody);
-        var headers = {
-            'Content-Type': 'application/json',
-            'Content-Length': requestString.length
-        };
-        var options = {
-            hostname: parsedUrl.hostname,
-            port: parseInt(parsedUrl.port),
-            path: uri,
-            headers: headers,
-            method: 'POST'
-        };
-        var req = null;
-        var responseHandler = function (res) {
-            res.setEncoding("UTF-8");
-            var responseStr = "";
-            res.on('data', function (data) {
-                responseStr += data;
-            });
-            res.on('end', function () {
-                var json = null;
-                try {
-                    var json = JSON.parse(responseStr);
-                    if (json.reset) {
-                        callback(null);
-                    }
-                    else {
-                        callback(new bigbang.ResetPasswordError(json.message));
-                    }
-                }
-                catch (e) {
-                    console.error(e);
-                    callback(new bigbang.ResetPasswordError("Invalid response.  Check your server URL and try again."));
-                }
-            });
-        };
-        if (parsedUrl.protocol == 'https') {
-            req = https.request(options, responseHandler);
-        }
-        else {
-            req = http.request(options, responseHandler);
-        }
-        req.on('error', function (e) {
-            console.error(e);
-            callback(new bigbang.ResetPasswordError("Invalid response.  Check your server URL and try again."));
-        });
-        req.write(requestString);
-        req.end();
-    }
-
     internalLogin(protocol, host, user, password, application, callback) {
-        var hostname = host.split(":")[0];
-        var port = parseInt(host.split(":")[1]);
-        var protocolHash = this.wireProtocol.protocolHash;
-        var uri = protocol + "://" + hostname + ":" + port;
+
+
         if (!user && !password) {
-            uri += "/loginAnon?application=" + application + "&wireprotocolhash=" + protocolHash;
+            this.authAnon(callback);
         }
         else {
-            uri += "/login?username=" + user + "&password=" + password + "&application=" + application + "&wireprotocolhash=" + protocolHash;
+            this.authUser(user, password, callback);
         }
-        var options = {
-            hostname: hostname,
-            port: port,
-            path: uri,
-            method: 'GET'
-        };
-        var req = null;
-        var responseHandler = function (res) {
-            res.setEncoding("UTF-8");
-            var responseStr = "";
-            res.on('data', function (data) {
-                responseStr += data;
-            });
-            res.on('end', function () {
-                var loginResult = new bigbang.LoginResult();
-                var json = null;
-                try {
-                    json = JSON.parse(responseStr);
-                    loginResult.authenticated = json.authenticated;
-                    loginResult.clientKey = json.clientKey;
-                    loginResult.message = json.message;
-                    callback(loginResult);
-                }
-                catch (e) {
-                    loginResult.authenticated = false;
-                    loginResult.message = e.message;
-                    callback(loginResult);
-                }
-            });
-        };
-        if (protocol == 'https') {
-            req = https.request(options, responseHandler);
-        }
-        else {
-            req = http.request(options, responseHandler);
-        }
-        req.on('error', function (e) {
-            var loginResult = new bigbang.LoginResult();
-            loginResult.authenticated = false;
-            loginResult.message = e.message;
-            return callback(loginResult);
-        });
-        req.end();
+
     }
 
     internalConnect(protocol, host, clientKey, callback) {
@@ -309,6 +131,6 @@ class NodeBigBangClient extends bigbang.AbstractBigBangClient {
 }
 
 
-module.exports  = {
+module.exports = {
     Client: NodeBigBangClient
 }
