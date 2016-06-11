@@ -165,6 +165,8 @@ function clientOnChannel(name, callback) {
     var bb = new BigBang.Client(TEST_HOST);
     bb.connect(function (err) {
         assert.equal(err, null);
+        //We should always have this on successful connect.
+        assert.ok(bb.getClientId());
 
         bb.subscribe(name, function (err, channel) {
             assert(!err);
