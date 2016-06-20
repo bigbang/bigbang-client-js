@@ -11,10 +11,10 @@ if (typeof process !== 'undefined' && process.release.name === 'node') {
 }
 
 //Set hosts for testing
-TEST_HOST = 'http://demo.bigbang.io';
-SECURE_TEST_HOST = 'https://demo.bigbang.io';
+//TEST_HOST = 'http://demo.bigbang.io';
+//SECURE_TEST_HOST = 'https://demo.bigbang.io';
 
 //Local option for bigbang.io developers
-//TEST_HOST = 'http://localhost:8888';
-//SECURE_TEST_HOST = 'http://localhost:8888';
+TEST_HOST = 'http://localhost:8888';
+SECURE_TEST_HOST = 'http://localhost:8888';
 

@@ -17,7 +17,7 @@ module.exports = function (grunt) {
             node: {
                 options: {
                     sourceMap: true,
-                    presets: ['babel-preset-node5'],
+                    presets: ['es2015','stage-0'],
                 },
                 files: [
                     {src: 'src/BigBangClient.js', dest: 'lib/BigBangClient.js'},

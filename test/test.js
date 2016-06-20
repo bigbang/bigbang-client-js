@@ -1,4 +1,3 @@
-
 describe('client', function () {
 
     describe('#connect', function () {
@@ -116,8 +115,6 @@ describe('client', function () {
     })
 
 
-
-    /*
     describe('#channelData', function () {
         it('multi-add-and-remove ', function (done) {
 
@@ -132,7 +129,6 @@ describe('client', function () {
 
                 var addCount = 0;
                 channel.getChannelData(ks).on('add', function (key, value) {
-                    console.log("ON ADD " + key);
                     assert.equal(key, thekey);
                     assert.deepEqual(value, obj);
                     assert.ok(channel.getNamespaces().indexOf(ks) != -1);
@@ -144,7 +140,6 @@ describe('client', function () {
                 });
 
                 channel.getChannelData(ks).on('remove', function (key) {
-                    console.log("ON REMOVE " + key);
                     assert.equal(key, thekey);
                 });
 
@@ -156,8 +151,6 @@ describe('client', function () {
             });
         });
     })
-    */
-
 });
 
 
