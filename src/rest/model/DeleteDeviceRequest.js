@@ -43,8 +43,8 @@
     if (data) { 
       obj = obj || new exports();
 
-      if (data.hasOwnProperty('key')) {
-        obj['key'] = ApiClient.convertToType(data['key'], 'String');
+      if (data.hasOwnProperty('id')) {
+        obj['id'] = ApiClient.convertToType(data['id'], 'String');
       }
       if (data.hasOwnProperty('secret')) {
         obj['secret'] = ApiClient.convertToType(data['secret'], 'String');
@@ -55,9 +55,9 @@
 
 
   /**
-   * @member {String} key
+   * @member {String} id
    */
-  exports.prototype['key'] = undefined;
+  exports.prototype['id'] = undefined;
 
   /**
    * @member {String} secret

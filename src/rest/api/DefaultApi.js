@@ -1,18 +1,18 @@
 (function(root, factory) {
   if (typeof define === 'function' && define.amd) {
     // AMD. Register as an anonymous module.
-    define(['../ApiClient', '../model/AuthResponse', '../model/AuthDeviceResponse', '../model/AuthDeviceRequest', '../model/AuthUserResponse', '../model/AuthUserRequest', '../model/DeleteDeviceRequest', '../model/CreateDeviceResponse', '../model/CreateDeviceRequest', '../model/CreateUserResponse', '../model/CreateUserRequest', '../model/PingResponse', '../model/QueryDevicesResponse'], factory);
+    define(['../ApiClient', '../model/AuthResponse', '../model/AuthDeviceResponse', '../model/AuthDeviceRequest', '../model/AuthUserResponse', '../model/AuthUserRequest', '../model/CreateDeviceResponse', '../model/CreateDeviceRequest', '../model/CreateUserResponse', '../model/CreateUserRequest', '../model/DeleteDeviceRequest', '../model/PingResponse', '../model/QueryDevicesResponse'], factory);
   } else if (typeof module === 'object' && module.exports) {
     // CommonJS-like environments that support module.exports, like Node.
-    module.exports = factory(require('../ApiClient'), require('../model/AuthResponse'), require('../model/AuthDeviceResponse'), require('../model/AuthDeviceRequest'), require('../model/AuthUserResponse'), require('../model/AuthUserRequest'), require('../model/DeleteDeviceRequest'), require('../model/CreateDeviceResponse'), require('../model/CreateDeviceRequest'), require('../model/CreateUserResponse'), require('../model/CreateUserRequest'), require('../model/PingResponse'), require('../model/QueryDevicesResponse'));
+    module.exports = factory(require('../ApiClient'), require('../model/AuthResponse'), require('../model/AuthDeviceResponse'), require('../model/AuthDeviceRequest'), require('../model/AuthUserResponse'), require('../model/AuthUserRequest'), require('../model/CreateDeviceResponse'), require('../model/CreateDeviceRequest'), require('../model/CreateUserResponse'), require('../model/CreateUserRequest'), require('../model/DeleteDeviceRequest'), require('../model/PingResponse'), require('../model/QueryDevicesResponse'));
   } else {
     // Browser globals (root is window)
     if (!root.BigBangRestApi) {
       root.BigBangRestApi = {};
     }
-    root.BigBangRestApi.DefaultApi = factory(root.BigBangRestApi.ApiClient, root.BigBangRestApi.AuthResponse, root.BigBangRestApi.AuthDeviceResponse, root.BigBangRestApi.AuthDeviceRequest, root.BigBangRestApi.AuthUserResponse, root.BigBangRestApi.AuthUserRequest, root.BigBangRestApi.DeleteDeviceRequest, root.BigBangRestApi.CreateDeviceResponse, root.BigBangRestApi.CreateDeviceRequest, root.BigBangRestApi.CreateUserResponse, root.BigBangRestApi.CreateUserRequest, root.BigBangRestApi.PingResponse, root.BigBangRestApi.QueryDevicesResponse);
+    root.BigBangRestApi.DefaultApi = factory(root.BigBangRestApi.ApiClient, root.BigBangRestApi.AuthResponse, root.BigBangRestApi.AuthDeviceResponse, root.BigBangRestApi.AuthDeviceRequest, root.BigBangRestApi.AuthUserResponse, root.BigBangRestApi.AuthUserRequest, root.BigBangRestApi.CreateDeviceResponse, root.BigBangRestApi.CreateDeviceRequest, root.BigBangRestApi.CreateUserResponse, root.BigBangRestApi.CreateUserRequest, root.BigBangRestApi.DeleteDeviceRequest, root.BigBangRestApi.PingResponse, root.BigBangRestApi.QueryDevicesResponse);
   }
-}(this, function(ApiClient, AuthResponse, AuthDeviceResponse, AuthDeviceRequest, AuthUserResponse, AuthUserRequest, DeleteDeviceRequest, CreateDeviceResponse, CreateDeviceRequest, CreateUserResponse, CreateUserRequest, PingResponse, QueryDevicesResponse) {
+}(this, function(ApiClient, AuthResponse, AuthDeviceResponse, AuthDeviceRequest, AuthUserResponse, AuthUserRequest, CreateDeviceResponse, CreateDeviceRequest, CreateUserResponse, CreateUserRequest, DeleteDeviceRequest, PingResponse, QueryDevicesResponse) {
   'use strict';
 
   /**
@@ -159,49 +159,6 @@
     }
 
     /**
-     * Callback function to receive the result of the callDelete operation.
-     * @callback module:api/DefaultApi~callDeleteCallback
-     * @param {String} error Error message, if any.
-     * @param data This operation does not return a value.
-     * @param {String} response The complete HTTP response.
-     */
-
-    /**
-     * Deletes a device
-     * @param {module:model/DeleteDeviceRequest} body the body
-     * @param {module:api/DefaultApi~callDeleteCallback} callback The callback function, accepting three arguments: error, data, response
-     */
-    this.callDelete = function(body, callback) {
-      var postBody = body;
-
-      // verify the required parameter 'body' is set
-      if (body == undefined || body == null) {
-        throw "Missing the required parameter 'body' when calling callDelete";
-      }
-
-
-      var pathParams = {
-      };
-      var queryParams = {
-      };
-      var headerParams = {
-      };
-      var formParams = {
-      };
-
-      var authNames = [];
-      var contentTypes = ['application/json'];
-      var accepts = ['application/json'];
-      var returnType = null;
-
-      return this.apiClient.callApi(
-        '/devices', 'DELETE',
-        pathParams, queryParams, headerParams, formParams, postBody,
-        authNames, contentTypes, accepts, returnType, callback
-      );
-    }
-
-    /**
      * Callback function to receive the result of the create operation.
      * @callback module:api/DefaultApi~createCallback
      * @param {String} error Error message, if any.
@@ -284,6 +241,49 @@
 
       return this.apiClient.callApi(
         '/users', 'POST',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType, callback
+      );
+    }
+
+    /**
+     * Callback function to receive the result of the deleteDevice operation.
+     * @callback module:api/DefaultApi~deleteDeviceCallback
+     * @param {String} error Error message, if any.
+     * @param data This operation does not return a value.
+     * @param {String} response The complete HTTP response.
+     */
+
+    /**
+     * Deletes a device
+     * @param {module:model/DeleteDeviceRequest} body the body
+     * @param {module:api/DefaultApi~deleteDeviceCallback} callback The callback function, accepting three arguments: error, data, response
+     */
+    this.deleteDevice = function(body, callback) {
+      var postBody = body;
+
+      // verify the required parameter 'body' is set
+      if (body == undefined || body == null) {
+        throw "Missing the required parameter 'body' when calling deleteDevice";
+      }
+
+
+      var pathParams = {
+      };
+      var queryParams = {
+      };
+      var headerParams = {
+      };
+      var formParams = {
+      };
+
+      var authNames = [];
+      var contentTypes = ['application/json'];
+      var accepts = ['application/json'];
+      var returnType = null;
+
+      return this.apiClient.callApi(
+        '/devices', 'DELETE',
         pathParams, queryParams, headerParams, formParams, postBody,
         authNames, contentTypes, accepts, returnType, callback
       );

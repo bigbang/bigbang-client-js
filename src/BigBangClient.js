@@ -91,6 +91,7 @@ export class ChannelMessage {
  * @fires message When a message is received on the channel.
  * @fires join When someone joins the channel.
  * @fires leave When someone has left the channel.
+ * @fires addNamespace When a namespace is added to the channel.
  */
 export class Channel extends SimpleEventEmitter {
     constructor(client, name) {
@@ -316,6 +317,7 @@ export class Channel extends SimpleEventEmitter {
         if (!cd) {
             cd = new ChannelData(this.client, ks, this);
             this.keySpaces[ks] = cd;
+            this.emit('addNamespace', cd);
         }
         return cd;
     }
@@ -539,7 +541,7 @@ export class AbstractBigBangClient extends SimpleEventEmitter {
 
         api.authAnon((err, data, response) => {
             if (err) {
-                console.error(err);
+                //console.error(err);
                 callback(new ConnectionError('Unable to authenticate user.'), null);
                 return;
             }
@@ -599,6 +601,14 @@ export class AbstractBigBangClient extends SimpleEventEmitter {
                 callback(null, new CreateDeviceInfo(json.id, json.secret, json.tags));
                 return;
             }
+        });
+    }
+
+    queryDevices(tags, callback) {
+        var api = this._getRestClient();
+
+        api.query(tags, (err, data, response) => {
+            callback(err, response.body);
         });
     }
 
