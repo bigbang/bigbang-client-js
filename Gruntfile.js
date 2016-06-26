@@ -8,7 +8,7 @@ module.exports = function (grunt) {
 
         watch: {
             react: {
-                files: ['src/**/*.ts'],
+                files: ['src/**/*.js'],
                 tasks: ['default']
             }
         },
@@ -22,6 +22,9 @@ module.exports = function (grunt) {
                 files: [
                     {src: 'src/BigBangClient.js', dest: 'lib/BigBangClient.js'},
                     {src: 'src/NodeBigBangClient.js', dest: 'lib/NodeBigBangClient.js'},
+                    {src: 'src/Channel.js', dest: 'lib/Channel.js'},
+                    {src: 'src/ChannelData.js', dest: 'lib/ChannelData.js'},
+                    {src: 'src/SimpleEventEmitter.js', dest: 'lib/SimpleEventEmitter.js'},
                     {src: 'src/PewRuntime.js', dest: 'lib/PewRuntime.js'},
                     {src: 'src/WireProtocol.Protocol.js', dest: 'lib/WireProtocol.Protocol.js'},
                     {expand:true, src:"**/*.js",  cwd:'src/rest', dest:'lib/rest'}
@@ -34,6 +37,9 @@ module.exports = function (grunt) {
                 },
                 files: [
                     {src: 'src/BigBangClient.js', dest: 'build/web/BigBangClient.js'},
+                    {src: 'src/Channel.js', dest: 'build/web/Channel.js'},
+                    {src: 'src/ChannelData.js', dest: 'build/web/ChannelData.js'},
+                    {src: 'src/SimpleEventEmitter.js', dest: 'build/web/SimpleEventEmitter.js'},
                     {src: 'src/BrowserBigBangClient.js', dest: 'build/web/BrowserBigBangClient.js'},
                     {src: 'src/PewRuntime.js', dest: 'build/web/PewRuntime.js'},
                     {src: 'src/WireProtocol.Protocol.js', dest: 'build/web/WireProtocol.Protocol.js'},

@@ -4,6 +4,7 @@ const bigbang = require("./BigBangClient");
 const ws = require("faye-websocket");
 const url = require("url");
 const RestApiClient = require('./rest/index.js');
+const Channel = require('./Channel');
 
 
 class NodeBigBangClient extends bigbang.AbstractBigBangClient {
