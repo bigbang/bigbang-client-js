@@ -1,4 +1,3 @@
-/// <reference path="node.d.ts"/>
 /*
  BSD LICENSE
 
@@ -18,7 +17,7 @@
 // This adds buffer object to global scope. May need additional
 // sanity testing.
 global.Buffer = Buffer;
-export class ByteArray {
+class ByteArray {
     constructor(payload) {
         if (payload) {
             if (payload instanceof String) {
@@ -50,15 +49,15 @@ export class ByteArray {
         return this.getBytesAsBase64();
     }
 }
-export function encodeNetstring(s) {
+function encodeNetstring(s) {
     return s.length + ":" + s + ",";
 }
-export function decodeNetstring(s) {
+function decodeNetstring(s) {
     var idx = s.indexOf(":");
     var msgStr = s.substr(idx + 1);
     return msgStr.substr(0, msgStr.length - 1);
 }
-export function base64_encode(data) {
+function base64_encode(data) {
     // http://kevin.vanzonneveld.net
     // +   original by: Tyler Akins (http://rumkin.com)
     // +   improved by: Bayron Guevara
@@ -100,7 +99,7 @@ var b64_charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012345678
 for (var i = 0; i < b64_charset.length; i++) {
     b64_decode_fast_hash[b64_charset.charAt(i)] = i;
 }
-export function base64_decode(data) {
+function base64_decode(data) {
     var o1, o2, o3, h1, h2, h3, h4, bits, i = 0, ac = 0, dec = "", tmp_arr = [];
     if (!data) {
         return data;
@@ -126,4 +125,12 @@ export function base64_decode(data) {
     } while (i < data.length);
     dec = tmp_arr.join('');
     return dec;
+}
+
+module.exports = {
+    ByteArray: ByteArray,
+    encodeNetstring: encodeNetstring,
+    decodeNetstring: decodeNetstring,
+    base64_encode: base64_encode,
+    base64_decode: base64_decode
 }

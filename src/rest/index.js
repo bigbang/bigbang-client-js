@@ -1,12 +1,12 @@
 (function(factory) {
   if (typeof define === 'function' && define.amd) {
     // AMD. Register as an anonymous module.
-    define(['./ApiClient', './model/AuthDeviceRequest', './model/AuthDeviceResponse', './model/AuthResponse', './model/AuthUserRequest', './model/AuthUserResponse', './model/CreateDeviceRequest', './model/CreateDeviceResponse', './model/CreateUserRequest', './model/CreateUserResponse', './model/PingResponse', './model/QueryDevicesResponse', './api/DefaultApi'], factory);
+    define(['./ApiClient', './model/AuthDeviceRequest', './model/AuthDeviceResponse', './model/AuthResponse', './model/AuthUserRequest', './model/AuthUserResponse', './model/CreateDeviceRequest', './model/CreateDeviceResponse', './model/CreateUserRequest', './model/CreateUserResponse', './model/DeleteDeviceRequest', './model/PingResponse', './model/QueryDevicesResponse', './api/DefaultApi'], factory);
   } else if (typeof module === 'object' && module.exports) {
     // CommonJS-like environments that support module.exports, like Node.
-    module.exports = factory(require('./ApiClient'), require('./model/AuthDeviceRequest'), require('./model/AuthDeviceResponse'), require('./model/AuthResponse'), require('./model/AuthUserRequest'), require('./model/AuthUserResponse'), require('./model/CreateDeviceRequest'), require('./model/CreateDeviceResponse'), require('./model/CreateUserRequest'), require('./model/CreateUserResponse'), require('./model/PingResponse'), require('./model/QueryDevicesResponse'), require('./api/DefaultApi'));
+    module.exports = factory(require('./ApiClient'), require('./model/AuthDeviceRequest'), require('./model/AuthDeviceResponse'), require('./model/AuthResponse'), require('./model/AuthUserRequest'), require('./model/AuthUserResponse'), require('./model/CreateDeviceRequest'), require('./model/CreateDeviceResponse'), require('./model/CreateUserRequest'), require('./model/CreateUserResponse'), require('./model/DeleteDeviceRequest'), require('./model/PingResponse'), require('./model/QueryDevicesResponse'), require('./api/DefaultApi'));
   }
-}(function(ApiClient, AuthDeviceRequest, AuthDeviceResponse, AuthResponse, AuthUserRequest, AuthUserResponse, CreateDeviceRequest, CreateDeviceResponse, CreateUserRequest, CreateUserResponse, PingResponse, QueryDevicesResponse, DefaultApi) {
+}(function(ApiClient, AuthDeviceRequest, AuthDeviceResponse, AuthResponse, AuthUserRequest, AuthUserResponse, CreateDeviceRequest, CreateDeviceResponse, CreateUserRequest, CreateUserResponse, DeleteDeviceRequest, PingResponse, QueryDevicesResponse, DefaultApi) {
   'use strict';
 
   /**
@@ -91,6 +91,11 @@
      * @property {module:model/CreateUserResponse}
      */
     CreateUserResponse: CreateUserResponse,
+    /**
+     * The DeleteDeviceRequest model constructor.
+     * @property {module:model/DeleteDeviceRequest}
+     */
+    DeleteDeviceRequest: DeleteDeviceRequest,
     /**
      * The PingResponse model constructor.
      * @property {module:model/PingResponse}
