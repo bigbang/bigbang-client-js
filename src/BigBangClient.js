@@ -84,13 +84,16 @@ export class AbstractBigBangClient extends SimpleEventEmitter {
         return api;
     }
 
-    connect(url, options, callback) {
+    connect(callback) {
         throw new Error("abstract");
     }
 
     connectAsDevice(id, secret, callback) {
         throw new Error('abstract');
+    }
 
+    connectAsUser( email, password, callback ) {
+        throw new Error("abstract");
     }
 
     createUser(email, password, callback) {
@@ -126,7 +129,6 @@ export class AbstractBigBangClient extends SimpleEventEmitter {
 
         api.authUser(body, (err, data, response)=> {
             if (err) {
-                console.error(err);
                 callback(new ConnectionError('Unable to authenticate user.'), null);
                 return;
             }
@@ -137,13 +139,13 @@ export class AbstractBigBangClient extends SimpleEventEmitter {
                     loginResult.authenticated = json.authenticated;
                     loginResult.clientKey = json.clientKey;
                     loginResult.message = json.message;
-                    callback(loginResult);
+                    callback(null,loginResult);
                     return;
                 }
                 catch (e) {
                     loginResult.authenticated = false;
                     loginResult.message = e.message;
-                    callback(loginResult);
+                    callback(null,loginResult);
                     return;
                 }
             }
@@ -466,23 +468,5 @@ export class AbstractBigBangClient extends SimpleEventEmitter {
 
     onWirePong(msg) {
         //Check for liveness at some point if we dont get answers.
-    }
-
-    /**
-     * A terrible, temporary URL parser till we can find a good one that works
-     * in Node and browser.
-     * @param url
-     */
-    parseUrl(url) {
-        url = url.replace(/\//g, '');
-        var comps = url.split(':');
-        var protocol = comps[0];
-        var host = comps[1];
-        var port = Number(comps[2]) || (protocol === 'http' ? 80 : 443);
-        return {
-            protocol: protocol,
-            host: host,
-            port: port
-        };
     }
 }
