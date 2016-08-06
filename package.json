@@ -1,6 +1,6 @@
 {
   "name": "bigbang.io",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "main": "lib/NodeBigBangClient.js",
   "license": "BSD-3-Clause",
   "description": "Create real-time applications and devices for the Internet of Things.",
