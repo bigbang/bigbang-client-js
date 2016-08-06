@@ -36,6 +36,27 @@ class NodeBigBangClient extends bigbang.AbstractBigBangClient {
         }.bind(this));
     }
 
+    connectAsUser(email, password, callback ) {
+
+        var parsedUrl = this.parseUrl(this._appUrl);
+        var host = parsedUrl.host;
+        host += ':' + parsedUrl.port;
+        this.authUser(email,password, (err, result) => {
+            if(err) {{
+                callback(err);
+                return;
+            }}
+
+            if(result.authenticated) {
+                this.internalConnect(parsedUrl.protocol, host, result.clientKey, callback);
+            }
+            else {
+                callback(result.message);
+                return;
+            }
+        })
+    }
+
 
 
     connect(callback) {
@@ -48,7 +69,7 @@ class NodeBigBangClient extends bigbang.AbstractBigBangClient {
         host += ':' + parsedUrl.port;
         var user = null;
         var password = null;
-        this.internalLogin(parsedUrl.protocol, host, user, password, host, (loginResult) => {
+        this.internalLogin(parsedUrl.protocol, host, null, null, host, (loginResult) => {
             if (loginResult.authenticated) {
                 this.internalConnect(parsedUrl.protocol, host, loginResult.clientKey, callback);
             }
@@ -60,7 +81,6 @@ class NodeBigBangClient extends bigbang.AbstractBigBangClient {
     }
 
     internalLogin(protocol, host, user, password, application, callback) {
-
 
         if (!user && !password) {
             this.authAnon(callback);

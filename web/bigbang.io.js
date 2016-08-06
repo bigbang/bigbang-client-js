@@ -76,9 +76,7 @@ var BigBang =
 	            var parsedUrl = this.parseUrl(this._appUrl);
 	            var host = parsedUrl.host;
 	            host += ':' + parsedUrl.port;
-	            var user = null;
-	            var password = null;
-	            this.internalLogin(parsedUrl.protocol, host, user, password, host, function (loginResult) {
+	            this.internalLogin(parsedUrl.protocol, host, null, null, host, function (loginResult) {
 	                if (loginResult.authenticated) {
 	                    _this2.internalConnect(parsedUrl.protocol, host, loginResult.clientKey, callback);
 	                } else {
@@ -88,9 +86,33 @@ var BigBang =
 	            });
 	        }
 	    }, {
+	        key: "connectAsUser",
+	        value: function connectAsUser(email, password, callback) {
+	            var _this3 = this;
+
+	            var parsedUrl = this.parseUrl(this._appUrl);
+	            var host = parsedUrl.host;
+	            host += ':' + parsedUrl.port;
+	            this.authUser(email, password, function (err, result) {
+	                if (err) {
+	                    {
+	                        callback(err);
+	                        return;
+	                    }
+	                }
+
+	                if (result.authenticated) {
+	                    _this3.internalConnect(parsedUrl.protocol, host, result.clientKey, callback);
+	                } else {
+	                    callback(result.message);
+	                    return;
+	                }
+	            });
+	        }
+	    }, {
 	        key: "connectAsDevice",
 	        value: function connectAsDevice(id, secret, callback) {
-	            var _this3 = this;
+	            var _this4 = this;
 
 	            var parsedUrl = this.parseUrl(this._appUrl);
 	            var host = parsedUrl.host;
@@ -101,8 +123,8 @@ var BigBang =
 	                    return;
 	                }
 	                if (result.authenticated) {
-	                    _this3._deviceId = id;
-	                    _this3.internalConnect(parsedUrl.protocol, host, result.clientKey, callback);
+	                    _this4._deviceId = id;
+	                    _this4.internalConnect(parsedUrl.protocol, host, result.clientKey, callback);
 	                } else {
 	                    callback(err);
 	                    return;
@@ -121,14 +143,14 @@ var BigBang =
 	    }, {
 	        key: "internalConnect",
 	        value: function internalConnect(protocol, host, clientKey, callback) {
-	            var _this4 = this;
+	            var _this5 = this;
 
 	            this._clientKey = clientKey;
 	            //TODO could be more elegant here.
 	            var deviceCalled = false;
 	            if (this._deviceId) {
 	                this._internalConnectionResult = function (cr) {
-	                    _this4.getDeviceChannel(function (channel) {
+	                    _this5.getDeviceChannel(function (channel) {
 	                        if (!deviceCalled) {
 	                            if (cr.success) {
 	                                deviceCalled = true;
@@ -162,15 +184,15 @@ var BigBang =
 	            this.socket = new SockJS(ws);
 	            this.socket.onopen = function (event) {
 	                setTimeout(function () {
-	                    _this4.onConnect();
+	                    _this5.onConnect();
 	                }, 0);
 	            };
 	            this.socket.onmessage = function (event) {
 	                var s = event.data.toString();
-	                _this4.onReceiveText(s);
+	                _this5.onReceiveText(s);
 	            };
 	            this.socket.onclose = function (event) {
-	                _this4.emit('disconnected', false);
+	                _this5.emit('disconnected', false);
 	            };
 	        }
 	    }, {
@@ -1790,13 +1812,18 @@ var BigBang =
 	        }
 	    }, {
 	        key: "connect",
-	        value: function connect(url, options, callback) {
+	        value: function connect(callback) {
 	            throw new Error("abstract");
 	        }
 	    }, {
 	        key: "connectAsDevice",
 	        value: function connectAsDevice(id, secret, callback) {
 	            throw new Error('abstract');
+	        }
+	    }, {
+	        key: "connectAsUser",
+	        value: function connectAsUser(email, password, callback) {
+	            throw new Error("abstract");
 	        }
 	    }, {
 	        key: "createUser",
@@ -1832,7 +1859,6 @@ var BigBang =
 
 	            api.authUser(body, function (err, data, response) {
 	                if (err) {
-	                    console.error(err);
 	                    callback(new ConnectionError('Unable to authenticate user.'), null);
 	                    return;
 	                } else {
@@ -1842,12 +1868,12 @@ var BigBang =
 	                        loginResult.authenticated = json.authenticated;
 	                        loginResult.clientKey = json.clientKey;
 	                        loginResult.message = json.message;
-	                        callback(loginResult);
+	                        callback(null, loginResult);
 	                        return;
 	                    } catch (e) {
 	                        loginResult.authenticated = false;
 	                        loginResult.message = e.message;
-	                        callback(loginResult);
+	                        callback(null, loginResult);
 	                        return;
 	                    }
 	                }

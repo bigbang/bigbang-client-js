@@ -11,9 +11,7 @@ class BrowserBigBangClient extends bigbang.AbstractBigBangClient {
         var parsedUrl = this.parseUrl(this._appUrl);
         var host = parsedUrl.host;
         host += ':' + parsedUrl.port;
-        var user = null;
-        var password = null;
-        this.internalLogin(parsedUrl.protocol, host, user, password, host, (loginResult) => {
+        this.internalLogin(parsedUrl.protocol, host, null, null, host, (loginResult) => {
             if (loginResult.authenticated) {
                 this.internalConnect(parsedUrl.protocol, host, loginResult.clientKey, callback);
             }
@@ -23,6 +21,27 @@ class BrowserBigBangClient extends bigbang.AbstractBigBangClient {
             }
         });
     }
+
+    connectAsUser(email, password, callback) {
+        var parsedUrl = this.parseUrl(this._appUrl);
+        var host = parsedUrl.host;
+        host += ':' + parsedUrl.port;
+        this.authUser(email,password, (err, result) => {
+            if(err) {{
+                callback(err);
+                return;
+            }}
+
+            if(result.authenticated) {
+                this.internalConnect(parsedUrl.protocol, host, result.clientKey, callback);
+            }
+            else {
+                callback(result.message);
+                return;
+            }
+        })
+    }
+
 
     connectAsDevice(id, secret, callback) {
         var parsedUrl = this.parseUrl(this._appUrl);
