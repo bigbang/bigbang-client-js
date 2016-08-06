@@ -17,8 +17,8 @@ class NodeBigBangClient extends bigbang.AbstractBigBangClient {
         // internalLogin's callback calls internalConnect
         // internalConnect sets it's callback to be called later
         // events call internalConnect's callback
-        var parsedUrl = this.parseUrl(this._appUrl);
-        var host = parsedUrl.host;
+        var parsedUrl = url.parse(this._appUrl,true);
+        var host = parsedUrl.hostname;
         host += ':' + parsedUrl.port;
         this.authenticateDevice(id, secret, function (err, result) {
             if (err) {
@@ -38,8 +38,8 @@ class NodeBigBangClient extends bigbang.AbstractBigBangClient {
 
     connectAsUser(email, password, callback ) {
 
-        var parsedUrl = this.parseUrl(this._appUrl);
-        var host = parsedUrl.host;
+        var parsedUrl = url.parse(this._appUrl,true);
+        var host = parsedUrl.hostname;
         host += ':' + parsedUrl.port;
         this.authUser(email,password, (err, result) => {
             if(err) {{
@@ -64,8 +64,8 @@ class NodeBigBangClient extends bigbang.AbstractBigBangClient {
         // internalLogin's callback calls internalConnect
         // internalConnect sets it's callback to be called later
         // events call internalConnect's callback
-        var parsedUrl = this.parseUrl(this._appUrl);
-        var host = parsedUrl.host;
+        var parsedUrl = url.parse(this._appUrl,true);
+        var host = parsedUrl.hostname;
         host += ':' + parsedUrl.port;
         var user = null;
         var password = null;

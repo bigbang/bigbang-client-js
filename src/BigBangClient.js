@@ -469,22 +469,4 @@ export class AbstractBigBangClient extends SimpleEventEmitter {
     onWirePong(msg) {
         //Check for liveness at some point if we dont get answers.
     }
-
-    /**
-     * A terrible, temporary URL parser till we can find a good one that works
-     * in Node and browser.
-     * @param url
-     */
-    parseUrl(url) {
-        url = url.replace(/\//g, '');
-        var comps = url.split(':');
-        var protocol = comps[0];
-        var host = comps[1];
-        var port = Number(comps[2]) || (protocol === 'http' ? 80 : 443);
-        return {
-            protocol: protocol,
-            host: host,
-            port: port
-        };
-    }
 }

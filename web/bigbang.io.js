@@ -73,8 +73,8 @@ var BigBang =
 	        value: function connect(callback) {
 	            var _this2 = this;
 
-	            var parsedUrl = this.parseUrl(this._appUrl);
-	            var host = parsedUrl.host;
+	            var parsedUrl = url.parse(this._appUrl, true);
+	            var host = parsedUrl.hostname;
 	            host += ':' + parsedUrl.port;
 	            this.internalLogin(parsedUrl.protocol, host, null, null, host, function (loginResult) {
 	                if (loginResult.authenticated) {
@@ -90,8 +90,8 @@ var BigBang =
 	        value: function connectAsUser(email, password, callback) {
 	            var _this3 = this;
 
-	            var parsedUrl = this.parseUrl(this._appUrl);
-	            var host = parsedUrl.host;
+	            var parsedUrl = url.parse(this._appUrl, true);
+	            var host = parsedUrl.hostname;
 	            host += ':' + parsedUrl.port;
 	            this.authUser(email, password, function (err, result) {
 	                if (err) {
@@ -114,8 +114,8 @@ var BigBang =
 	        value: function connectAsDevice(id, secret, callback) {
 	            var _this4 = this;
 
-	            var parsedUrl = this.parseUrl(this._appUrl);
-	            var host = parsedUrl.host;
+	            var parsedUrl = url.parse(this._appUrl, true);
+	            var host = parsedUrl.hostname;
 	            host += ':' + parsedUrl.port;
 	            this.authenticateDevice(id, secret, function (err, result) {
 	                if (err) {
@@ -2218,29 +2218,8 @@ var BigBang =
 	        }
 	    }, {
 	        key: "onWirePong",
-	        value: function onWirePong(msg) {}
-	        //Check for liveness at some point if we dont get answers.
-
-
-	        /**
-	         * A terrible, temporary URL parser till we can find a good one that works
-	         * in Node and browser.
-	         * @param url
-	         */
-
-	    }, {
-	        key: "parseUrl",
-	        value: function parseUrl(url) {
-	            url = url.replace(/\//g, '');
-	            var comps = url.split(':');
-	            var protocol = comps[0];
-	            var host = comps[1];
-	            var port = Number(comps[2]) || (protocol === 'http' ? 80 : 443);
-	            return {
-	                protocol: protocol,
-	                host: host,
-	                port: port
-	            };
+	        value: function onWirePong(msg) {
+	            //Check for liveness at some point if we dont get answers.
 	        }
 	    }]);
 
