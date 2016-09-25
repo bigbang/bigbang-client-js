@@ -2,6 +2,7 @@ const pew = require("./PewRuntime");
 const wire = require("./WireProtocol.Protocol.js");
 const RestApiClient = require('./rest/index.js');
 const Channel = require('./Channel');
+const url = require("url");
 const SimpleEventEmitter = require('./SimpleEventEmitter');
 
 export class LoginResult {
@@ -291,6 +292,23 @@ export class AbstractBigBangClient extends SimpleEventEmitter {
     ////////////////////////////////////////////////////////////////////////////
     sendToServer(msg) {
         throw new Error("Unimplemented: sendToServer");
+    }
+
+    parseAppURL( ) {
+        var parsedUrl = url.parse(this._appUrl,true);
+
+        if( !parsedUrl.port ) {
+            if(parsedUrl.protocol === 'http:') {
+                parsedUrl.port = 80;
+            }
+            else if (parsedUrl.protocol === 'https:') {
+                parsedUrl.port = 443;
+            }
+            else {
+
+            }
+        }
+        return parsedUrl;
     }
 
     onConnect() {
