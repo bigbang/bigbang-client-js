@@ -73,7 +73,7 @@ var BigBang =
 	        value: function connect(callback) {
 	            var _this2 = this;
 
-	            var parsedUrl = url.parse(this._appUrl, true);
+	            var parsedUrl = this.parseAppURL();
 	            var host = parsedUrl.hostname;
 	            host += ':' + parsedUrl.port;
 	            this.internalLogin(parsedUrl.protocol, host, null, null, host, function (loginResult) {
@@ -90,7 +90,7 @@ var BigBang =
 	        value: function connectAsUser(email, password, callback) {
 	            var _this3 = this;
 
-	            var parsedUrl = url.parse(this._appUrl, true);
+	            var parsedUrl = this.parseAppURL();
 	            var host = parsedUrl.hostname;
 	            host += ':' + parsedUrl.port;
 	            this.authUser(email, password, function (err, result) {
@@ -114,7 +114,7 @@ var BigBang =
 	        value: function connectAsDevice(id, secret, callback) {
 	            var _this4 = this;
 
-	            var parsedUrl = url.parse(this._appUrl, true);
+	            var parsedUrl = this.parseAppURL();
 	            var host = parsedUrl.hostname;
 	            host += ':' + parsedUrl.port;
 	            this.authenticateDevice(id, secret, function (err, result) {
@@ -176,7 +176,7 @@ var BigBang =
 	                };
 	            }
 	            var ws;
-	            if (protocol === "https") {
+	            if (protocol === "https:") {
 	                ws = "https://" + host + "/sjs";
 	            } else {
 	                ws = "http://" + host + "/sjs";
@@ -1676,6 +1676,7 @@ var BigBang =
 	var wire = __webpack_require__(13);
 	var RestApiClient = __webpack_require__(14);
 	var Channel = __webpack_require__(33);
+	var url = __webpack_require__(1);
 	var SimpleEventEmitter = __webpack_require__(34);
 
 	var LoginResult = exports.LoginResult = function LoginResult() {
@@ -2024,6 +2025,20 @@ var BigBang =
 	        key: "sendToServer",
 	        value: function sendToServer(msg) {
 	            throw new Error("Unimplemented: sendToServer");
+	        }
+	    }, {
+	        key: "parseAppURL",
+	        value: function parseAppURL() {
+	            var parsedUrl = url.parse(this._appUrl, true);
+
+	            if (!parsedUrl.port) {
+	                if (parsedUrl.protocol === 'http:') {
+	                    parsedUrl.port = 80;
+	                } else if (parsedUrl.protocol === 'https:') {
+	                    parsedUrl.port = 443;
+	                } else {}
+	            }
+	            return parsedUrl;
 	        }
 	    }, {
 	        key: "onConnect",

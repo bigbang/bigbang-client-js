@@ -17,7 +17,7 @@ class NodeBigBangClient extends bigbang.AbstractBigBangClient {
         // internalLogin's callback calls internalConnect
         // internalConnect sets it's callback to be called later
         // events call internalConnect's callback
-        var parsedUrl = url.parse(this._appUrl,true);
+        var parsedUrl = this.parseAppURL()
         var host = parsedUrl.hostname;
         host += ':' + parsedUrl.port;
         this.authenticateDevice(id, secret, function (err, result) {
@@ -38,7 +38,7 @@ class NodeBigBangClient extends bigbang.AbstractBigBangClient {
 
     connectAsUser(email, password, callback ) {
 
-        var parsedUrl = url.parse(this._appUrl,true);
+        var parsedUrl = this.parseAppURL()
         var host = parsedUrl.hostname;
         host += ':' + parsedUrl.port;
         this.authUser(email,password, (err, result) => {
@@ -64,7 +64,8 @@ class NodeBigBangClient extends bigbang.AbstractBigBangClient {
         // internalLogin's callback calls internalConnect
         // internalConnect sets it's callback to be called later
         // events call internalConnect's callback
-        var parsedUrl = url.parse(this._appUrl,true);
+
+        var parsedUrl = this.parseAppURL()
         var host = parsedUrl.hostname;
         host += ':' + parsedUrl.port;
         var user = null;
@@ -125,7 +126,7 @@ class NodeBigBangClient extends bigbang.AbstractBigBangClient {
                 }
             };
         }
-        if (protocol === "https") {
+        if (protocol === "https:") {
             this.socket = new ws.Client('wss://' + host + '/sjs/websocket');
         }
         else {
