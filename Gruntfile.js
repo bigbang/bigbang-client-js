@@ -120,7 +120,7 @@ module.exports = function (grunt) {
         },
         exec: {
             pewGenerate: {
-                command: 'pew -c client -l typescript -i ../pulsar/src/main/pew/WireProtocol.pew -o src'
+                command: 'pew -c client -l javascript -i ../pulsar.js/proto/WireProtocol.pew -o src'
             },
             swagger: {
                 command: "java -jar './../pulsar.js/tools/swagger-codegen-cli.jar' generate -i './../pulsar.js/api/swagger/swagger.yaml' -l javascript -o build && cp -r build/src/ src/rest"
