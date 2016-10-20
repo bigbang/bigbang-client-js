@@ -3,6 +3,7 @@ const wire = require("./WireProtocol.Protocol.js");
 const RestApiClient = require('./rest/index.js');
 const Channel = require('./Channel');
 const url = require("url");
+const uuid = require('uuid');
 const SimpleEventEmitter = require('./SimpleEventEmitter');
 
 export class LoginResult {
@@ -77,6 +78,7 @@ export class AbstractBigBangClient extends SimpleEventEmitter {
         this.subscribe = this.subscribe.bind(this);
         this.channelSubscribeMap = {};
         this.channelMap = {};
+        this.rpcRequests = new Map();
     }
 
     _getRestClient() {
@@ -93,7 +95,7 @@ export class AbstractBigBangClient extends SimpleEventEmitter {
         throw new Error('abstract');
     }
 
-    connectAsUser( email, password, callback ) {
+    connectAsUser(email, password, callback) {
         throw new Error("abstract");
     }
 
@@ -140,13 +142,13 @@ export class AbstractBigBangClient extends SimpleEventEmitter {
                     loginResult.authenticated = json.authenticated;
                     loginResult.clientKey = json.clientKey;
                     loginResult.message = json.message;
-                    callback(null,loginResult);
+                    callback(null, loginResult);
                     return;
                 }
                 catch (e) {
                     loginResult.authenticated = false;
                     loginResult.message = e.message;
-                    callback(null,loginResult);
+                    callback(null, loginResult);
                     return;
                 }
             }
@@ -265,6 +267,19 @@ export class AbstractBigBangClient extends SimpleEventEmitter {
         this.sendToServer(msg);
     }
 
+    call(endpoint, message, response) {
+        var msg = new wire.WireRpcRequest();
+        msg.id = uuid.v4();
+        msg.channel = null;
+        msg.endpoint = endpoint;
+        msg.payload = new pew.ByteArray(pew.base64_encode(JSON.stringify(message)));
+
+
+        this.rpcRequests.set(msg.id, response);
+
+        this.sendToServer(msg);
+    }
+
     getClientId() {
         return this._clientId;
     }
@@ -294,11 +309,11 @@ export class AbstractBigBangClient extends SimpleEventEmitter {
         throw new Error("Unimplemented: sendToServer");
     }
 
-    parseAppURL( ) {
-        var parsedUrl = url.parse(this._appUrl,true);
+    parseAppURL() {
+        var parsedUrl = url.parse(this._appUrl, true);
 
-        if( !parsedUrl.port ) {
-            if(parsedUrl.protocol === 'http:') {
+        if (!parsedUrl.port) {
+            if (parsedUrl.protocol === 'http:') {
                 parsedUrl.port = 80;
             }
             else if (parsedUrl.protocol === 'https:') {
@@ -402,8 +417,17 @@ export class AbstractBigBangClient extends SimpleEventEmitter {
         channel.onWireQueueMessage(msg);
     }
 
-    onWireRpcMessage(msg) {
-        // TODO
+    onWireRpcResponse(msg) {
+        const responseHandler = this.rpcRequests.get(msg.id);
+        if (responseHandler) {
+            responseHandler(msg.error, msg.payload);
+        }
+        else {
+            //something.
+        }
+
+        //done!
+        this.rpcRequests.delete(msg.id);
     }
 
     onWireConnectFailure(msg) {

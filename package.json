@@ -1,6 +1,6 @@
 {
   "name": "bigbang.io",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "main": "lib/NodeBigBangClient.js",
   "license": "BSD-3-Clause",
   "description": "Create real-time applications and devices for the Internet of Things.",
@@ -13,7 +13,8 @@
     "faye-websocket": "0.8.1",
     "lodash": "^4.13.1",
     "sockjs-client": "1.0.3",
-    "superagent": "1.7.2"
+    "superagent": "1.7.2",
+    "uuid": "^2.0.3"
   },
   "keywords": [
     "bigbang",
