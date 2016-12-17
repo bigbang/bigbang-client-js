@@ -36,14 +36,14 @@ module.exports = function (grunt) {
                     presets: ['babel-preset-es2015']
                 },
                 files: [
-                    {src: 'src/BigBangClient.js', dest: 'build/web/BigBangClient.js'},
-                    {src: 'src/Channel.js', dest: 'build/web/Channel.js'},
-                    {src: 'src/ChannelData.js', dest: 'build/web/ChannelData.js'},
-                    {src: 'src/SimpleEventEmitter.js', dest: 'build/web/SimpleEventEmitter.js'},
-                    {src: 'src/BrowserBigBangClient.js', dest: 'build/web/BrowserBigBangClient.js'},
-                    {src: 'src/PewRuntime.js', dest: 'build/web/PewRuntime.js'},
-                    {src: 'src/WireProtocol.Protocol.js', dest: 'build/web/WireProtocol.Protocol.js'},
-                    {expand:true, src:"**/*.js",  cwd:'src/rest', dest:'build/web/rest'}
+                    {src: 'src/BigBangClient.js', dest: 'web/BigBangClient.js'},
+                    {src: 'src/Channel.js', dest: 'web/Channel.js'},
+                    {src: 'src/ChannelData.js', dest: 'web/ChannelData.js'},
+                    {src: 'src/SimpleEventEmitter.js', dest: 'web/SimpleEventEmitter.js'},
+                    {src: 'src/BrowserBigBangClient.js', dest: 'web/BrowserBigBangClient.js'},
+                    {src: 'src/PewRuntime.js', dest: 'web/PewRuntime.js'},
+                    {src: 'src/WireProtocol.Protocol.js', dest: 'web/WireProtocol.Protocol.js'},
+                    {expand:true, src:"**/*.js",  cwd:'src/rest', dest:'web/rest'}
                 ]
             }
         },
@@ -51,7 +51,7 @@ module.exports = function (grunt) {
         webpack: {
             web: {
                 // webpack options
-                entry: "./build/web/BrowserBigBangClient.js",
+                entry: "./web/BrowserBigBangClient.js",
                 output: {
                     path: './web',
                     filename: 'bigbang.io.js',

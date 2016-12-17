@@ -1,7 +1,11 @@
 {
   "name": "bigbang.io",
   "version": "0.0.13",
-  "main": "lib/NodeBigBangClient.js",
+  "main": "index.js",
+  "browser": {
+    "./lib/NodeBigBangClient.js": "./web/BrowserBigBangClient.js",
+    "fs": "empty"
+  },
   "license": "BSD-3-Clause",
   "description": "Create real-time applications and devices for the Internet of Things.",
   "repository": {
@@ -10,6 +14,7 @@
   },
   "private": false,
   "dependencies": {
+    "empty": "^0.10.1",
     "faye-websocket": "0.8.1",
     "lodash": "^4.13.1",
     "sockjs-client": "1.0.3",
@@ -48,7 +53,7 @@
     "grunt-jsdoc": "^0.5.7",
     "grunt-webpack": "^1.0.11",
     "mocha": "^2.3.3",
-    "webpack": "^1.13.0",
+    "webpack": "1.14.0",
     "webpack-dev-server": "^1.14.1"
   },
   "scripts": {

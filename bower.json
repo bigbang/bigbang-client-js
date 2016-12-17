@@ -6,7 +6,7 @@
     "Jason von Nieda <jason@vonnieda.org>"
   ],
   "description": "A BigBang.io client library",
-  "main": "web/bigbang.js",
+  "main": "web/bigbang.io.min.js",
   "moduleType": [
     "amd",
     "node"
