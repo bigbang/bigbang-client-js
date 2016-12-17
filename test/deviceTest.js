@@ -1,7 +1,8 @@
 "use strict";
+const uuid = require('uuid');
 
 describe('devices', () => {
-    describe('#createDevice', ()  => {
+    describe('#createDevice', () => {
         it('creates a device with tags!', (createDone) => {
             var bb = new BigBang.Client(TEST_HOST);
             let tags = ['clientTest1', 'clientTest2'];
@@ -39,6 +40,13 @@ describe('devices', () => {
             })
         })
 
+        it('fails to connect with a bogus device', (done) => {
+            let client = new BigBang.Client(TEST_HOST);
+            client.connectAsDevice(uuid.v4(), uuid.v4(), (err, connectResult) => {
+                assert.ok(err);
+                done();
+            });
+        })
     });
 });
 

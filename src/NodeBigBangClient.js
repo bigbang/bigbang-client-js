@@ -30,7 +30,7 @@ class NodeBigBangClient extends bigbang.AbstractBigBangClient {
                 this.internalConnect(parsedUrl.protocol, host, result.clientKey, callback);
             }
             else {
-                callback(err);
+                callback({message:"Authentication failed."});
                 return;
             }
         }.bind(this));
