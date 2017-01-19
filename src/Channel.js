@@ -2,6 +2,7 @@
 
 const SimpleEventEmitter = require('./SimpleEventEmitter');
 const ChannelData =require('./ChannelData');
+const ChannelError =require('./ChannelError');
 const wire = require("./WireProtocol.Protocol.js");
 const pew = require("./PewRuntime");
 

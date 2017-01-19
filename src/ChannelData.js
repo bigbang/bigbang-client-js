@@ -2,6 +2,7 @@
 
 const SimpleEventEmitter = require('./SimpleEventEmitter');
 const Channel = require('./Channel');
+const ChannelError = require ('./ChannelError');
 const wire = require("./WireProtocol.Protocol.js");
 const pew = require("./PewRuntime");
 const _ = require('lodash');
@@ -45,11 +46,15 @@ class ChannelData extends SimpleEventEmitter {
      */
     put(key, value, callback) {
         if (!this._isValidKey(key)) {
-            callback(new ChannelError("ChannelData key must be a non-empty string."));
+            if(callback) {
+                callback(new ChannelError("ChannelData key must be a non-empty string."));
+            }
             return;
         }
         else if (!this._isSaneValue(value)) {
-            callback(new ChannelError("ChannelData value cannot be null."));
+            if(callback) {
+                callback(new ChannelError("ChannelData value cannot be null."));
+            }
             return;
         }
         if (this.channel.hasPermission("PutChannelData")) {
@@ -86,7 +91,9 @@ class ChannelData extends SimpleEventEmitter {
      */
     remove(key, callback) {
         if (!key) {
-            callback(new ChannelError("ChannelData key cannot be null."));
+            if(callback) {
+                callback(new ChannelError("ChannelData key cannot be null."));
+            }
             return;
         }
         if (this.channel.hasPermission("DelChannelData")) {

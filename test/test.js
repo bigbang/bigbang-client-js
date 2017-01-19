@@ -151,6 +151,20 @@ describe('client', function () {
             });
         });
     })
+
+
+    describe('#channelData', function () {
+        it('boguskeytest', function (done) {
+            clientOnChannel('test', function (client, channel) {
+                var obj = {foo: randomstring(), bar: randomstring()};
+
+                channel.getChannelData().put(1, obj, (err)=>{
+                    assert.ok(err);
+                    done();
+                });
+            });
+        });
+    })
 });
 
 

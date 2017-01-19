@@ -23,6 +23,7 @@ module.exports = function (grunt) {
                     {src: 'src/BigBangClient.js', dest: 'lib/BigBangClient.js'},
                     {src: 'src/NodeBigBangClient.js', dest: 'lib/NodeBigBangClient.js'},
                     {src: 'src/Channel.js', dest: 'lib/Channel.js'},
+                    {src: 'src/ChannelError.js', dest: 'lib/ChannelError.js'},
                     {src: 'src/ChannelData.js', dest: 'lib/ChannelData.js'},
                     {src: 'src/SimpleEventEmitter.js', dest: 'lib/SimpleEventEmitter.js'},
                     {src: 'src/PewRuntime.js', dest: 'lib/PewRuntime.js'},
@@ -38,6 +39,7 @@ module.exports = function (grunt) {
                 files: [
                     {src: 'src/BigBangClient.js', dest: 'web/BigBangClient.js'},
                     {src: 'src/Channel.js', dest: 'web/Channel.js'},
+                    {src: 'src/ChannelError.js', dest: 'web/ChannelError.js'},
                     {src: 'src/ChannelData.js', dest: 'web/ChannelData.js'},
                     {src: 'src/SimpleEventEmitter.js', dest: 'web/SimpleEventEmitter.js'},
                     {src: 'src/BrowserBigBangClient.js', dest: 'web/BrowserBigBangClient.js'},

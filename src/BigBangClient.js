@@ -2,6 +2,7 @@ const pew = require("./PewRuntime");
 const wire = require("./WireProtocol.Protocol.js");
 const RestApiClient = require('./rest/index.js');
 const Channel = require('./Channel');
+const ChannelError = require('./ChannelError');
 const url = require("url");
 const uuid = require('uuid');
 const SimpleEventEmitter = require('./SimpleEventEmitter');
@@ -55,15 +56,6 @@ export class ResetPasswordError {
 export class ConnectionResult {
 }
 class ResponseWrapper {
-}
-export class ChannelError {
-    constructor(msg) {
-        this.message = msg;
-    }
-
-    toString() {
-        return this.message;
-    }
 }
 
 export class AbstractBigBangClient extends SimpleEventEmitter {
@@ -205,10 +197,11 @@ export class AbstractBigBangClient extends SimpleEventEmitter {
         });
     }
 
-    createDevice(tags, callback) {
+    createDevice(tags, virtual, callback) {
         var api = this._getRestClient();
         var body = new RestApiClient.CreateDeviceRequest();
         body.tags = tags;
+        body.virtual = virtual;
 
         api.create(body, (err, data, response) => {
             if (err) {

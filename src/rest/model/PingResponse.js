@@ -18,7 +18,7 @@
   /**
    * The PingResponse model module.
    * @module model/PingResponse
-   * @version 0.0.1
+   * @version 0.0.10
    */
 
   /**

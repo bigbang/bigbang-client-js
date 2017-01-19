@@ -18,7 +18,7 @@
   /**
    * The CreateUserResponse model module.
    * @module model/CreateUserResponse
-   * @version 0.0.1
+   * @version 0.0.10
    */
 
   /**

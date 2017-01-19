@@ -18,17 +18,19 @@
   /**
    * The CreateDeviceRequest model module.
    * @module model/CreateDeviceRequest
-   * @version 0.0.1
+   * @version 0.0.10
    */
 
   /**
    * Constructs a new <code>CreateDeviceRequest</code>.
    * @alias module:model/CreateDeviceRequest
    * @class
+   * @param virtual
    */
-  var exports = function() {
+  var exports = function(virtual) {
 
 
+    this['virtual'] = virtual;
   };
 
   /**
@@ -45,6 +47,9 @@
       if (data.hasOwnProperty('tags')) {
         obj['tags'] = ApiClient.convertToType(data['tags'], ['String']);
       }
+      if (data.hasOwnProperty('virtual')) {
+        obj['virtual'] = ApiClient.convertToType(data['virtual'], 'Boolean');
+      }
     }
     return obj;
   }
@@ -54,6 +59,11 @@
    * @member {Array.<String>} tags
    */
   exports.prototype['tags'] = undefined;
+
+  /**
+   * @member {Boolean} virtual
+   */
+  exports.prototype['virtual'] = undefined;
 
 
 

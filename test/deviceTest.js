@@ -7,7 +7,7 @@ describe('devices', () => {
             var bb = new BigBang.Client(TEST_HOST);
             let tags = ['clientTest1', 'clientTest2'];
 
-            bb.createDevice(tags, (err, createResult) => {
+            bb.createDevice(tags, false, (err, createResult) => {
                 assert.notOk(err);
                 createDeviceOk(tags, createResult);
                 createDone();
@@ -17,7 +17,7 @@ describe('devices', () => {
         it('connects with a created device', (connectDone) => {
             let client = new BigBang.Client(TEST_HOST);
             let tags = ['clientTest1', 'clientTest2'];
-            client.createDevice(tags, (err, createResult) => {
+            client.createDevice(tags, false, (err, createResult) => {
                 assert.notOk(err);
                 createDeviceOk(tags, createResult)
                 client.connectAsDevice(createResult.id, createResult.secret, (connectErr, connectResult) => {

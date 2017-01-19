@@ -10,20 +10,20 @@
     if (!root.BigBangRestApi) {
       root.BigBangRestApi = {};
     }
-    root.BigBangRestApi.AuthUserRequest = factory(root.BigBangRestApi.ApiClient);
+    root.BigBangRestApi.AuthTokenRequest = factory(root.BigBangRestApi.ApiClient);
   }
 }(this, function(ApiClient) {
   'use strict';
 
   /**
-   * The AuthUserRequest model module.
-   * @module model/AuthUserRequest
+   * The AuthTokenRequest model module.
+   * @module model/AuthTokenRequest
    * @version 0.0.10
    */
 
   /**
-   * Constructs a new <code>AuthUserRequest</code>.
-   * @alias module:model/AuthUserRequest
+   * Constructs a new <code>AuthTokenRequest</code>.
+   * @alias module:model/AuthTokenRequest
    * @class
    * @param email
    * @param password
@@ -35,11 +35,11 @@
   };
 
   /**
-   * Constructs a <code>AuthUserRequest</code> from a plain JavaScript object, optionally creating a new instance.
+   * Constructs a <code>AuthTokenRequest</code> from a plain JavaScript object, optionally creating a new instance.
    * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
    * @param {Object} data The plain JavaScript object bearing properties of interest.
-   * @param {module:model/AuthUserRequest} obj Optional instance to populate.
-   * @return {module:model/AuthUserRequest} The populated <code>AuthUserRequest</code> instance.
+   * @param {module:model/AuthTokenRequest} obj Optional instance to populate.
+   * @return {module:model/AuthTokenRequest} The populated <code>AuthTokenRequest</code> instance.
    */
   exports.constructFromObject = function(data, obj) {
     if (data) { 
