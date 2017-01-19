@@ -18,7 +18,7 @@
   /**
    * The DeleteDeviceRequest model module.
    * @module model/DeleteDeviceRequest
-   * @version 0.0.1
+   * @version 0.0.10
    */
 
   /**

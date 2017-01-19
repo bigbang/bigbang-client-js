@@ -10,41 +10,40 @@
     if (!root.BigBangRestApi) {
       root.BigBangRestApi = {};
     }
-    root.BigBangRestApi.AuthUserResponse = factory(root.BigBangRestApi.ApiClient);
+    root.BigBangRestApi.NotAuthorizedResponse = factory(root.BigBangRestApi.ApiClient);
   }
 }(this, function(ApiClient) {
   'use strict';
 
   /**
-   * The AuthUserResponse model module.
-   * @module model/AuthUserResponse
+   * The NotAuthorizedResponse model module.
+   * @module model/NotAuthorizedResponse
    * @version 0.0.10
    */
 
   /**
-   * Constructs a new <code>AuthUserResponse</code>.
-   * @alias module:model/AuthUserResponse
+   * Constructs a new <code>NotAuthorizedResponse</code>.
+   * @alias module:model/NotAuthorizedResponse
    * @class
-   * @param authenticated
    */
-  var exports = function(authenticated) {
+  var exports = function() {
 
-    this['authenticated'] = authenticated;
+
   };
 
   /**
-   * Constructs a <code>AuthUserResponse</code> from a plain JavaScript object, optionally creating a new instance.
+   * Constructs a <code>NotAuthorizedResponse</code> from a plain JavaScript object, optionally creating a new instance.
    * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
    * @param {Object} data The plain JavaScript object bearing properties of interest.
-   * @param {module:model/AuthUserResponse} obj Optional instance to populate.
-   * @return {module:model/AuthUserResponse} The populated <code>AuthUserResponse</code> instance.
+   * @param {module:model/NotAuthorizedResponse} obj Optional instance to populate.
+   * @return {module:model/NotAuthorizedResponse} The populated <code>NotAuthorizedResponse</code> instance.
    */
   exports.constructFromObject = function(data, obj) {
     if (data) { 
       obj = obj || new exports();
 
-      if (data.hasOwnProperty('authenticated')) {
-        obj['authenticated'] = ApiClient.convertToType(data['authenticated'], 'Boolean');
+      if (data.hasOwnProperty('message')) {
+        obj['message'] = ApiClient.convertToType(data['message'], 'String');
       }
     }
     return obj;
@@ -52,9 +51,9 @@
 
 
   /**
-   * @member {Boolean} authenticated
+   * @member {String} message
    */
-  exports.prototype['authenticated'] = undefined;
+  exports.prototype['message'] = undefined;
 
 
 

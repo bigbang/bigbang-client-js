@@ -10,41 +10,41 @@
     if (!root.BigBangRestApi) {
       root.BigBangRestApi = {};
     }
-    root.BigBangRestApi.AuthUserResponse = factory(root.BigBangRestApi.ApiClient);
+    root.BigBangRestApi.CallResponse = factory(root.BigBangRestApi.ApiClient);
   }
 }(this, function(ApiClient) {
   'use strict';
 
   /**
-   * The AuthUserResponse model module.
-   * @module model/AuthUserResponse
+   * The CallResponse model module.
+   * @module model/CallResponse
    * @version 0.0.10
    */
 
   /**
-   * Constructs a new <code>AuthUserResponse</code>.
-   * @alias module:model/AuthUserResponse
+   * Constructs a new <code>CallResponse</code>.
+   * @alias module:model/CallResponse
    * @class
-   * @param authenticated
+   * @param created
    */
-  var exports = function(authenticated) {
+  var exports = function(created) {
 
-    this['authenticated'] = authenticated;
+    this['created'] = created;
   };
 
   /**
-   * Constructs a <code>AuthUserResponse</code> from a plain JavaScript object, optionally creating a new instance.
+   * Constructs a <code>CallResponse</code> from a plain JavaScript object, optionally creating a new instance.
    * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
    * @param {Object} data The plain JavaScript object bearing properties of interest.
-   * @param {module:model/AuthUserResponse} obj Optional instance to populate.
-   * @return {module:model/AuthUserResponse} The populated <code>AuthUserResponse</code> instance.
+   * @param {module:model/CallResponse} obj Optional instance to populate.
+   * @return {module:model/CallResponse} The populated <code>CallResponse</code> instance.
    */
   exports.constructFromObject = function(data, obj) {
     if (data) { 
       obj = obj || new exports();
 
-      if (data.hasOwnProperty('authenticated')) {
-        obj['authenticated'] = ApiClient.convertToType(data['authenticated'], 'Boolean');
+      if (data.hasOwnProperty('created')) {
+        obj['created'] = ApiClient.convertToType(data['created'], 'Boolean');
       }
     }
     return obj;
@@ -52,9 +52,9 @@
 
 
   /**
-   * @member {Boolean} authenticated
+   * @member {Boolean} created
    */
-  exports.prototype['authenticated'] = undefined;
+  exports.prototype['created'] = undefined;
 
 
 

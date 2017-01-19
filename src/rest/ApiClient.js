@@ -17,7 +17,7 @@
 
   /**
    * @module ApiClient
-   * @version 0.0.1
+   * @version 0.0.10
    */
 
   /**
@@ -40,6 +40,7 @@
      * @type {Array.<String>}
      */
     this.authentications = {
+      'JWT': {type: 'apiKey', 'in': 'header', name: 'Authorization'}
     };
 
     /**

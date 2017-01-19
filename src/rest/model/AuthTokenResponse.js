@@ -10,20 +10,20 @@
     if (!root.BigBangRestApi) {
       root.BigBangRestApi = {};
     }
-    root.BigBangRestApi.AuthResponse = factory(root.BigBangRestApi.ApiClient);
+    root.BigBangRestApi.AuthTokenResponse = factory(root.BigBangRestApi.ApiClient);
   }
 }(this, function(ApiClient) {
   'use strict';
 
   /**
-   * The AuthResponse model module.
-   * @module model/AuthResponse
+   * The AuthTokenResponse model module.
+   * @module model/AuthTokenResponse
    * @version 0.0.10
    */
 
   /**
-   * Constructs a new <code>AuthResponse</code>.
-   * @alias module:model/AuthResponse
+   * Constructs a new <code>AuthTokenResponse</code>.
+   * @alias module:model/AuthTokenResponse
    * @class
    * @param authenticated
    */
@@ -34,11 +34,11 @@
   };
 
   /**
-   * Constructs a <code>AuthResponse</code> from a plain JavaScript object, optionally creating a new instance.
+   * Constructs a <code>AuthTokenResponse</code> from a plain JavaScript object, optionally creating a new instance.
    * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
    * @param {Object} data The plain JavaScript object bearing properties of interest.
-   * @param {module:model/AuthResponse} obj Optional instance to populate.
-   * @return {module:model/AuthResponse} The populated <code>AuthResponse</code> instance.
+   * @param {module:model/AuthTokenResponse} obj Optional instance to populate.
+   * @return {module:model/AuthTokenResponse} The populated <code>AuthTokenResponse</code> instance.
    */
   exports.constructFromObject = function(data, obj) {
     if (data) { 
@@ -47,8 +47,8 @@
       if (data.hasOwnProperty('authenticated')) {
         obj['authenticated'] = ApiClient.convertToType(data['authenticated'], 'Boolean');
       }
-      if (data.hasOwnProperty('clientKey')) {
-        obj['clientKey'] = ApiClient.convertToType(data['clientKey'], 'String');
+      if (data.hasOwnProperty('token')) {
+        obj['token'] = ApiClient.convertToType(data['token'], 'String');
       }
     }
     return obj;
@@ -61,9 +61,9 @@
   exports.prototype['authenticated'] = undefined;
 
   /**
-   * @member {String} clientKey
+   * @member {String} token
    */
-  exports.prototype['clientKey'] = undefined;
+  exports.prototype['token'] = undefined;
 
 
 

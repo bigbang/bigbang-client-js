@@ -18,7 +18,7 @@
   /**
    * The QueryDevicesResponse model module.
    * @module model/QueryDevicesResponse
-   * @version 0.0.1
+   * @version 0.0.10
    */
 
   /**

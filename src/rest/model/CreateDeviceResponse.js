@@ -18,7 +18,7 @@
   /**
    * The CreateDeviceResponse model module.
    * @module model/CreateDeviceResponse
-   * @version 0.0.1
+   * @version 0.0.10
    */
 
   /**

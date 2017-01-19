@@ -10,41 +10,41 @@
     if (!root.BigBangRestApi) {
       root.BigBangRestApi = {};
     }
-    root.BigBangRestApi.AuthUserResponse = factory(root.BigBangRestApi.ApiClient);
+    root.BigBangRestApi.PublishResponse = factory(root.BigBangRestApi.ApiClient);
   }
 }(this, function(ApiClient) {
   'use strict';
 
   /**
-   * The AuthUserResponse model module.
-   * @module model/AuthUserResponse
+   * The PublishResponse model module.
+   * @module model/PublishResponse
    * @version 0.0.10
    */
 
   /**
-   * Constructs a new <code>AuthUserResponse</code>.
-   * @alias module:model/AuthUserResponse
+   * Constructs a new <code>PublishResponse</code>.
+   * @alias module:model/PublishResponse
    * @class
-   * @param authenticated
+   * @param published
    */
-  var exports = function(authenticated) {
+  var exports = function(published) {
 
-    this['authenticated'] = authenticated;
+    this['published'] = published;
   };
 
   /**
-   * Constructs a <code>AuthUserResponse</code> from a plain JavaScript object, optionally creating a new instance.
+   * Constructs a <code>PublishResponse</code> from a plain JavaScript object, optionally creating a new instance.
    * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
    * @param {Object} data The plain JavaScript object bearing properties of interest.
-   * @param {module:model/AuthUserResponse} obj Optional instance to populate.
-   * @return {module:model/AuthUserResponse} The populated <code>AuthUserResponse</code> instance.
+   * @param {module:model/PublishResponse} obj Optional instance to populate.
+   * @return {module:model/PublishResponse} The populated <code>PublishResponse</code> instance.
    */
   exports.constructFromObject = function(data, obj) {
     if (data) { 
       obj = obj || new exports();
 
-      if (data.hasOwnProperty('authenticated')) {
-        obj['authenticated'] = ApiClient.convertToType(data['authenticated'], 'Boolean');
+      if (data.hasOwnProperty('published')) {
+        obj['published'] = ApiClient.convertToType(data['published'], 'Boolean');
       }
     }
     return obj;
@@ -52,9 +52,9 @@
 
 
   /**
-   * @member {Boolean} authenticated
+   * @member {Boolean} published
    */
-  exports.prototype['authenticated'] = undefined;
+  exports.prototype['published'] = undefined;
 
 
 

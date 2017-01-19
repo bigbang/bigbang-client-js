@@ -1,6 +1,6 @@
 {
   "name": "bigbang.io",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "main": "index.js",
   "browser": {
     "./lib/NodeBigBangClient.js": "./web/BrowserBigBangClient.js",

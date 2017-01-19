@@ -10,36 +10,38 @@
     if (!root.BigBangRestApi) {
       root.BigBangRestApi = {};
     }
-    root.BigBangRestApi.AuthDeviceRequest = factory(root.BigBangRestApi.ApiClient);
+    root.BigBangRestApi.CallRequest = factory(root.BigBangRestApi.ApiClient);
   }
 }(this, function(ApiClient) {
   'use strict';
 
   /**
-   * The AuthDeviceRequest model module.
-   * @module model/AuthDeviceRequest
+   * The CallRequest model module.
+   * @module model/CallRequest
    * @version 0.0.10
    */
 
   /**
-   * Constructs a new <code>AuthDeviceRequest</code>.
-   * @alias module:model/AuthDeviceRequest
+   * Constructs a new <code>CallRequest</code>.
+   * @alias module:model/CallRequest
    * @class
    * @param id
-   * @param secret
+   * @param namespace
+   * @param message
    */
-  var exports = function(id, secret) {
+  var exports = function(id, namespace, message) {
 
     this['id'] = id;
-    this['secret'] = secret;
+    this['namespace'] = namespace;
+    this['message'] = message;
   };
 
   /**
-   * Constructs a <code>AuthDeviceRequest</code> from a plain JavaScript object, optionally creating a new instance.
+   * Constructs a <code>CallRequest</code> from a plain JavaScript object, optionally creating a new instance.
    * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
    * @param {Object} data The plain JavaScript object bearing properties of interest.
-   * @param {module:model/AuthDeviceRequest} obj Optional instance to populate.
-   * @return {module:model/AuthDeviceRequest} The populated <code>AuthDeviceRequest</code> instance.
+   * @param {module:model/CallRequest} obj Optional instance to populate.
+   * @return {module:model/CallRequest} The populated <code>CallRequest</code> instance.
    */
   exports.constructFromObject = function(data, obj) {
     if (data) { 
@@ -48,8 +50,11 @@
       if (data.hasOwnProperty('id')) {
         obj['id'] = ApiClient.convertToType(data['id'], 'String');
       }
-      if (data.hasOwnProperty('secret')) {
-        obj['secret'] = ApiClient.convertToType(data['secret'], 'String');
+      if (data.hasOwnProperty('namespace')) {
+        obj['namespace'] = ApiClient.convertToType(data['namespace'], 'String');
+      }
+      if (data.hasOwnProperty('message')) {
+        obj['message'] = ApiClient.convertToType(data['message'], Object);
       }
     }
     return obj;
@@ -62,9 +67,14 @@
   exports.prototype['id'] = undefined;
 
   /**
-   * @member {String} secret
+   * @member {String} namespace
    */
-  exports.prototype['secret'] = undefined;
+  exports.prototype['namespace'] = undefined;
+
+  /**
+   * @member {Object} message
+   */
+  exports.prototype['message'] = undefined;
 
 
 
