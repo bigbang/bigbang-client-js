@@ -1,18 +1,18 @@
 (function(root, factory) {
   if (typeof define === 'function' && define.amd) {
     // AMD. Register as an anonymous module.
-    define(['../ApiClient', '../model/AuthResponse', '../model/AuthDeviceResponse', '../model/AuthDeviceRequest', '../model/AuthTokenResponse', '../model/AuthTokenRequest', '../model/AuthUserResponse', '../model/AuthUserRequest', '../model/CallRequest', '../model/NotAuthorizedResponse', '../model/CallResponse', '../model/CreateDeviceResponse', '../model/CreateDeviceRequest', '../model/CreateUserResponse', '../model/CreateUserRequest', '../model/DeleteDeviceRequest', '../model/ChannelResponse', '../model/PingResponse', '../model/PublishResponse', '../model/PublishRequest', '../model/QueryDevicesResponse'], factory);
+    define(['../ApiClient', '../model/AuthResponse', '../model/AuthDeviceResponse', '../model/AuthDeviceRequest', '../model/AuthTokenResponse', '../model/AuthTokenRequest', '../model/AuthUserResponse', '../model/AuthUserRequest', '../model/CallRequest', '../model/NotAuthorizedResponse', '../model/CallResponse', '../model/CreateDeviceResponse', '../model/CreateDeviceRequest', '../model/CreateUserResponse', '../model/CreateUserRequest', '../model/ChannelResponse', '../model/DeleteDeviceRequest', '../model/PingResponse', '../model/PublishResponse', '../model/PublishRequest', '../model/ChannelDataPutRequest', '../model/QueryDevicesResponse'], factory);
   } else if (typeof module === 'object' && module.exports) {
     // CommonJS-like environments that support module.exports, like Node.
-    module.exports = factory(require('../ApiClient'), require('../model/AuthResponse'), require('../model/AuthDeviceResponse'), require('../model/AuthDeviceRequest'), require('../model/AuthTokenResponse'), require('../model/AuthTokenRequest'), require('../model/AuthUserResponse'), require('../model/AuthUserRequest'), require('../model/CallRequest'), require('../model/NotAuthorizedResponse'), require('../model/CallResponse'), require('../model/CreateDeviceResponse'), require('../model/CreateDeviceRequest'), require('../model/CreateUserResponse'), require('../model/CreateUserRequest'), require('../model/DeleteDeviceRequest'), require('../model/ChannelResponse'), require('../model/PingResponse'), require('../model/PublishResponse'), require('../model/PublishRequest'), require('../model/QueryDevicesResponse'));
+    module.exports = factory(require('../ApiClient'), require('../model/AuthResponse'), require('../model/AuthDeviceResponse'), require('../model/AuthDeviceRequest'), require('../model/AuthTokenResponse'), require('../model/AuthTokenRequest'), require('../model/AuthUserResponse'), require('../model/AuthUserRequest'), require('../model/CallRequest'), require('../model/NotAuthorizedResponse'), require('../model/CallResponse'), require('../model/CreateDeviceResponse'), require('../model/CreateDeviceRequest'), require('../model/CreateUserResponse'), require('../model/CreateUserRequest'), require('../model/ChannelResponse'), require('../model/DeleteDeviceRequest'), require('../model/PingResponse'), require('../model/PublishResponse'), require('../model/PublishRequest'), require('../model/ChannelDataPutRequest'), require('../model/QueryDevicesResponse'));
   } else {
     // Browser globals (root is window)
     if (!root.BigBangRestApi) {
       root.BigBangRestApi = {};
     }
-    root.BigBangRestApi.DefaultApi = factory(root.BigBangRestApi.ApiClient, root.BigBangRestApi.AuthResponse, root.BigBangRestApi.AuthDeviceResponse, root.BigBangRestApi.AuthDeviceRequest, root.BigBangRestApi.AuthTokenResponse, root.BigBangRestApi.AuthTokenRequest, root.BigBangRestApi.AuthUserResponse, root.BigBangRestApi.AuthUserRequest, root.BigBangRestApi.CallRequest, root.BigBangRestApi.NotAuthorizedResponse, root.BigBangRestApi.CallResponse, root.BigBangRestApi.CreateDeviceResponse, root.BigBangRestApi.CreateDeviceRequest, root.BigBangRestApi.CreateUserResponse, root.BigBangRestApi.CreateUserRequest, root.BigBangRestApi.DeleteDeviceRequest, root.BigBangRestApi.ChannelResponse, root.BigBangRestApi.PingResponse, root.BigBangRestApi.PublishResponse, root.BigBangRestApi.PublishRequest, root.BigBangRestApi.QueryDevicesResponse);
+    root.BigBangRestApi.DefaultApi = factory(root.BigBangRestApi.ApiClient, root.BigBangRestApi.AuthResponse, root.BigBangRestApi.AuthDeviceResponse, root.BigBangRestApi.AuthDeviceRequest, root.BigBangRestApi.AuthTokenResponse, root.BigBangRestApi.AuthTokenRequest, root.BigBangRestApi.AuthUserResponse, root.BigBangRestApi.AuthUserRequest, root.BigBangRestApi.CallRequest, root.BigBangRestApi.NotAuthorizedResponse, root.BigBangRestApi.CallResponse, root.BigBangRestApi.CreateDeviceResponse, root.BigBangRestApi.CreateDeviceRequest, root.BigBangRestApi.CreateUserResponse, root.BigBangRestApi.CreateUserRequest, root.BigBangRestApi.ChannelResponse, root.BigBangRestApi.DeleteDeviceRequest, root.BigBangRestApi.PingResponse, root.BigBangRestApi.PublishResponse, root.BigBangRestApi.PublishRequest, root.BigBangRestApi.ChannelDataPutRequest, root.BigBangRestApi.QueryDevicesResponse);
   }
-}(this, function(ApiClient, AuthResponse, AuthDeviceResponse, AuthDeviceRequest, AuthTokenResponse, AuthTokenRequest, AuthUserResponse, AuthUserRequest, CallRequest, NotAuthorizedResponse, CallResponse, CreateDeviceResponse, CreateDeviceRequest, CreateUserResponse, CreateUserRequest, DeleteDeviceRequest, ChannelResponse, PingResponse, PublishResponse, PublishRequest, QueryDevicesResponse) {
+}(this, function(ApiClient, AuthResponse, AuthDeviceResponse, AuthDeviceRequest, AuthTokenResponse, AuthTokenRequest, AuthUserResponse, AuthUserRequest, CallRequest, NotAuthorizedResponse, CallResponse, CreateDeviceResponse, CreateDeviceRequest, CreateUserResponse, CreateUserRequest, ChannelResponse, DeleteDeviceRequest, PingResponse, PublishResponse, PublishRequest, ChannelDataPutRequest, QueryDevicesResponse) {
   'use strict';
 
   /**
@@ -335,6 +335,65 @@
     }
 
     /**
+     * Callback function to receive the result of the delChannelData operation.
+     * @callback module:api/DefaultApi~delChannelDataCallback
+     * @param {String} error Error message, if any.
+     * @param {module:model/ChannelResponse} data The data returned by the service call.
+     * @param {String} response The complete HTTP response.
+     */
+
+    /**
+     * Delete k/v pair from channelData
+     * @param {String} channel 
+     * @param {String} namespace 
+     * @param {String} key 
+     * @param {module:api/DefaultApi~delChannelDataCallback} callback The callback function, accepting three arguments: error, data, response
+     * data is of type: {module:model/ChannelResponse}
+     */
+    this.delChannelData = function(channel, namespace, key, callback) {
+      var postBody = null;
+
+      // verify the required parameter 'channel' is set
+      if (channel == undefined || channel == null) {
+        throw "Missing the required parameter 'channel' when calling delChannelData";
+      }
+
+      // verify the required parameter 'namespace' is set
+      if (namespace == undefined || namespace == null) {
+        throw "Missing the required parameter 'namespace' when calling delChannelData";
+      }
+
+      // verify the required parameter 'key' is set
+      if (key == undefined || key == null) {
+        throw "Missing the required parameter 'key' when calling delChannelData";
+      }
+
+
+      var pathParams = {
+        'channel': channel,
+        'namespace': namespace,
+        'key': key
+      };
+      var queryParams = {
+      };
+      var headerParams = {
+      };
+      var formParams = {
+      };
+
+      var authNames = ['JWT'];
+      var contentTypes = ['application/json'];
+      var accepts = ['application/json'];
+      var returnType = ChannelResponse;
+
+      return this.apiClient.callApi(
+        '/channel/{channel}/{namespace}/{key}', 'DELETE',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType, callback
+      );
+    }
+
+    /**
      * Callback function to receive the result of the deleteDevice operation.
      * @callback module:api/DefaultApi~deleteDeviceCallback
      * @param {String} error Error message, if any.
@@ -544,6 +603,71 @@
 
       return this.apiClient.callApi(
         '/publish/{channel}', 'POST',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType, callback
+      );
+    }
+
+    /**
+     * Callback function to receive the result of the putChannelData operation.
+     * @callback module:api/DefaultApi~putChannelDataCallback
+     * @param {String} error Error message, if any.
+     * @param {module:model/ChannelResponse} data The data returned by the service call.
+     * @param {String} response The complete HTTP response.
+     */
+
+    /**
+     * Put k/v pair to channelData
+     * @param {String} channel 
+     * @param {String} namespace 
+     * @param {String} key 
+     * @param {module:model/ChannelDataPutRequest} body the body
+     * @param {module:api/DefaultApi~putChannelDataCallback} callback The callback function, accepting three arguments: error, data, response
+     * data is of type: {module:model/ChannelResponse}
+     */
+    this.putChannelData = function(channel, namespace, key, body, callback) {
+      var postBody = body;
+
+      // verify the required parameter 'channel' is set
+      if (channel == undefined || channel == null) {
+        throw "Missing the required parameter 'channel' when calling putChannelData";
+      }
+
+      // verify the required parameter 'namespace' is set
+      if (namespace == undefined || namespace == null) {
+        throw "Missing the required parameter 'namespace' when calling putChannelData";
+      }
+
+      // verify the required parameter 'key' is set
+      if (key == undefined || key == null) {
+        throw "Missing the required parameter 'key' when calling putChannelData";
+      }
+
+      // verify the required parameter 'body' is set
+      if (body == undefined || body == null) {
+        throw "Missing the required parameter 'body' when calling putChannelData";
+      }
+
+
+      var pathParams = {
+        'channel': channel,
+        'namespace': namespace,
+        'key': key
+      };
+      var queryParams = {
+      };
+      var headerParams = {
+      };
+      var formParams = {
+      };
+
+      var authNames = ['JWT'];
+      var contentTypes = ['application/json'];
+      var accepts = ['application/json'];
+      var returnType = ChannelResponse;
+
+      return this.apiClient.callApi(
+        '/channel/{channel}/{namespace}/{key}', 'PUT',
         pathParams, queryParams, headerParams, formParams, postBody,
         authNames, contentTypes, accepts, returnType, callback
       );

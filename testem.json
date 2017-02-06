@@ -21,6 +21,7 @@
     }
   },
   "launch_in_dev": [
+    "node",
     "chrome"
   ]
 }

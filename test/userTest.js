@@ -1,5 +1,6 @@
 "use strict"
 describe('users', function () {
+    /*
     describe('#createUser', function () {
         it('create a user!', function (done) {
             const bb = new BigBang.Client(TEST_HOST);
@@ -37,6 +38,7 @@ describe('users', function () {
             })
         })
     });
+    */
 });
 
 

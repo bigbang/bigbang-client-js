@@ -1,12 +1,12 @@
 (function(factory) {
   if (typeof define === 'function' && define.amd) {
     // AMD. Register as an anonymous module.
-    define(['./ApiClient', './model/AuthDeviceRequest', './model/AuthDeviceResponse', './model/AuthResponse', './model/AuthTokenRequest', './model/AuthTokenResponse', './model/AuthUserRequest', './model/AuthUserResponse', './model/CallRequest', './model/CallResponse', './model/ChannelResponse', './model/CreateDeviceRequest', './model/CreateDeviceResponse', './model/CreateUserRequest', './model/CreateUserResponse', './model/DeleteDeviceRequest', './model/NotAuthorizedResponse', './model/PingResponse', './model/PublishRequest', './model/PublishResponse', './model/QueryDevicesResponse', './api/DefaultApi'], factory);
+    define(['./ApiClient', './model/AuthDeviceRequest', './model/AuthDeviceResponse', './model/AuthResponse', './model/AuthTokenRequest', './model/AuthTokenResponse', './model/AuthUserRequest', './model/AuthUserResponse', './model/CallRequest', './model/CallResponse', './model/ChannelDataPutRequest', './model/ChannelResponse', './model/CreateDeviceRequest', './model/CreateDeviceResponse', './model/CreateUserRequest', './model/CreateUserResponse', './model/DeleteDeviceRequest', './model/NotAuthorizedResponse', './model/PingResponse', './model/PublishRequest', './model/PublishResponse', './model/QueryDevicesResponse', './api/DefaultApi'], factory);
   } else if (typeof module === 'object' && module.exports) {
     // CommonJS-like environments that support module.exports, like Node.
-    module.exports = factory(require('./ApiClient'), require('./model/AuthDeviceRequest'), require('./model/AuthDeviceResponse'), require('./model/AuthResponse'), require('./model/AuthTokenRequest'), require('./model/AuthTokenResponse'), require('./model/AuthUserRequest'), require('./model/AuthUserResponse'), require('./model/CallRequest'), require('./model/CallResponse'), require('./model/ChannelResponse'), require('./model/CreateDeviceRequest'), require('./model/CreateDeviceResponse'), require('./model/CreateUserRequest'), require('./model/CreateUserResponse'), require('./model/DeleteDeviceRequest'), require('./model/NotAuthorizedResponse'), require('./model/PingResponse'), require('./model/PublishRequest'), require('./model/PublishResponse'), require('./model/QueryDevicesResponse'), require('./api/DefaultApi'));
+    module.exports = factory(require('./ApiClient'), require('./model/AuthDeviceRequest'), require('./model/AuthDeviceResponse'), require('./model/AuthResponse'), require('./model/AuthTokenRequest'), require('./model/AuthTokenResponse'), require('./model/AuthUserRequest'), require('./model/AuthUserResponse'), require('./model/CallRequest'), require('./model/CallResponse'), require('./model/ChannelDataPutRequest'), require('./model/ChannelResponse'), require('./model/CreateDeviceRequest'), require('./model/CreateDeviceResponse'), require('./model/CreateUserRequest'), require('./model/CreateUserResponse'), require('./model/DeleteDeviceRequest'), require('./model/NotAuthorizedResponse'), require('./model/PingResponse'), require('./model/PublishRequest'), require('./model/PublishResponse'), require('./model/QueryDevicesResponse'), require('./api/DefaultApi'));
   }
-}(function(ApiClient, AuthDeviceRequest, AuthDeviceResponse, AuthResponse, AuthTokenRequest, AuthTokenResponse, AuthUserRequest, AuthUserResponse, CallRequest, CallResponse, ChannelResponse, CreateDeviceRequest, CreateDeviceResponse, CreateUserRequest, CreateUserResponse, DeleteDeviceRequest, NotAuthorizedResponse, PingResponse, PublishRequest, PublishResponse, QueryDevicesResponse, DefaultApi) {
+}(function(ApiClient, AuthDeviceRequest, AuthDeviceResponse, AuthResponse, AuthTokenRequest, AuthTokenResponse, AuthUserRequest, AuthUserResponse, CallRequest, CallResponse, ChannelDataPutRequest, ChannelResponse, CreateDeviceRequest, CreateDeviceResponse, CreateUserRequest, CreateUserResponse, DeleteDeviceRequest, NotAuthorizedResponse, PingResponse, PublishRequest, PublishResponse, QueryDevicesResponse, DefaultApi) {
   'use strict';
 
   /**
@@ -91,6 +91,11 @@
      * @property {module:model/CallResponse}
      */
     CallResponse: CallResponse,
+    /**
+     * The ChannelDataPutRequest model constructor.
+     * @property {module:model/ChannelDataPutRequest}
+     */
+    ChannelDataPutRequest: ChannelDataPutRequest,
     /**
      * The ChannelResponse model constructor.
      * @property {module:model/ChannelResponse}
