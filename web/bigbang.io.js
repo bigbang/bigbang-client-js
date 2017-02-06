@@ -57,7 +57,7 @@ var BigBang =
 
 	var url = __webpack_require__(1);
 	var bigbang = __webpack_require__(8);
-	var SockJS = __webpack_require__(59);
+	var SockJS = __webpack_require__(63);
 
 	var BrowserBigBangClient = function (_bigbang$AbstractBigB) {
 	    _inherits(BrowserBigBangClient, _bigbang$AbstractBigB);
@@ -1722,11 +1722,11 @@ var BigBang =
 	var pew = __webpack_require__(9);
 	var wire = __webpack_require__(14);
 	var RestApiClient = __webpack_require__(15);
-	var Channel = __webpack_require__(52);
-	var ChannelError = __webpack_require__(55);
+	var Channel = __webpack_require__(53);
+	var ChannelError = __webpack_require__(56);
 	var url = __webpack_require__(1);
-	var uuid = __webpack_require__(57);
-	var SimpleEventEmitter = __webpack_require__(53);
+	var uuid = __webpack_require__(58);
+	var SimpleEventEmitter = __webpack_require__(54);
 
 	var LoginResult = exports.LoginResult = function LoginResult() {
 	    _classCallCheck(this, LoginResult);
@@ -1984,8 +1984,10 @@ var BigBang =
 	        key: "queryDevices",
 	        value: function queryDevices(tags, callback) {
 	            var api = this._getRestClient();
-
-	            api.query(tags, function (err, data, response) {
+	            var opts = {
+	                tags: tags
+	            };
+	            api.query(opts, function (err, data, response) {
 	                callback(err, response.body);
 	            });
 	        }
@@ -6229,12 +6231,12 @@ var BigBang =
 	(function (factory) {
 	  if (true) {
 	    // AMD. Register as an anonymous module.
-	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(17), __webpack_require__(16), __webpack_require__(32), __webpack_require__(33), __webpack_require__(34), __webpack_require__(35), __webpack_require__(36), __webpack_require__(37), __webpack_require__(38), __webpack_require__(39), __webpack_require__(40), __webpack_require__(51), __webpack_require__(41), __webpack_require__(42), __webpack_require__(43), __webpack_require__(44), __webpack_require__(45), __webpack_require__(46), __webpack_require__(47), __webpack_require__(48), __webpack_require__(49), __webpack_require__(50)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(17), __webpack_require__(16), __webpack_require__(32), __webpack_require__(33), __webpack_require__(34), __webpack_require__(35), __webpack_require__(36), __webpack_require__(37), __webpack_require__(38), __webpack_require__(39), __webpack_require__(40), __webpack_require__(52), __webpack_require__(41), __webpack_require__(42), __webpack_require__(43), __webpack_require__(44), __webpack_require__(45), __webpack_require__(46), __webpack_require__(47), __webpack_require__(48), __webpack_require__(49), __webpack_require__(50), __webpack_require__(51)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 	  } else if ((typeof module === 'undefined' ? 'undefined' : _typeof(module)) === 'object' && module.exports) {
 	    // CommonJS-like environments that support module.exports, like Node.
-	    module.exports = factory(require('./ApiClient'), require('./model/AuthDeviceRequest'), require('./model/AuthDeviceResponse'), require('./model/AuthResponse'), require('./model/AuthTokenRequest'), require('./model/AuthTokenResponse'), require('./model/AuthUserRequest'), require('./model/AuthUserResponse'), require('./model/CallRequest'), require('./model/CallResponse'), require('./model/ChannelResponse'), require('./model/CreateDeviceRequest'), require('./model/CreateDeviceResponse'), require('./model/CreateUserRequest'), require('./model/CreateUserResponse'), require('./model/DeleteDeviceRequest'), require('./model/NotAuthorizedResponse'), require('./model/PingResponse'), require('./model/PublishRequest'), require('./model/PublishResponse'), require('./model/QueryDevicesResponse'), require('./api/DefaultApi'));
+	    module.exports = factory(require('./ApiClient'), require('./model/AuthDeviceRequest'), require('./model/AuthDeviceResponse'), require('./model/AuthResponse'), require('./model/AuthTokenRequest'), require('./model/AuthTokenResponse'), require('./model/AuthUserRequest'), require('./model/AuthUserResponse'), require('./model/CallRequest'), require('./model/CallResponse'), require('./model/ChannelDataPutRequest'), require('./model/ChannelResponse'), require('./model/CreateDeviceRequest'), require('./model/CreateDeviceResponse'), require('./model/CreateUserRequest'), require('./model/CreateUserResponse'), require('./model/DeleteDeviceRequest'), require('./model/NotAuthorizedResponse'), require('./model/PingResponse'), require('./model/PublishRequest'), require('./model/PublishResponse'), require('./model/QueryDevicesResponse'), require('./api/DefaultApi'));
 	  }
-	})(function (ApiClient, AuthDeviceRequest, AuthDeviceResponse, AuthResponse, AuthTokenRequest, AuthTokenResponse, AuthUserRequest, AuthUserResponse, CallRequest, CallResponse, ChannelResponse, CreateDeviceRequest, CreateDeviceResponse, CreateUserRequest, CreateUserResponse, DeleteDeviceRequest, NotAuthorizedResponse, PingResponse, PublishRequest, PublishResponse, QueryDevicesResponse, DefaultApi) {
+	})(function (ApiClient, AuthDeviceRequest, AuthDeviceResponse, AuthResponse, AuthTokenRequest, AuthTokenResponse, AuthUserRequest, AuthUserResponse, CallRequest, CallResponse, ChannelDataPutRequest, ChannelResponse, CreateDeviceRequest, CreateDeviceResponse, CreateUserRequest, CreateUserResponse, DeleteDeviceRequest, NotAuthorizedResponse, PingResponse, PublishRequest, PublishResponse, QueryDevicesResponse, DefaultApi) {
 	  'use strict';
 
 	  /**
@@ -6320,6 +6322,11 @@ var BigBang =
 	     * @property {module:model/CallResponse}
 	     */
 	    CallResponse: CallResponse,
+	    /**
+	     * The ChannelDataPutRequest model constructor.
+	     * @property {module:model/ChannelDataPutRequest}
+	     */
+	    ChannelDataPutRequest: ChannelDataPutRequest,
 	    /**
 	     * The ChannelResponse model constructor.
 	     * @property {module:model/ChannelResponse}
@@ -9329,31 +9336,31 @@ var BigBang =
 	    if (!root.BigBangRestApi) {
 	      root.BigBangRestApi = {};
 	    }
-	    root.BigBangRestApi.ChannelResponse = factory(root.BigBangRestApi.ApiClient);
+	    root.BigBangRestApi.ChannelDataPutRequest = factory(root.BigBangRestApi.ApiClient);
 	  }
 	})(undefined, function (ApiClient) {
 	  'use strict';
 
 	  /**
-	   * The ChannelResponse model module.
-	   * @module model/ChannelResponse
+	   * The ChannelDataPutRequest model module.
+	   * @module model/ChannelDataPutRequest
 	   * @version 0.0.10
 	   */
 
 	  /**
-	   * Constructs a new <code>ChannelResponse</code>.
-	   * @alias module:model/ChannelResponse
+	   * Constructs a new <code>ChannelDataPutRequest</code>.
+	   * @alias module:model/ChannelDataPutRequest
 	   * @class
 	   */
 
 	  var exports = function exports() {};
 
 	  /**
-	   * Constructs a <code>ChannelResponse</code> from a plain JavaScript object, optionally creating a new instance.
+	   * Constructs a <code>ChannelDataPutRequest</code> from a plain JavaScript object, optionally creating a new instance.
 	   * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
 	   * @param {Object} data The plain JavaScript object bearing properties of interest.
-	   * @param {module:model/ChannelResponse} obj Optional instance to populate.
-	   * @return {module:model/ChannelResponse} The populated <code>ChannelResponse</code> instance.
+	   * @param {module:model/ChannelDataPutRequest} obj Optional instance to populate.
+	   * @return {module:model/ChannelDataPutRequest} The populated <code>ChannelDataPutRequest</code> instance.
 	   */
 	  exports.constructFromObject = function (data, obj) {
 	    if (data) {
@@ -9364,11 +9371,90 @@ var BigBang =
 
 	  return exports;
 	});
-	//# sourceMappingURL=ChannelResponse.js.map
+	//# sourceMappingURL=ChannelDataPutRequest.js.map
 
 
 /***/ },
 /* 41 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
+
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+	(function (root, factory) {
+	  if (true) {
+	    // AMD. Register as an anonymous module.
+	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(17)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	  } else if ((typeof module === 'undefined' ? 'undefined' : _typeof(module)) === 'object' && module.exports) {
+	    // CommonJS-like environments that support module.exports, like Node.
+	    module.exports = factory(require('../ApiClient'));
+	  } else {
+	    // Browser globals (root is window)
+	    if (!root.BigBangRestApi) {
+	      root.BigBangRestApi = {};
+	    }
+	    root.BigBangRestApi.CreateDeviceRequest = factory(root.BigBangRestApi.ApiClient);
+	  }
+	})(undefined, function (ApiClient) {
+	  'use strict';
+
+	  /**
+	   * The CreateDeviceRequest model module.
+	   * @module model/CreateDeviceRequest
+	   * @version 0.0.10
+	   */
+
+	  /**
+	   * Constructs a new <code>CreateDeviceRequest</code>.
+	   * @alias module:model/CreateDeviceRequest
+	   * @class
+	   * @param virtual
+	   */
+
+	  var exports = function exports(virtual) {
+
+	    this['virtual'] = virtual;
+	  };
+
+	  /**
+	   * Constructs a <code>CreateDeviceRequest</code> from a plain JavaScript object, optionally creating a new instance.
+	   * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
+	   * @param {Object} data The plain JavaScript object bearing properties of interest.
+	   * @param {module:model/CreateDeviceRequest} obj Optional instance to populate.
+	   * @return {module:model/CreateDeviceRequest} The populated <code>CreateDeviceRequest</code> instance.
+	   */
+	  exports.constructFromObject = function (data, obj) {
+	    if (data) {
+	      obj = obj || new exports();
+
+	      if (data.hasOwnProperty('tags')) {
+	        obj['tags'] = ApiClient.convertToType(data['tags'], ['String']);
+	      }
+	      if (data.hasOwnProperty('virtual')) {
+	        obj['virtual'] = ApiClient.convertToType(data['virtual'], 'Boolean');
+	      }
+	    }
+	    return obj;
+	  };
+
+	  /**
+	   * @member {Array.<String>} tags
+	   */
+	  exports.prototype['tags'] = undefined;
+
+	  /**
+	   * @member {Boolean} virtual
+	   */
+	  exports.prototype['virtual'] = undefined;
+
+	  return exports;
+	});
+	//# sourceMappingURL=CreateDeviceRequest.js.map
+
+
+/***/ },
+/* 42 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
@@ -9439,7 +9525,7 @@ var BigBang =
 
 
 /***/ },
-/* 42 */
+/* 43 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
@@ -9520,7 +9606,7 @@ var BigBang =
 
 
 /***/ },
-/* 43 */
+/* 44 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
@@ -9591,7 +9677,7 @@ var BigBang =
 
 
 /***/ },
-/* 44 */
+/* 45 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
@@ -9666,7 +9752,7 @@ var BigBang =
 
 
 /***/ },
-/* 45 */
+/* 46 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
@@ -9733,7 +9819,7 @@ var BigBang =
 
 
 /***/ },
-/* 46 */
+/* 47 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
@@ -9804,7 +9890,7 @@ var BigBang =
 
 
 /***/ },
-/* 47 */
+/* 48 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
@@ -9862,7 +9948,7 @@ var BigBang =
 
 
 /***/ },
-/* 48 */
+/* 49 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
@@ -9933,7 +10019,7 @@ var BigBang =
 
 
 /***/ },
-/* 49 */
+/* 50 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
@@ -10000,7 +10086,7 @@ var BigBang =
 
 
 /***/ },
-/* 50 */
+/* 51 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
@@ -10010,18 +10096,18 @@ var BigBang =
 	(function (root, factory) {
 	  if (true) {
 	    // AMD. Register as an anonymous module.
-	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(17), __webpack_require__(33), __webpack_require__(32), __webpack_require__(16), __webpack_require__(35), __webpack_require__(34), __webpack_require__(37), __webpack_require__(36), __webpack_require__(38), __webpack_require__(45), __webpack_require__(39), __webpack_require__(41), __webpack_require__(51), __webpack_require__(43), __webpack_require__(42), __webpack_require__(44), __webpack_require__(40), __webpack_require__(46), __webpack_require__(48), __webpack_require__(47), __webpack_require__(49)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(17), __webpack_require__(33), __webpack_require__(32), __webpack_require__(16), __webpack_require__(35), __webpack_require__(34), __webpack_require__(37), __webpack_require__(36), __webpack_require__(38), __webpack_require__(46), __webpack_require__(39), __webpack_require__(42), __webpack_require__(41), __webpack_require__(44), __webpack_require__(43), __webpack_require__(52), __webpack_require__(45), __webpack_require__(47), __webpack_require__(49), __webpack_require__(48), __webpack_require__(40), __webpack_require__(50)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 	  } else if ((typeof module === 'undefined' ? 'undefined' : _typeof(module)) === 'object' && module.exports) {
 	    // CommonJS-like environments that support module.exports, like Node.
-	    module.exports = factory(require('../ApiClient'), require('../model/AuthResponse'), require('../model/AuthDeviceResponse'), require('../model/AuthDeviceRequest'), require('../model/AuthTokenResponse'), require('../model/AuthTokenRequest'), require('../model/AuthUserResponse'), require('../model/AuthUserRequest'), require('../model/CallRequest'), require('../model/NotAuthorizedResponse'), require('../model/CallResponse'), require('../model/CreateDeviceResponse'), require('../model/CreateDeviceRequest'), require('../model/CreateUserResponse'), require('../model/CreateUserRequest'), require('../model/DeleteDeviceRequest'), require('../model/ChannelResponse'), require('../model/PingResponse'), require('../model/PublishResponse'), require('../model/PublishRequest'), require('../model/QueryDevicesResponse'));
+	    module.exports = factory(require('../ApiClient'), require('../model/AuthResponse'), require('../model/AuthDeviceResponse'), require('../model/AuthDeviceRequest'), require('../model/AuthTokenResponse'), require('../model/AuthTokenRequest'), require('../model/AuthUserResponse'), require('../model/AuthUserRequest'), require('../model/CallRequest'), require('../model/NotAuthorizedResponse'), require('../model/CallResponse'), require('../model/CreateDeviceResponse'), require('../model/CreateDeviceRequest'), require('../model/CreateUserResponse'), require('../model/CreateUserRequest'), require('../model/ChannelResponse'), require('../model/DeleteDeviceRequest'), require('../model/PingResponse'), require('../model/PublishResponse'), require('../model/PublishRequest'), require('../model/ChannelDataPutRequest'), require('../model/QueryDevicesResponse'));
 	  } else {
 	    // Browser globals (root is window)
 	    if (!root.BigBangRestApi) {
 	      root.BigBangRestApi = {};
 	    }
-	    root.BigBangRestApi.DefaultApi = factory(root.BigBangRestApi.ApiClient, root.BigBangRestApi.AuthResponse, root.BigBangRestApi.AuthDeviceResponse, root.BigBangRestApi.AuthDeviceRequest, root.BigBangRestApi.AuthTokenResponse, root.BigBangRestApi.AuthTokenRequest, root.BigBangRestApi.AuthUserResponse, root.BigBangRestApi.AuthUserRequest, root.BigBangRestApi.CallRequest, root.BigBangRestApi.NotAuthorizedResponse, root.BigBangRestApi.CallResponse, root.BigBangRestApi.CreateDeviceResponse, root.BigBangRestApi.CreateDeviceRequest, root.BigBangRestApi.CreateUserResponse, root.BigBangRestApi.CreateUserRequest, root.BigBangRestApi.DeleteDeviceRequest, root.BigBangRestApi.ChannelResponse, root.BigBangRestApi.PingResponse, root.BigBangRestApi.PublishResponse, root.BigBangRestApi.PublishRequest, root.BigBangRestApi.QueryDevicesResponse);
+	    root.BigBangRestApi.DefaultApi = factory(root.BigBangRestApi.ApiClient, root.BigBangRestApi.AuthResponse, root.BigBangRestApi.AuthDeviceResponse, root.BigBangRestApi.AuthDeviceRequest, root.BigBangRestApi.AuthTokenResponse, root.BigBangRestApi.AuthTokenRequest, root.BigBangRestApi.AuthUserResponse, root.BigBangRestApi.AuthUserRequest, root.BigBangRestApi.CallRequest, root.BigBangRestApi.NotAuthorizedResponse, root.BigBangRestApi.CallResponse, root.BigBangRestApi.CreateDeviceResponse, root.BigBangRestApi.CreateDeviceRequest, root.BigBangRestApi.CreateUserResponse, root.BigBangRestApi.CreateUserRequest, root.BigBangRestApi.ChannelResponse, root.BigBangRestApi.DeleteDeviceRequest, root.BigBangRestApi.PingResponse, root.BigBangRestApi.PublishResponse, root.BigBangRestApi.PublishRequest, root.BigBangRestApi.ChannelDataPutRequest, root.BigBangRestApi.QueryDevicesResponse);
 	  }
-	})(undefined, function (ApiClient, AuthResponse, AuthDeviceResponse, AuthDeviceRequest, AuthTokenResponse, AuthTokenRequest, AuthUserResponse, AuthUserRequest, CallRequest, NotAuthorizedResponse, CallResponse, CreateDeviceResponse, CreateDeviceRequest, CreateUserResponse, CreateUserRequest, DeleteDeviceRequest, ChannelResponse, PingResponse, PublishResponse, PublishRequest, QueryDevicesResponse) {
+	})(undefined, function (ApiClient, AuthResponse, AuthDeviceResponse, AuthDeviceRequest, AuthTokenResponse, AuthTokenRequest, AuthUserResponse, AuthUserRequest, CallRequest, NotAuthorizedResponse, CallResponse, CreateDeviceResponse, CreateDeviceRequest, CreateUserResponse, CreateUserRequest, ChannelResponse, DeleteDeviceRequest, PingResponse, PublishResponse, PublishRequest, ChannelDataPutRequest, QueryDevicesResponse) {
 	  'use strict';
 
 	  /**
@@ -10281,6 +10367,57 @@ var BigBang =
 	    };
 
 	    /**
+	     * Callback function to receive the result of the delChannelData operation.
+	     * @callback module:api/DefaultApi~delChannelDataCallback
+	     * @param {String} error Error message, if any.
+	     * @param {module:model/ChannelResponse} data The data returned by the service call.
+	     * @param {String} response The complete HTTP response.
+	     */
+
+	    /**
+	     * Delete k/v pair from channelData
+	     * @param {String} channel 
+	     * @param {String} namespace 
+	     * @param {String} key 
+	     * @param {module:api/DefaultApi~delChannelDataCallback} callback The callback function, accepting three arguments: error, data, response
+	     * data is of type: {module:model/ChannelResponse}
+	     */
+	    this.delChannelData = function (channel, namespace, key, callback) {
+	      var postBody = null;
+
+	      // verify the required parameter 'channel' is set
+	      if (channel == undefined || channel == null) {
+	        throw "Missing the required parameter 'channel' when calling delChannelData";
+	      }
+
+	      // verify the required parameter 'namespace' is set
+	      if (namespace == undefined || namespace == null) {
+	        throw "Missing the required parameter 'namespace' when calling delChannelData";
+	      }
+
+	      // verify the required parameter 'key' is set
+	      if (key == undefined || key == null) {
+	        throw "Missing the required parameter 'key' when calling delChannelData";
+	      }
+
+	      var pathParams = {
+	        'channel': channel,
+	        'namespace': namespace,
+	        'key': key
+	      };
+	      var queryParams = {};
+	      var headerParams = {};
+	      var formParams = {};
+
+	      var authNames = ['JWT'];
+	      var contentTypes = ['application/json'];
+	      var accepts = ['application/json'];
+	      var returnType = ChannelResponse;
+
+	      return this.apiClient.callApi('/channel/{channel}/{namespace}/{key}', 'DELETE', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType, callback);
+	    };
+
+	    /**
 	     * Callback function to receive the result of the deleteDevice operation.
 	     * @callback module:api/DefaultApi~deleteDeviceCallback
 	     * @param {String} error Error message, if any.
@@ -10453,6 +10590,63 @@ var BigBang =
 	    };
 
 	    /**
+	     * Callback function to receive the result of the putChannelData operation.
+	     * @callback module:api/DefaultApi~putChannelDataCallback
+	     * @param {String} error Error message, if any.
+	     * @param {module:model/ChannelResponse} data The data returned by the service call.
+	     * @param {String} response The complete HTTP response.
+	     */
+
+	    /**
+	     * Put k/v pair to channelData
+	     * @param {String} channel 
+	     * @param {String} namespace 
+	     * @param {String} key 
+	     * @param {module:model/ChannelDataPutRequest} body the body
+	     * @param {module:api/DefaultApi~putChannelDataCallback} callback The callback function, accepting three arguments: error, data, response
+	     * data is of type: {module:model/ChannelResponse}
+	     */
+	    this.putChannelData = function (channel, namespace, key, body, callback) {
+	      var postBody = body;
+
+	      // verify the required parameter 'channel' is set
+	      if (channel == undefined || channel == null) {
+	        throw "Missing the required parameter 'channel' when calling putChannelData";
+	      }
+
+	      // verify the required parameter 'namespace' is set
+	      if (namespace == undefined || namespace == null) {
+	        throw "Missing the required parameter 'namespace' when calling putChannelData";
+	      }
+
+	      // verify the required parameter 'key' is set
+	      if (key == undefined || key == null) {
+	        throw "Missing the required parameter 'key' when calling putChannelData";
+	      }
+
+	      // verify the required parameter 'body' is set
+	      if (body == undefined || body == null) {
+	        throw "Missing the required parameter 'body' when calling putChannelData";
+	      }
+
+	      var pathParams = {
+	        'channel': channel,
+	        'namespace': namespace,
+	        'key': key
+	      };
+	      var queryParams = {};
+	      var headerParams = {};
+	      var formParams = {};
+
+	      var authNames = ['JWT'];
+	      var contentTypes = ['application/json'];
+	      var accepts = ['application/json'];
+	      var returnType = ChannelResponse;
+
+	      return this.apiClient.callApi('/channel/{channel}/{namespace}/{key}', 'PUT', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType, callback);
+	    };
+
+	    /**
 	     * Callback function to receive the result of the query operation.
 	     * @callback module:api/DefaultApi~queryCallback
 	     * @param {String} error Error message, if any.
@@ -10493,7 +10687,7 @@ var BigBang =
 
 
 /***/ },
-/* 51 */
+/* 52 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
@@ -10512,67 +10706,46 @@ var BigBang =
 	    if (!root.BigBangRestApi) {
 	      root.BigBangRestApi = {};
 	    }
-	    root.BigBangRestApi.CreateDeviceRequest = factory(root.BigBangRestApi.ApiClient);
+	    root.BigBangRestApi.ChannelResponse = factory(root.BigBangRestApi.ApiClient);
 	  }
 	})(undefined, function (ApiClient) {
 	  'use strict';
 
 	  /**
-	   * The CreateDeviceRequest model module.
-	   * @module model/CreateDeviceRequest
+	   * The ChannelResponse model module.
+	   * @module model/ChannelResponse
 	   * @version 0.0.10
 	   */
 
 	  /**
-	   * Constructs a new <code>CreateDeviceRequest</code>.
-	   * @alias module:model/CreateDeviceRequest
+	   * Constructs a new <code>ChannelResponse</code>.
+	   * @alias module:model/ChannelResponse
 	   * @class
-	   * @param virtual
 	   */
 
-	  var exports = function exports(virtual) {
-
-	    this['virtual'] = virtual;
-	  };
+	  var exports = function exports() {};
 
 	  /**
-	   * Constructs a <code>CreateDeviceRequest</code> from a plain JavaScript object, optionally creating a new instance.
+	   * Constructs a <code>ChannelResponse</code> from a plain JavaScript object, optionally creating a new instance.
 	   * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
 	   * @param {Object} data The plain JavaScript object bearing properties of interest.
-	   * @param {module:model/CreateDeviceRequest} obj Optional instance to populate.
-	   * @return {module:model/CreateDeviceRequest} The populated <code>CreateDeviceRequest</code> instance.
+	   * @param {module:model/ChannelResponse} obj Optional instance to populate.
+	   * @return {module:model/ChannelResponse} The populated <code>ChannelResponse</code> instance.
 	   */
 	  exports.constructFromObject = function (data, obj) {
 	    if (data) {
 	      obj = obj || new exports();
-
-	      if (data.hasOwnProperty('tags')) {
-	        obj['tags'] = ApiClient.convertToType(data['tags'], ['String']);
-	      }
-	      if (data.hasOwnProperty('virtual')) {
-	        obj['virtual'] = ApiClient.convertToType(data['virtual'], 'Boolean');
-	      }
 	    }
 	    return obj;
 	  };
 
-	  /**
-	   * @member {Array.<String>} tags
-	   */
-	  exports.prototype['tags'] = undefined;
-
-	  /**
-	   * @member {Boolean} virtual
-	   */
-	  exports.prototype['virtual'] = undefined;
-
 	  return exports;
 	});
-	//# sourceMappingURL=CreateDeviceRequest.js.map
+	//# sourceMappingURL=ChannelResponse.js.map
 
 
 /***/ },
-/* 52 */
+/* 53 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -10585,9 +10758,9 @@ var BigBang =
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var SimpleEventEmitter = __webpack_require__(53);
-	var ChannelData = __webpack_require__(54);
-	var ChannelError = __webpack_require__(55);
+	var SimpleEventEmitter = __webpack_require__(54);
+	var ChannelData = __webpack_require__(55);
+	var ChannelError = __webpack_require__(56);
 	var wire = __webpack_require__(14);
 	var pew = __webpack_require__(9);
 
@@ -10872,7 +11045,7 @@ var BigBang =
 
 
 /***/ },
-/* 53 */
+/* 54 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -10918,7 +11091,7 @@ var BigBang =
 
 
 /***/ },
-/* 54 */
+/* 55 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -10931,12 +11104,12 @@ var BigBang =
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var SimpleEventEmitter = __webpack_require__(53);
-	var Channel = __webpack_require__(52);
-	var ChannelError = __webpack_require__(55);
+	var SimpleEventEmitter = __webpack_require__(54);
+	var Channel = __webpack_require__(53);
+	var ChannelError = __webpack_require__(56);
 	var wire = __webpack_require__(14);
 	var pew = __webpack_require__(9);
-	var _ = __webpack_require__(56);
+	var _ = __webpack_require__(57);
 
 	/**
 	 * ChannelData
@@ -11113,7 +11286,7 @@ var BigBang =
 
 
 /***/ },
-/* 55 */
+/* 56 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -11144,7 +11317,7 @@ var BigBang =
 
 
 /***/ },
-/* 56 */
+/* 57 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(global, module) {/**
@@ -11161,7 +11334,7 @@ var BigBang =
 	  var undefined;
 
 	  /** Used as the semantic version number. */
-	  var VERSION = '4.17.2';
+	  var VERSION = '4.17.4';
 
 	  /** Used as the size to enable large array optimizations. */
 	  var LARGE_ARRAY_SIZE = 200;
@@ -12716,9 +12889,9 @@ var BigBang =
 	     * Shortcut fusion is an optimization to merge iteratee calls; this avoids
 	     * the creation of intermediate arrays and can greatly reduce the number of
 	     * iteratee executions. Sections of a chain sequence qualify for shortcut
-	     * fusion if the section is applied to an array of at least `200` elements
-	     * and any iteratees accept only one argument. The heuristic for whether a
-	     * section qualifies for shortcut fusion is subject to change.
+	     * fusion if the section is applied to an array and iteratees accept only
+	     * one argument. The heuristic for whether a section qualifies for shortcut
+	     * fusion is subject to change.
 	     *
 	     * Chaining is supported in custom builds as long as the `_#value` method is
 	     * directly or indirectly included in the build.
@@ -12877,8 +13050,8 @@ var BigBang =
 
 	    /**
 	     * By default, the template delimiters used by lodash are like those in
-	     * embedded Ruby (ERB). Change the following template settings to use
-	     * alternative delimiters.
+	     * embedded Ruby (ERB) as well as ES2015 template strings. Change the
+	     * following template settings to use alternative delimiters.
 	     *
 	     * @static
 	     * @memberOf _
@@ -13025,8 +13198,7 @@ var BigBang =
 	          resIndex = 0,
 	          takeCount = nativeMin(length, this.__takeCount__);
 
-	      if (!isArr || arrLength < LARGE_ARRAY_SIZE ||
-	          (arrLength == length && takeCount == length)) {
+	      if (!isArr || (!isRight && arrLength == length && takeCount == length)) {
 	        return baseWrapperValue(array, this.__actions__);
 	      }
 	      var result = [];
@@ -13140,7 +13312,7 @@ var BigBang =
 	     */
 	    function hashHas(key) {
 	      var data = this.__data__;
-	      return nativeCreate ? data[key] !== undefined : hasOwnProperty.call(data, key);
+	      return nativeCreate ? (data[key] !== undefined) : hasOwnProperty.call(data, key);
 	    }
 
 	    /**
@@ -13611,24 +13783,6 @@ var BigBang =
 	     */
 	    function arrayShuffle(array) {
 	      return shuffleSelf(copyArray(array));
-	    }
-
-	    /**
-	     * Used by `_.defaults` to customize its `_.assignIn` use.
-	     *
-	     * @private
-	     * @param {*} objValue The destination value.
-	     * @param {*} srcValue The source value.
-	     * @param {string} key The key of the property to assign.
-	     * @param {Object} object The parent object of `objValue`.
-	     * @returns {*} Returns the value to assign.
-	     */
-	    function assignInDefaults(objValue, srcValue, key, object) {
-	      if (objValue === undefined ||
-	          (eq(objValue, objectProto[key]) && !hasOwnProperty.call(object, key))) {
-	        return srcValue;
-	      }
-	      return objValue;
 	    }
 
 	    /**
@@ -14243,8 +14397,7 @@ var BigBang =
 	      if (value == null) {
 	        return value === undefined ? undefinedTag : nullTag;
 	      }
-	      value = Object(value);
-	      return (symToStringTag && symToStringTag in value)
+	      return (symToStringTag && symToStringTag in Object(value))
 	        ? getRawTag(value)
 	        : objectToString(value);
 	    }
@@ -14448,7 +14601,7 @@ var BigBang =
 	      if (value === other) {
 	        return true;
 	      }
-	      if (value == null || other == null || (!isObject(value) && !isObjectLike(other))) {
+	      if (value == null || other == null || (!isObjectLike(value) && !isObjectLike(other))) {
 	        return value !== value && other !== other;
 	      }
 	      return baseIsEqualDeep(value, other, bitmask, customizer, baseIsEqual, stack);
@@ -14471,17 +14624,12 @@ var BigBang =
 	    function baseIsEqualDeep(object, other, bitmask, customizer, equalFunc, stack) {
 	      var objIsArr = isArray(object),
 	          othIsArr = isArray(other),
-	          objTag = arrayTag,
-	          othTag = arrayTag;
+	          objTag = objIsArr ? arrayTag : getTag(object),
+	          othTag = othIsArr ? arrayTag : getTag(other);
 
-	      if (!objIsArr) {
-	        objTag = getTag(object);
-	        objTag = objTag == argsTag ? objectTag : objTag;
-	      }
-	      if (!othIsArr) {
-	        othTag = getTag(other);
-	        othTag = othTag == argsTag ? objectTag : othTag;
-	      }
+	      objTag = objTag == argsTag ? objectTag : objTag;
+	      othTag = othTag == argsTag ? objectTag : othTag;
+
 	      var objIsObj = objTag == objectTag,
 	          othIsObj = othTag == objectTag,
 	          isSameTag = objTag == othTag;
@@ -14929,7 +15077,6 @@ var BigBang =
 	     * @returns {Object} Returns the new object.
 	     */
 	    function basePick(object, paths) {
-	      object = Object(object);
 	      return basePickBy(object, paths, function(value, path) {
 	        return hasIn(object, path);
 	      });
@@ -16322,8 +16469,7 @@ var BigBang =
 	          var args = arguments,
 	              value = args[0];
 
-	          if (wrapper && args.length == 1 &&
-	              isArray(value) && value.length >= LARGE_ARRAY_SIZE) {
+	          if (wrapper && args.length == 1 && isArray(value)) {
 	            return wrapper.plant(value).value();
 	          }
 	          var index = 0,
@@ -16630,7 +16776,7 @@ var BigBang =
 	      var func = Math[methodName];
 	      return function(number, precision) {
 	        number = toNumber(number);
-	        precision = nativeMin(toInteger(precision), 292);
+	        precision = precision == null ? 0 : nativeMin(toInteger(precision), 292);
 	        if (precision) {
 	          // Shift with exponential notation to avoid floating-point issues.
 	          // See [MDN](https://mdn.io/round#Examples) for more details.
@@ -16735,7 +16881,7 @@ var BigBang =
 	      thisArg = newData[2];
 	      partials = newData[3];
 	      holders = newData[4];
-	      arity = newData[9] = newData[9] == null
+	      arity = newData[9] = newData[9] === undefined
 	        ? (isBindKey ? 0 : func.length)
 	        : nativeMax(newData[9] - length, 0);
 
@@ -16753,6 +16899,63 @@ var BigBang =
 	      }
 	      var setter = data ? baseSetData : setData;
 	      return setWrapToString(setter(result, newData), func, bitmask);
+	    }
+
+	    /**
+	     * Used by `_.defaults` to customize its `_.assignIn` use to assign properties
+	     * of source objects to the destination object for all destination properties
+	     * that resolve to `undefined`.
+	     *
+	     * @private
+	     * @param {*} objValue The destination value.
+	     * @param {*} srcValue The source value.
+	     * @param {string} key The key of the property to assign.
+	     * @param {Object} object The parent object of `objValue`.
+	     * @returns {*} Returns the value to assign.
+	     */
+	    function customDefaultsAssignIn(objValue, srcValue, key, object) {
+	      if (objValue === undefined ||
+	          (eq(objValue, objectProto[key]) && !hasOwnProperty.call(object, key))) {
+	        return srcValue;
+	      }
+	      return objValue;
+	    }
+
+	    /**
+	     * Used by `_.defaultsDeep` to customize its `_.merge` use to merge source
+	     * objects into destination objects that are passed thru.
+	     *
+	     * @private
+	     * @param {*} objValue The destination value.
+	     * @param {*} srcValue The source value.
+	     * @param {string} key The key of the property to merge.
+	     * @param {Object} object The parent object of `objValue`.
+	     * @param {Object} source The parent object of `srcValue`.
+	     * @param {Object} [stack] Tracks traversed source values and their merged
+	     *  counterparts.
+	     * @returns {*} Returns the value to assign.
+	     */
+	    function customDefaultsMerge(objValue, srcValue, key, object, source, stack) {
+	      if (isObject(objValue) && isObject(srcValue)) {
+	        // Recursively merge objects and arrays (susceptible to call stack limits).
+	        stack.set(srcValue, objValue);
+	        baseMerge(objValue, srcValue, undefined, customDefaultsMerge, stack);
+	        stack['delete'](srcValue);
+	      }
+	      return objValue;
+	    }
+
+	    /**
+	     * Used by `_.omit` to customize its `_.cloneDeep` use to only clone plain
+	     * objects.
+	     *
+	     * @private
+	     * @param {*} value The value to inspect.
+	     * @param {string} key The key of the property to inspect.
+	     * @returns {*} Returns the uncloned value or `undefined` to defer cloning to `_.cloneDeep`.
+	     */
+	    function customOmitClone(value) {
+	      return isPlainObject(value) ? undefined : value;
 	    }
 
 	    /**
@@ -16926,9 +17129,9 @@ var BigBang =
 	     */
 	    function equalObjects(object, other, bitmask, customizer, equalFunc, stack) {
 	      var isPartial = bitmask & COMPARE_PARTIAL_FLAG,
-	          objProps = keys(object),
+	          objProps = getAllKeys(object),
 	          objLength = objProps.length,
-	          othProps = keys(other),
+	          othProps = getAllKeys(other),
 	          othLength = othProps.length;
 
 	      if (objLength != othLength && !isPartial) {
@@ -17166,7 +17369,15 @@ var BigBang =
 	     * @param {Object} object The object to query.
 	     * @returns {Array} Returns the array of symbols.
 	     */
-	    var getSymbols = nativeGetSymbols ? overArg(nativeGetSymbols, Object) : stubArray;
+	    var getSymbols = !nativeGetSymbols ? stubArray : function(object) {
+	      if (object == null) {
+	        return [];
+	      }
+	      object = Object(object);
+	      return arrayFilter(nativeGetSymbols(object), function(symbol) {
+	        return propertyIsEnumerable.call(object, symbol);
+	      });
+	    };
 
 	    /**
 	     * Creates an array of the own and inherited enumerable symbols of `object`.
@@ -17650,29 +17861,6 @@ var BigBang =
 	      data[1] = newBitmask;
 
 	      return data;
-	    }
-
-	    /**
-	     * Used by `_.defaultsDeep` to customize its `_.merge` use.
-	     *
-	     * @private
-	     * @param {*} objValue The destination value.
-	     * @param {*} srcValue The source value.
-	     * @param {string} key The key of the property to merge.
-	     * @param {Object} object The parent object of `objValue`.
-	     * @param {Object} source The parent object of `srcValue`.
-	     * @param {Object} [stack] Tracks traversed source values and their merged
-	     *  counterparts.
-	     * @returns {*} Returns the value to assign.
-	     */
-	    function mergeDefaults(objValue, srcValue, key, object, source, stack) {
-	      if (isObject(objValue) && isObject(srcValue)) {
-	        // Recursively merge objects and arrays (susceptible to call stack limits).
-	        stack.set(srcValue, objValue);
-	        baseMerge(objValue, srcValue, undefined, mergeDefaults, stack);
-	        stack['delete'](srcValue);
-	      }
-	      return objValue;
 	    }
 
 	    /**
@@ -19417,7 +19605,7 @@ var BigBang =
 	     *
 	     * var users = [
 	     *   { 'user': 'barney',  'active': false },
-	     *   { 'user': 'fred',    'active': false},
+	     *   { 'user': 'fred',    'active': false },
 	     *   { 'user': 'pebbles', 'active': true }
 	     * ];
 	     *
@@ -21986,7 +22174,7 @@ var BigBang =
 	      if (typeof func != 'function') {
 	        throw new TypeError(FUNC_ERROR_TEXT);
 	      }
-	      start = start === undefined ? 0 : nativeMax(toInteger(start), 0);
+	      start = start == null ? 0 : nativeMax(toInteger(start), 0);
 	      return baseRest(function(args) {
 	        var array = args[start],
 	            otherArgs = castSlice(args, 0, start);
@@ -22656,7 +22844,7 @@ var BigBang =
 	     * date objects, error objects, maps, numbers, `Object` objects, regexes,
 	     * sets, strings, symbols, and typed arrays. `Object` objects are compared
 	     * by their own, not inherited, enumerable properties. Functions and DOM
-	     * nodes are **not** supported.
+	     * nodes are compared by strict equality, i.e. `===`.
 	     *
 	     * @static
 	     * @memberOf _
@@ -23676,7 +23864,9 @@ var BigBang =
 	     * // => 3
 	     */
 	    function toSafeInteger(value) {
-	      return baseClamp(toInteger(value), -MAX_SAFE_INTEGER, MAX_SAFE_INTEGER);
+	      return value
+	        ? baseClamp(toInteger(value), -MAX_SAFE_INTEGER, MAX_SAFE_INTEGER)
+	        : (value === 0 ? value : 0);
 	    }
 
 	    /**
@@ -23930,7 +24120,7 @@ var BigBang =
 	     * // => { 'a': 1, 'b': 2 }
 	     */
 	    var defaults = baseRest(function(args) {
-	      args.push(undefined, assignInDefaults);
+	      args.push(undefined, customDefaultsAssignIn);
 	      return apply(assignInWith, undefined, args);
 	    });
 
@@ -23954,7 +24144,7 @@ var BigBang =
 	     * // => { 'a': { 'b': 2, 'c': 3 } }
 	     */
 	    var defaultsDeep = baseRest(function(args) {
-	      args.push(undefined, mergeDefaults);
+	      args.push(undefined, customDefaultsMerge);
 	      return apply(mergeWith, undefined, args);
 	    });
 
@@ -24616,7 +24806,7 @@ var BigBang =
 	      });
 	      copyObject(object, getAllKeysIn(object), result);
 	      if (isDeep) {
-	        result = baseClone(result, CLONE_DEEP_FLAG | CLONE_FLAT_FLAG | CLONE_SYMBOLS_FLAG);
+	        result = baseClone(result, CLONE_DEEP_FLAG | CLONE_FLAT_FLAG | CLONE_SYMBOLS_FLAG, customOmitClone);
 	      }
 	      var length = paths.length;
 	      while (length--) {
@@ -25765,7 +25955,10 @@ var BigBang =
 	     */
 	    function startsWith(string, target, position) {
 	      string = toString(string);
-	      position = baseClamp(toInteger(position), 0, string.length);
+	      position = position == null
+	        ? 0
+	        : baseClamp(toInteger(position), 0, string.length);
+
 	      target = baseToString(target);
 	      return string.slice(position, position + target.length) == target;
 	    }
@@ -25884,9 +26077,9 @@ var BigBang =
 	        options = undefined;
 	      }
 	      string = toString(string);
-	      options = assignInWith({}, options, settings, assignInDefaults);
+	      options = assignInWith({}, options, settings, customDefaultsAssignIn);
 
-	      var imports = assignInWith({}, options.imports, settings.imports, assignInDefaults),
+	      var imports = assignInWith({}, options.imports, settings.imports, customDefaultsAssignIn),
 	          importsKeys = keys(imports),
 	          importsValues = baseValues(imports, importsKeys);
 
@@ -27970,14 +28163,13 @@ var BigBang =
 	    // Add `LazyWrapper` methods for `_.drop` and `_.take` variants.
 	    arrayEach(['drop', 'take'], function(methodName, index) {
 	      LazyWrapper.prototype[methodName] = function(n) {
-	        var filtered = this.__filtered__;
-	        if (filtered && !index) {
-	          return new LazyWrapper(this);
-	        }
 	        n = n === undefined ? 1 : nativeMax(toInteger(n), 0);
 
-	        var result = this.clone();
-	        if (filtered) {
+	        var result = (this.__filtered__ && !index)
+	          ? new LazyWrapper(this)
+	          : this.clone();
+
+	        if (result.__filtered__) {
 	          result.__takeCount__ = nativeMin(n, result.__takeCount__);
 	        } else {
 	          result.__views__.push({
@@ -28216,58 +28408,28 @@ var BigBang =
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(3)(module)))
 
 /***/ },
-/* 57 */
+/* 58 */
 /***/ function(module, exports, __webpack_require__) {
 
-	//     uuid.js
-	//
-	//     Copyright (c) 2010-2012 Robert Kieffer
-	//     MIT License - http://opensource.org/licenses/mit-license.php
+	var v1 = __webpack_require__(59);
+	var v4 = __webpack_require__(62);
+
+	var uuid = v4;
+	uuid.v1 = v1;
+	uuid.v4 = v4;
+
+	module.exports = uuid;
+
+
+/***/ },
+/* 59 */
+/***/ function(module, exports, __webpack_require__) {
 
 	// Unique ID creation requires a high quality random # generator.  We feature
 	// detect to determine the best RNG source, normalizing to a function that
 	// returns 128-bits of randomness, since that's what's usually required
-	var _rng = __webpack_require__(58);
-
-	// Maps for number <-> hex string conversion
-	var _byteToHex = [];
-	var _hexToByte = {};
-	for (var i = 0; i < 256; i++) {
-	  _byteToHex[i] = (i + 0x100).toString(16).substr(1);
-	  _hexToByte[_byteToHex[i]] = i;
-	}
-
-	// **`parse()` - Parse a UUID into it's component bytes**
-	function parse(s, buf, offset) {
-	  var i = (buf && offset) || 0, ii = 0;
-
-	  buf = buf || [];
-	  s.toLowerCase().replace(/[0-9a-f]{2}/g, function(oct) {
-	    if (ii < 16) { // Don't overflow!
-	      buf[i + ii++] = _hexToByte[oct];
-	    }
-	  });
-
-	  // Zero out remaining bytes if string was short
-	  while (ii < 16) {
-	    buf[i + ii++] = 0;
-	  }
-
-	  return buf;
-	}
-
-	// **`unparse()` - Convert UUID byte array (ala parse()) into a string**
-	function unparse(buf, offset) {
-	  var i = offset || 0, bth = _byteToHex;
-	  return  bth[buf[i++]] + bth[buf[i++]] +
-	          bth[buf[i++]] + bth[buf[i++]] + '-' +
-	          bth[buf[i++]] + bth[buf[i++]] + '-' +
-	          bth[buf[i++]] + bth[buf[i++]] + '-' +
-	          bth[buf[i++]] + bth[buf[i++]] + '-' +
-	          bth[buf[i++]] + bth[buf[i++]] +
-	          bth[buf[i++]] + bth[buf[i++]] +
-	          bth[buf[i++]] + bth[buf[i++]];
-	}
+	var rng = __webpack_require__(60);
+	var bytesToUuid = __webpack_require__(61);
 
 	// **`v1()` - Generate time-based UUID**
 	//
@@ -28275,7 +28437,7 @@ var BigBang =
 	// and http://docs.python.org/library/uuid.html
 
 	// random #'s we need to init node and clockseq
-	var _seedBytes = _rng();
+	var _seedBytes = rng();
 
 	// Per 4.5, create and 48-bit node id, (47 random bits + multicast bit = 1)
 	var _nodeId = [
@@ -28358,67 +28520,33 @@ var BigBang =
 
 	  // `node`
 	  var node = options.node || _nodeId;
-	  for (var n = 0; n < 6; n++) {
+	  for (var n = 0; n < 6; ++n) {
 	    b[i + n] = node[n];
 	  }
 
-	  return buf ? buf : unparse(b);
+	  return buf ? buf : bytesToUuid(b);
 	}
 
-	// **`v4()` - Generate random UUID**
-
-	// See https://github.com/broofa/node-uuid for API details
-	function v4(options, buf, offset) {
-	  // Deprecated - 'format' argument, as supported in v1.2
-	  var i = buf && offset || 0;
-
-	  if (typeof(options) == 'string') {
-	    buf = options == 'binary' ? new Array(16) : null;
-	    options = null;
-	  }
-	  options = options || {};
-
-	  var rnds = options.random || (options.rng || _rng)();
-
-	  // Per 4.4, set bits for version and `clock_seq_hi_and_reserved`
-	  rnds[6] = (rnds[6] & 0x0f) | 0x40;
-	  rnds[8] = (rnds[8] & 0x3f) | 0x80;
-
-	  // Copy bytes to buffer, if provided
-	  if (buf) {
-	    for (var ii = 0; ii < 16; ii++) {
-	      buf[i + ii] = rnds[ii];
-	    }
-	  }
-
-	  return buf || unparse(rnds);
-	}
-
-	// Export public API
-	var uuid = v4;
-	uuid.v1 = v1;
-	uuid.v4 = v4;
-	uuid.parse = parse;
-	uuid.unparse = unparse;
-
-	module.exports = uuid;
+	module.exports = v1;
 
 
 /***/ },
-/* 58 */
+/* 60 */
 /***/ function(module, exports) {
 
-	/* WEBPACK VAR INJECTION */(function(global) {
+	/* WEBPACK VAR INJECTION */(function(global) {// Unique ID creation requires a high quality random # generator.  In the
+	// browser this is a little complicated due to unknown quality of Math.random()
+	// and inconsistent support for the `crypto` API.  We do the best we can via
+	// feature-detection
 	var rng;
 
 	var crypto = global.crypto || global.msCrypto; // for IE 11
 	if (crypto && crypto.getRandomValues) {
-	  // WHATWG crypto-based RNG - http://wiki.whatwg.org/wiki/Crypto
-	  // Moderately fast, high quality
-	  var _rnds8 = new Uint8Array(16);
+	  // WHATWG crypto RNG - http://wiki.whatwg.org/wiki/Crypto
+	  var rnds8 = new Uint8Array(16);
 	  rng = function whatwgRNG() {
-	    crypto.getRandomValues(_rnds8);
-	    return _rnds8;
+	    crypto.getRandomValues(rnds8);
+	    return rnds8;
 	  };
 	}
 
@@ -28427,31 +28555,94 @@ var BigBang =
 	  //
 	  // If all else fails, use Math.random().  It's fast, but is of unspecified
 	  // quality.
-	  var  _rnds = new Array(16);
+	  var  rnds = new Array(16);
 	  rng = function() {
 	    for (var i = 0, r; i < 16; i++) {
 	      if ((i & 0x03) === 0) r = Math.random() * 0x100000000;
-	      _rnds[i] = r >>> ((i & 0x03) << 3) & 0xff;
+	      rnds[i] = r >>> ((i & 0x03) << 3) & 0xff;
 	    }
 
-	    return _rnds;
+	    return rnds;
 	  };
 	}
 
 	module.exports = rng;
 
-
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 59 */
+/* 61 */
+/***/ function(module, exports) {
+
+	/**
+	 * Convert array of 16 byte values to UUID string format of the form:
+	 * XXXXXXXX-XXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+	 */
+	var byteToHex = [];
+	for (var i = 0; i < 256; ++i) {
+	  byteToHex[i] = (i + 0x100).toString(16).substr(1);
+	}
+
+	function bytesToUuid(buf, offset) {
+	  var i = offset || 0;
+	  var bth = byteToHex;
+	  return  bth[buf[i++]] + bth[buf[i++]] +
+	          bth[buf[i++]] + bth[buf[i++]] + '-' +
+	          bth[buf[i++]] + bth[buf[i++]] + '-' +
+	          bth[buf[i++]] + bth[buf[i++]] + '-' +
+	          bth[buf[i++]] + bth[buf[i++]] + '-' +
+	          bth[buf[i++]] + bth[buf[i++]] +
+	          bth[buf[i++]] + bth[buf[i++]] +
+	          bth[buf[i++]] + bth[buf[i++]];
+	}
+
+	module.exports = bytesToUuid;
+
+
+/***/ },
+/* 62 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var rng = __webpack_require__(60);
+	var bytesToUuid = __webpack_require__(61);
+
+	function v4(options, buf, offset) {
+	  var i = buf && offset || 0;
+
+	  if (typeof(options) == 'string') {
+	    buf = options == 'binary' ? new Array(16) : null;
+	    options = null;
+	  }
+	  options = options || {};
+
+	  var rnds = options.random || (options.rng || rng)();
+
+	  // Per 4.4, set bits for version and `clock_seq_hi_and_reserved`
+	  rnds[6] = (rnds[6] & 0x0f) | 0x40;
+	  rnds[8] = (rnds[8] & 0x3f) | 0x80;
+
+	  // Copy bytes to buffer, if provided
+	  if (buf) {
+	    for (var ii = 0; ii < 16; ++ii) {
+	      buf[i + ii] = rnds[ii];
+	    }
+	  }
+
+	  return buf || bytesToUuid(rnds);
+	}
+
+	module.exports = v4;
+
+
+/***/ },
+/* 63 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
 
-	var transportList = __webpack_require__(60);
+	var transportList = __webpack_require__(64);
 
-	module.exports = __webpack_require__(106)(transportList);
+	module.exports = __webpack_require__(110)(transportList);
 
 	// TODO can't get rid of this until all servers do
 	if ('_sockjs_onload' in global) {
@@ -28461,45 +28652,45 @@ var BigBang =
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 60 */
+/* 64 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	module.exports = [
 	  // streaming transports
-	  __webpack_require__(61)
-	, __webpack_require__(77)
-	, __webpack_require__(87)
-	, __webpack_require__(89)
-	, __webpack_require__(92)(__webpack_require__(89))
+	  __webpack_require__(65)
+	, __webpack_require__(81)
+	, __webpack_require__(91)
+	, __webpack_require__(93)
+	, __webpack_require__(96)(__webpack_require__(93))
 
 	  // polling transports
-	, __webpack_require__(99)
-	, __webpack_require__(92)(__webpack_require__(99))
-	, __webpack_require__(101)
-	, __webpack_require__(102)
-	, __webpack_require__(92)(__webpack_require__(101))
 	, __webpack_require__(103)
+	, __webpack_require__(96)(__webpack_require__(103))
+	, __webpack_require__(105)
+	, __webpack_require__(106)
+	, __webpack_require__(96)(__webpack_require__(105))
+	, __webpack_require__(107)
 	];
 
 
 /***/ },
-/* 61 */
+/* 65 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
 
-	var utils = __webpack_require__(62)
-	  , urlUtils = __webpack_require__(65)
-	  , inherits = __webpack_require__(73)
-	  , EventEmitter = __webpack_require__(74).EventEmitter
-	  , WebsocketDriver = __webpack_require__(76)
+	var utils = __webpack_require__(66)
+	  , urlUtils = __webpack_require__(69)
+	  , inherits = __webpack_require__(77)
+	  , EventEmitter = __webpack_require__(78).EventEmitter
+	  , WebsocketDriver = __webpack_require__(80)
 	  ;
 
 	var debug = function() {};
 	if (process.env.NODE_ENV !== 'production') {
-	  debug = __webpack_require__(70)('sockjs-client:websocket');
+	  debug = __webpack_require__(74)('sockjs-client:websocket');
 	}
 
 	function WebSocketTransport(transUrl) {
@@ -28590,12 +28781,12 @@ var BigBang =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(22)))
 
 /***/ },
-/* 62 */
+/* 66 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
 
-	var random = __webpack_require__(63);
+	var random = __webpack_require__(67);
 
 	var onUnload = {}
 	  , afterUnload = false
@@ -28670,13 +28861,13 @@ var BigBang =
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 63 */
+/* 67 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	/* global crypto:true */
-	var crypto = __webpack_require__(64);
+	var crypto = __webpack_require__(68);
 
 	// This string has length 32, a power of 2, so the modulus doesn't introduce a
 	// bias.
@@ -28705,7 +28896,7 @@ var BigBang =
 
 
 /***/ },
-/* 64 */
+/* 68 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
@@ -28729,16 +28920,16 @@ var BigBang =
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 65 */
+/* 69 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
 
-	var URL = __webpack_require__(66);
+	var URL = __webpack_require__(70);
 
 	var debug = function() {};
 	if (process.env.NODE_ENV !== 'production') {
-	  debug = __webpack_require__(70)('sockjs-client:utils:url');
+	  debug = __webpack_require__(74)('sockjs-client:utils:url');
 	}
 
 	module.exports = {
@@ -28783,14 +28974,14 @@ var BigBang =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(22)))
 
 /***/ },
-/* 66 */
+/* 70 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var required = __webpack_require__(67)
-	  , lolcation = __webpack_require__(68)
-	  , qs = __webpack_require__(69)
+	var required = __webpack_require__(71)
+	  , lolcation = __webpack_require__(72)
+	  , qs = __webpack_require__(73)
 	  , protocolre = /^([a-z][a-z0-9.+-]*:)?(\/\/)?([\S\s]*)/i;
 
 	/**
@@ -29146,7 +29337,7 @@ var BigBang =
 
 
 /***/ },
-/* 67 */
+/* 71 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -29190,7 +29381,7 @@ var BigBang =
 
 
 /***/ },
-/* 68 */
+/* 72 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
@@ -29222,7 +29413,7 @@ var BigBang =
 	 */
 	module.exports = function lolcation(loc) {
 	  loc = loc || global.location || {};
-	  URL = URL || __webpack_require__(66);
+	  URL = URL || __webpack_require__(70);
 
 	  var finaldestination = {}
 	    , type = typeof loc
@@ -29250,7 +29441,7 @@ var BigBang =
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 69 */
+/* 73 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -29317,7 +29508,7 @@ var BigBang =
 
 
 /***/ },
-/* 70 */
+/* 74 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -29326,7 +29517,7 @@ var BigBang =
 	 * Expose `debug()` as the module.
 	 */
 
-	exports = module.exports = __webpack_require__(71);
+	exports = module.exports = __webpack_require__(75);
 	exports.log = log;
 	exports.formatArgs = formatArgs;
 	exports.save = save;
@@ -29362,20 +29553,20 @@ var BigBang =
 	  // NB: In an Electron preload script, document will be defined but not fully
 	  // initialized. Since we know we're in Chrome, we'll just detect this case
 	  // explicitly
-	  if (typeof window !== 'undefined' && 'process' in window && window.process.type === 'renderer') {
+	  if (typeof window !== 'undefined' && window && typeof window.process !== 'undefined' && window.process.type === 'renderer') {
 	    return true;
 	  }
 
 	  // is webkit? http://stackoverflow.com/a/16459606/376773
 	  // document is undefined in react-native: https://github.com/facebook/react-native/pull/1632
-	  return (typeof document !== 'undefined' && 'WebkitAppearance' in document.documentElement.style) ||
+	  return (typeof document !== 'undefined' && document && 'WebkitAppearance' in document.documentElement.style) ||
 	    // is firebug? http://stackoverflow.com/a/398120/376773
-	    (typeof window !== 'undefined' && window.console && (console.firebug || (console.exception && console.table))) ||
+	    (typeof window !== 'undefined' && window && window.console && (console.firebug || (console.exception && console.table))) ||
 	    // is firefox >= v31?
 	    // https://developer.mozilla.org/en-US/docs/Tools/Web_Console#Styling_messages
-	    (navigator.userAgent && navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31) ||
+	    (typeof navigator !== 'undefined' && navigator && navigator.userAgent && navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31) ||
 	    // double check webkit in userAgent just in case we are in a worker
-	    (navigator.userAgent && navigator.userAgent.toLowerCase().match(/applewebkit\/(\d+)/));
+	    (typeof navigator !== 'undefined' && navigator && navigator.userAgent && navigator.userAgent.toLowerCase().match(/applewebkit\/(\d+)/));
 	}
 
 	/**
@@ -29417,7 +29608,7 @@ var BigBang =
 	  // figure out the correct index to insert the CSS into
 	  var index = 0;
 	  var lastC = 0;
-	  args[0].replace(/%[a-z%]/g, function(match) {
+	  args[0].replace(/%[a-zA-Z%]/g, function(match) {
 	    if ('%%' === match) return;
 	    index++;
 	    if ('%c' === match) {
@@ -29470,7 +29661,6 @@ var BigBang =
 	 */
 
 	function load() {
-	  var r;
 	  try {
 	    return exports.storage.debug;
 	  } catch(e) {}
@@ -29507,7 +29697,7 @@ var BigBang =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(22)))
 
 /***/ },
-/* 71 */
+/* 75 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -29523,7 +29713,7 @@ var BigBang =
 	exports.disable = disable;
 	exports.enable = enable;
 	exports.enabled = enabled;
-	exports.humanize = __webpack_require__(72);
+	exports.humanize = __webpack_require__(76);
 
 	/**
 	 * The currently active debug mode names, and names to skip.
@@ -29622,7 +29812,7 @@ var BigBang =
 	    // apply env-specific formatting (colors, etc.)
 	    exports.formatArgs.call(self, args);
 
-	    var logFn = enabled.log || exports.log || console.log.bind(console);
+	    var logFn = debug.log || exports.log || console.log.bind(console);
 	    logFn.apply(self, args);
 	  }
 
@@ -29712,7 +29902,7 @@ var BigBang =
 
 
 /***/ },
-/* 72 */
+/* 76 */
 /***/ function(module, exports) {
 
 	/**
@@ -29867,7 +30057,7 @@ var BigBang =
 
 
 /***/ },
-/* 73 */
+/* 77 */
 /***/ function(module, exports) {
 
 	if (typeof Object.create === 'function') {
@@ -29896,13 +30086,13 @@ var BigBang =
 
 
 /***/ },
-/* 74 */
+/* 78 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var inherits = __webpack_require__(73)
-	  , EventTarget = __webpack_require__(75)
+	var inherits = __webpack_require__(77)
+	  , EventTarget = __webpack_require__(79)
 	  ;
 
 	function EventEmitter() {
@@ -29953,7 +30143,7 @@ var BigBang =
 
 
 /***/ },
-/* 75 */
+/* 79 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -30019,7 +30209,7 @@ var BigBang =
 
 
 /***/ },
-/* 76 */
+/* 80 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {module.exports = global.WebSocket || global.MozWebSocket;
@@ -30027,17 +30217,17 @@ var BigBang =
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 77 */
+/* 81 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
 
-	var inherits = __webpack_require__(73)
-	  , AjaxBasedTransport = __webpack_require__(78)
-	  , XhrReceiver = __webpack_require__(82)
-	  , XHRCorsObject = __webpack_require__(83)
-	  , XHRLocalObject = __webpack_require__(85)
-	  , browser = __webpack_require__(86)
+	var inherits = __webpack_require__(77)
+	  , AjaxBasedTransport = __webpack_require__(82)
+	  , XhrReceiver = __webpack_require__(86)
+	  , XHRCorsObject = __webpack_require__(87)
+	  , XHRLocalObject = __webpack_require__(89)
+	  , browser = __webpack_require__(90)
 	  ;
 
 	function XhrStreamingTransport(transUrl) {
@@ -30075,19 +30265,19 @@ var BigBang =
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 78 */
+/* 82 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
 
-	var inherits = __webpack_require__(73)
-	  , urlUtils = __webpack_require__(65)
-	  , SenderReceiver = __webpack_require__(79)
+	var inherits = __webpack_require__(77)
+	  , urlUtils = __webpack_require__(69)
+	  , SenderReceiver = __webpack_require__(83)
 	  ;
 
 	var debug = function() {};
 	if (process.env.NODE_ENV !== 'production') {
-	  debug = __webpack_require__(70)('sockjs-client:ajax-based');
+	  debug = __webpack_require__(74)('sockjs-client:ajax-based');
 	}
 
 	function createAjaxSender(AjaxObject) {
@@ -30131,20 +30321,20 @@ var BigBang =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(22)))
 
 /***/ },
-/* 79 */
+/* 83 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
 
-	var inherits = __webpack_require__(73)
-	  , urlUtils = __webpack_require__(65)
-	  , BufferedSender = __webpack_require__(80)
-	  , Polling = __webpack_require__(81)
+	var inherits = __webpack_require__(77)
+	  , urlUtils = __webpack_require__(69)
+	  , BufferedSender = __webpack_require__(84)
+	  , Polling = __webpack_require__(85)
 	  ;
 
 	var debug = function() {};
 	if (process.env.NODE_ENV !== 'production') {
-	  debug = __webpack_require__(70)('sockjs-client:sender-receiver');
+	  debug = __webpack_require__(74)('sockjs-client:sender-receiver');
 	}
 
 	function SenderReceiver(transUrl, urlSuffix, senderFunc, Receiver, AjaxObject) {
@@ -30183,18 +30373,18 @@ var BigBang =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(22)))
 
 /***/ },
-/* 80 */
+/* 84 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
 
-	var inherits = __webpack_require__(73)
-	  , EventEmitter = __webpack_require__(74).EventEmitter
+	var inherits = __webpack_require__(77)
+	  , EventEmitter = __webpack_require__(78).EventEmitter
 	  ;
 
 	var debug = function() {};
 	if (process.env.NODE_ENV !== 'production') {
-	  debug = __webpack_require__(70)('sockjs-client:buffered-sender');
+	  debug = __webpack_require__(74)('sockjs-client:buffered-sender');
 	}
 
 	function BufferedSender(url, sender) {
@@ -30277,18 +30467,18 @@ var BigBang =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(22)))
 
 /***/ },
-/* 81 */
+/* 85 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
 
-	var inherits = __webpack_require__(73)
-	  , EventEmitter = __webpack_require__(74).EventEmitter
+	var inherits = __webpack_require__(77)
+	  , EventEmitter = __webpack_require__(78).EventEmitter
 	  ;
 
 	var debug = function() {};
 	if (process.env.NODE_ENV !== 'production') {
-	  debug = __webpack_require__(70)('sockjs-client:polling');
+	  debug = __webpack_require__(74)('sockjs-client:polling');
 	}
 
 	function Polling(Receiver, receiveUrl, AjaxObject) {
@@ -30341,18 +30531,18 @@ var BigBang =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(22)))
 
 /***/ },
-/* 82 */
+/* 86 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
 
-	var inherits = __webpack_require__(73)
-	  , EventEmitter = __webpack_require__(74).EventEmitter
+	var inherits = __webpack_require__(77)
+	  , EventEmitter = __webpack_require__(78).EventEmitter
 	  ;
 
 	var debug = function() {};
 	if (process.env.NODE_ENV !== 'production') {
-	  debug = __webpack_require__(70)('sockjs-client:receiver:xhr');
+	  debug = __webpack_require__(74)('sockjs-client:receiver:xhr');
 	}
 
 	function XhrReceiver(url, AjaxObject) {
@@ -30418,13 +30608,13 @@ var BigBang =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(22)))
 
 /***/ },
-/* 83 */
+/* 87 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var inherits = __webpack_require__(73)
-	  , XhrDriver = __webpack_require__(84)
+	var inherits = __webpack_require__(77)
+	  , XhrDriver = __webpack_require__(88)
 	  ;
 
 	function XHRCorsObject(method, url, payload, opts) {
@@ -30439,21 +30629,21 @@ var BigBang =
 
 
 /***/ },
-/* 84 */
+/* 88 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global, process) {'use strict';
 
-	var EventEmitter = __webpack_require__(74).EventEmitter
-	  , inherits = __webpack_require__(73)
-	  , utils = __webpack_require__(62)
-	  , urlUtils = __webpack_require__(65)
+	var EventEmitter = __webpack_require__(78).EventEmitter
+	  , inherits = __webpack_require__(77)
+	  , utils = __webpack_require__(66)
+	  , urlUtils = __webpack_require__(69)
 	  , XHR = global.XMLHttpRequest
 	  ;
 
 	var debug = function() {};
 	if (process.env.NODE_ENV !== 'production') {
-	  debug = __webpack_require__(70)('sockjs-client:browser:xhr');
+	  debug = __webpack_require__(74)('sockjs-client:browser:xhr');
 	}
 
 	function AbstractXHRObject(method, url, payload, opts) {
@@ -30631,13 +30821,13 @@ var BigBang =
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(22)))
 
 /***/ },
-/* 85 */
+/* 89 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var inherits = __webpack_require__(73)
-	  , XhrDriver = __webpack_require__(84)
+	var inherits = __webpack_require__(77)
+	  , XhrDriver = __webpack_require__(88)
 	  ;
 
 	function XHRLocalObject(method, url, payload /*, opts */) {
@@ -30654,7 +30844,7 @@ var BigBang =
 
 
 /***/ },
-/* 86 */
+/* 90 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
@@ -30688,15 +30878,15 @@ var BigBang =
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 87 */
+/* 91 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var inherits = __webpack_require__(73)
-	  , AjaxBasedTransport = __webpack_require__(78)
-	  , XhrReceiver = __webpack_require__(82)
-	  , XDRObject = __webpack_require__(88)
+	var inherits = __webpack_require__(77)
+	  , AjaxBasedTransport = __webpack_require__(82)
+	  , XhrReceiver = __webpack_require__(86)
+	  , XDRObject = __webpack_require__(92)
 	  ;
 
 	// According to:
@@ -30726,21 +30916,21 @@ var BigBang =
 
 
 /***/ },
-/* 88 */
+/* 92 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process, global) {'use strict';
 
-	var EventEmitter = __webpack_require__(74).EventEmitter
-	  , inherits = __webpack_require__(73)
-	  , eventUtils = __webpack_require__(62)
-	  , browser = __webpack_require__(86)
-	  , urlUtils = __webpack_require__(65)
+	var EventEmitter = __webpack_require__(78).EventEmitter
+	  , inherits = __webpack_require__(77)
+	  , eventUtils = __webpack_require__(66)
+	  , browser = __webpack_require__(90)
+	  , urlUtils = __webpack_require__(69)
 	  ;
 
 	var debug = function() {};
 	if (process.env.NODE_ENV !== 'production') {
-	  debug = __webpack_require__(70)('sockjs-client:sender:xdr');
+	  debug = __webpack_require__(74)('sockjs-client:sender:xdr');
 	}
 
 	// References:
@@ -30834,16 +31024,16 @@ var BigBang =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(22), (function() { return this; }())))
 
 /***/ },
-/* 89 */
+/* 93 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var inherits = __webpack_require__(73)
-	  , AjaxBasedTransport = __webpack_require__(78)
-	  , EventSourceReceiver = __webpack_require__(90)
-	  , XHRCorsObject = __webpack_require__(83)
-	  , EventSourceDriver = __webpack_require__(91)
+	var inherits = __webpack_require__(77)
+	  , AjaxBasedTransport = __webpack_require__(82)
+	  , EventSourceReceiver = __webpack_require__(94)
+	  , XHRCorsObject = __webpack_require__(87)
+	  , EventSourceDriver = __webpack_require__(95)
 	  ;
 
 	function EventSourceTransport(transUrl) {
@@ -30867,19 +31057,19 @@ var BigBang =
 
 
 /***/ },
-/* 90 */
+/* 94 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
 
-	var inherits = __webpack_require__(73)
-	  , EventEmitter = __webpack_require__(74).EventEmitter
-	  , EventSourceDriver = __webpack_require__(91)
+	var inherits = __webpack_require__(77)
+	  , EventEmitter = __webpack_require__(78).EventEmitter
+	  , EventSourceDriver = __webpack_require__(95)
 	  ;
 
 	var debug = function() {};
 	if (process.env.NODE_ENV !== 'production') {
-	  debug = __webpack_require__(70)('sockjs-client:receiver:eventsource');
+	  debug = __webpack_require__(74)('sockjs-client:receiver:eventsource');
 	}
 
 	function EventSourceReceiver(url) {
@@ -30937,7 +31127,7 @@ var BigBang =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(22)))
 
 /***/ },
-/* 91 */
+/* 95 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {module.exports = global.EventSource;
@@ -30945,14 +31135,14 @@ var BigBang =
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 92 */
+/* 96 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
 
-	var inherits = __webpack_require__(73)
-	  , IframeTransport = __webpack_require__(93)
-	  , objectUtils = __webpack_require__(98)
+	var inherits = __webpack_require__(77)
+	  , IframeTransport = __webpack_require__(97)
+	  , objectUtils = __webpack_require__(102)
 	  ;
 
 	module.exports = function(transport) {
@@ -30985,7 +31175,7 @@ var BigBang =
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 93 */
+/* 97 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -30998,19 +31188,19 @@ var BigBang =
 	//    http://msdn.microsoft.com/en-us/library/cc197015(v=VS.85).aspx
 	//    http://stevesouders.com/misc/test-postmessage.php
 
-	var inherits = __webpack_require__(73)
-	  , JSON3 = __webpack_require__(94)
-	  , EventEmitter = __webpack_require__(74).EventEmitter
-	  , version = __webpack_require__(96)
-	  , urlUtils = __webpack_require__(65)
-	  , iframeUtils = __webpack_require__(97)
-	  , eventUtils = __webpack_require__(62)
-	  , random = __webpack_require__(63)
+	var inherits = __webpack_require__(77)
+	  , JSON3 = __webpack_require__(98)
+	  , EventEmitter = __webpack_require__(78).EventEmitter
+	  , version = __webpack_require__(100)
+	  , urlUtils = __webpack_require__(69)
+	  , iframeUtils = __webpack_require__(101)
+	  , eventUtils = __webpack_require__(66)
+	  , random = __webpack_require__(67)
 	  ;
 
 	var debug = function() {};
 	if (process.env.NODE_ENV !== 'production') {
-	  debug = __webpack_require__(70)('sockjs-client:transport:iframe');
+	  debug = __webpack_require__(74)('sockjs-client:transport:iframe');
 	}
 
 	function IframeTransport(transport, transUrl, baseUrl) {
@@ -31131,14 +31321,14 @@ var BigBang =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(22)))
 
 /***/ },
-/* 94 */
+/* 98 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module, global) {/*! JSON v3.3.2 | http://bestiejs.github.io/json3 | Copyright 2012-2014, Kit Cambridge | http://kit.mit-license.org */
 	;(function () {
 	  // Detect the `define` function exposed by asynchronous module loaders. The
 	  // strict `define` check is necessary for compatibility with `r.js`.
-	  var isLoader = "function" === "function" && __webpack_require__(95);
+	  var isLoader = "function" === "function" && __webpack_require__(99);
 
 	  // A set of types used to distinguish objects from primitives.
 	  var objectTypes = {
@@ -32040,7 +32230,7 @@ var BigBang =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)(module), (function() { return this; }())))
 
 /***/ },
-/* 95 */
+/* 99 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(__webpack_amd_options__) {module.exports = __webpack_amd_options__;
@@ -32048,25 +32238,25 @@ var BigBang =
 	/* WEBPACK VAR INJECTION */}.call(exports, {}))
 
 /***/ },
-/* 96 */
+/* 100 */
 /***/ function(module, exports) {
 
 	module.exports = '1.0.3';
 
 /***/ },
-/* 97 */
+/* 101 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process, global) {'use strict';
 
-	var eventUtils = __webpack_require__(62)
-	  , JSON3 = __webpack_require__(94)
-	  , browser = __webpack_require__(86)
+	var eventUtils = __webpack_require__(66)
+	  , JSON3 = __webpack_require__(98)
+	  , browser = __webpack_require__(90)
 	  ;
 
 	var debug = function() {};
 	if (process.env.NODE_ENV !== 'production') {
-	  debug = __webpack_require__(70)('sockjs-client:utils:iframe');
+	  debug = __webpack_require__(74)('sockjs-client:utils:iframe');
 	}
 
 	module.exports = {
@@ -32242,7 +32432,7 @@ var BigBang =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(22), (function() { return this; }())))
 
 /***/ },
-/* 98 */
+/* 102 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -32272,15 +32462,15 @@ var BigBang =
 
 
 /***/ },
-/* 99 */
+/* 103 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var inherits = __webpack_require__(73)
-	  , HtmlfileReceiver = __webpack_require__(100)
-	  , XHRLocalObject = __webpack_require__(85)
-	  , AjaxBasedTransport = __webpack_require__(78)
+	var inherits = __webpack_require__(77)
+	  , HtmlfileReceiver = __webpack_require__(104)
+	  , XHRLocalObject = __webpack_require__(89)
+	  , AjaxBasedTransport = __webpack_require__(82)
 	  ;
 
 	function HtmlFileTransport(transUrl) {
@@ -32303,21 +32493,21 @@ var BigBang =
 
 
 /***/ },
-/* 100 */
+/* 104 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process, global) {'use strict';
 
-	var inherits = __webpack_require__(73)
-	  , iframeUtils = __webpack_require__(97)
-	  , urlUtils = __webpack_require__(65)
-	  , EventEmitter = __webpack_require__(74).EventEmitter
-	  , random = __webpack_require__(63)
+	var inherits = __webpack_require__(77)
+	  , iframeUtils = __webpack_require__(101)
+	  , urlUtils = __webpack_require__(69)
+	  , EventEmitter = __webpack_require__(78).EventEmitter
+	  , random = __webpack_require__(67)
 	  ;
 
 	var debug = function() {};
 	if (process.env.NODE_ENV !== 'production') {
-	  debug = __webpack_require__(70)('sockjs-client:receiver:htmlfile');
+	  debug = __webpack_require__(74)('sockjs-client:receiver:htmlfile');
 	}
 
 	function HtmlfileReceiver(url) {
@@ -32395,16 +32585,16 @@ var BigBang =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(22), (function() { return this; }())))
 
 /***/ },
-/* 101 */
+/* 105 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var inherits = __webpack_require__(73)
-	  , AjaxBasedTransport = __webpack_require__(78)
-	  , XhrReceiver = __webpack_require__(82)
-	  , XHRCorsObject = __webpack_require__(83)
-	  , XHRLocalObject = __webpack_require__(85)
+	var inherits = __webpack_require__(77)
+	  , AjaxBasedTransport = __webpack_require__(82)
+	  , XhrReceiver = __webpack_require__(86)
+	  , XHRCorsObject = __webpack_require__(87)
+	  , XHRLocalObject = __webpack_require__(89)
 	  ;
 
 	function XhrPollingTransport(transUrl) {
@@ -32434,16 +32624,16 @@ var BigBang =
 
 
 /***/ },
-/* 102 */
+/* 106 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var inherits = __webpack_require__(73)
-	  , AjaxBasedTransport = __webpack_require__(78)
-	  , XdrStreamingTransport = __webpack_require__(87)
-	  , XhrReceiver = __webpack_require__(82)
-	  , XDRObject = __webpack_require__(88)
+	var inherits = __webpack_require__(77)
+	  , AjaxBasedTransport = __webpack_require__(82)
+	  , XdrStreamingTransport = __webpack_require__(91)
+	  , XhrReceiver = __webpack_require__(86)
+	  , XDRObject = __webpack_require__(92)
 	  ;
 
 	function XdrPollingTransport(transUrl) {
@@ -32463,7 +32653,7 @@ var BigBang =
 
 
 /***/ },
-/* 103 */
+/* 107 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
@@ -32476,10 +32666,10 @@ var BigBang =
 	//   o you will get a spinning cursor
 	//   o for Konqueror a dumb timer is needed to detect errors
 
-	var inherits = __webpack_require__(73)
-	  , SenderReceiver = __webpack_require__(79)
-	  , JsonpReceiver = __webpack_require__(104)
-	  , jsonpSender = __webpack_require__(105)
+	var inherits = __webpack_require__(77)
+	  , SenderReceiver = __webpack_require__(83)
+	  , JsonpReceiver = __webpack_require__(108)
+	  , jsonpSender = __webpack_require__(109)
 	  ;
 
 	function JsonPTransport(transUrl) {
@@ -32504,22 +32694,22 @@ var BigBang =
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 104 */
+/* 108 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process, global) {'use strict';
 
-	var utils = __webpack_require__(97)
-	  , random = __webpack_require__(63)
-	  , browser = __webpack_require__(86)
-	  , urlUtils = __webpack_require__(65)
-	  , inherits = __webpack_require__(73)
-	  , EventEmitter = __webpack_require__(74).EventEmitter
+	var utils = __webpack_require__(101)
+	  , random = __webpack_require__(67)
+	  , browser = __webpack_require__(90)
+	  , urlUtils = __webpack_require__(69)
+	  , inherits = __webpack_require__(77)
+	  , EventEmitter = __webpack_require__(78).EventEmitter
 	  ;
 
 	var debug = function() {};
 	if (process.env.NODE_ENV !== 'production') {
-	  debug = __webpack_require__(70)('sockjs-client:receiver:jsonp');
+	  debug = __webpack_require__(74)('sockjs-client:receiver:jsonp');
 	}
 
 	function JsonpReceiver(url) {
@@ -32690,18 +32880,18 @@ var BigBang =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(22), (function() { return this; }())))
 
 /***/ },
-/* 105 */
+/* 109 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process, global) {'use strict';
 
-	var random = __webpack_require__(63)
-	  , urlUtils = __webpack_require__(65)
+	var random = __webpack_require__(67)
+	  , urlUtils = __webpack_require__(69)
 	  ;
 
 	var debug = function() {};
 	if (process.env.NODE_ENV !== 'production') {
-	  debug = __webpack_require__(70)('sockjs-client:sender:jsonp');
+	  debug = __webpack_require__(74)('sockjs-client:sender:jsonp');
 	}
 
 	var form, area;
@@ -32796,36 +32986,36 @@ var BigBang =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(22), (function() { return this; }())))
 
 /***/ },
-/* 106 */
+/* 110 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process, global) {'use strict';
 
-	__webpack_require__(107);
+	__webpack_require__(111);
 
-	var URL = __webpack_require__(66)
-	  , inherits = __webpack_require__(73)
-	  , JSON3 = __webpack_require__(94)
-	  , random = __webpack_require__(63)
-	  , escape = __webpack_require__(108)
-	  , urlUtils = __webpack_require__(65)
-	  , eventUtils = __webpack_require__(62)
-	  , transport = __webpack_require__(109)
-	  , objectUtils = __webpack_require__(98)
-	  , browser = __webpack_require__(86)
-	  , log = __webpack_require__(110)
-	  , Event = __webpack_require__(111)
-	  , EventTarget = __webpack_require__(75)
-	  , loc = __webpack_require__(112)
-	  , CloseEvent = __webpack_require__(113)
-	  , TransportMessageEvent = __webpack_require__(114)
-	  , InfoReceiver = __webpack_require__(115)
+	var URL = __webpack_require__(70)
+	  , inherits = __webpack_require__(77)
+	  , JSON3 = __webpack_require__(98)
+	  , random = __webpack_require__(67)
+	  , escape = __webpack_require__(112)
+	  , urlUtils = __webpack_require__(69)
+	  , eventUtils = __webpack_require__(66)
+	  , transport = __webpack_require__(113)
+	  , objectUtils = __webpack_require__(102)
+	  , browser = __webpack_require__(90)
+	  , log = __webpack_require__(114)
+	  , Event = __webpack_require__(115)
+	  , EventTarget = __webpack_require__(79)
+	  , loc = __webpack_require__(116)
+	  , CloseEvent = __webpack_require__(117)
+	  , TransportMessageEvent = __webpack_require__(118)
+	  , InfoReceiver = __webpack_require__(119)
 	  ;
 
 	var debug = function() {};
 	if (process.env.NODE_ENV !== 'production') {
 	  // Make debug module available globally so you can enable via the console easily
-	  global.dbg = __webpack_require__(70);
+	  global.dbg = __webpack_require__(74);
 	  debug = global.dbg('sockjs-client:main');
 	}
 
@@ -32965,7 +33155,7 @@ var BigBang =
 	  this._transport.send(escape.quote(data));
 	};
 
-	SockJS.version = __webpack_require__(96);
+	SockJS.version = __webpack_require__(100);
 
 	SockJS.CONNECTING = 0;
 	SockJS.OPEN = 1;
@@ -33177,14 +33367,14 @@ var BigBang =
 
 	module.exports = function(availableTransports) {
 	  transports = transport(availableTransports);
-	  __webpack_require__(120)(SockJS, availableTransports);
+	  __webpack_require__(124)(SockJS, availableTransports);
 	  return SockJS;
 	};
 
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(22), (function() { return this; }())))
 
 /***/ },
-/* 107 */
+/* 111 */
 /***/ function(module, exports) {
 
 	/* eslint-disable */
@@ -33663,12 +33853,12 @@ var BigBang =
 
 
 /***/ },
-/* 108 */
+/* 112 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var JSON3 = __webpack_require__(94);
+	var JSON3 = __webpack_require__(98);
 
 	// Some extra characters that Chrome gets wrong, and substitutes with
 	// something else on the wire.
@@ -33718,14 +33908,14 @@ var BigBang =
 
 
 /***/ },
-/* 109 */
+/* 113 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
 
 	var debug = function() {};
 	if (process.env.NODE_ENV !== 'production') {
-	  debug = __webpack_require__(70)('sockjs-client:utils:transport');
+	  debug = __webpack_require__(74)('sockjs-client:utils:transport');
 	}
 
 	module.exports = function(availableTransports) {
@@ -33775,7 +33965,7 @@ var BigBang =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(22)))
 
 /***/ },
-/* 110 */
+/* 114 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
@@ -33793,7 +33983,7 @@ var BigBang =
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 111 */
+/* 115 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -33821,7 +34011,7 @@ var BigBang =
 
 
 /***/ },
-/* 112 */
+/* 116 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
@@ -33838,13 +34028,13 @@ var BigBang =
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 113 */
+/* 117 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var inherits = __webpack_require__(73)
-	  , Event = __webpack_require__(111)
+	var inherits = __webpack_require__(77)
+	  , Event = __webpack_require__(115)
 	  ;
 
 	function CloseEvent() {
@@ -33861,13 +34051,13 @@ var BigBang =
 
 
 /***/ },
-/* 114 */
+/* 118 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var inherits = __webpack_require__(73)
-	  , Event = __webpack_require__(111)
+	var inherits = __webpack_require__(77)
+	  , Event = __webpack_require__(115)
 	  ;
 
 	function TransportMessageEvent(data) {
@@ -33882,25 +34072,25 @@ var BigBang =
 
 
 /***/ },
-/* 115 */
+/* 119 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
 
-	var EventEmitter = __webpack_require__(74).EventEmitter
-	  , inherits = __webpack_require__(73)
-	  , urlUtils = __webpack_require__(65)
-	  , XDR = __webpack_require__(88)
-	  , XHRCors = __webpack_require__(83)
-	  , XHRLocal = __webpack_require__(85)
-	  , XHRFake = __webpack_require__(116)
-	  , InfoIframe = __webpack_require__(117)
-	  , InfoAjax = __webpack_require__(119)
+	var EventEmitter = __webpack_require__(78).EventEmitter
+	  , inherits = __webpack_require__(77)
+	  , urlUtils = __webpack_require__(69)
+	  , XDR = __webpack_require__(92)
+	  , XHRCors = __webpack_require__(87)
+	  , XHRLocal = __webpack_require__(89)
+	  , XHRFake = __webpack_require__(120)
+	  , InfoIframe = __webpack_require__(121)
+	  , InfoAjax = __webpack_require__(123)
 	  ;
 
 	var debug = function() {};
 	if (process.env.NODE_ENV !== 'production') {
-	  debug = __webpack_require__(70)('sockjs-client:info-receiver');
+	  debug = __webpack_require__(74)('sockjs-client:info-receiver');
 	}
 
 	function InfoReceiver(baseUrl, urlInfo) {
@@ -33978,13 +34168,13 @@ var BigBang =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(22)))
 
 /***/ },
-/* 116 */
+/* 120 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var EventEmitter = __webpack_require__(74).EventEmitter
-	  , inherits = __webpack_require__(73)
+	var EventEmitter = __webpack_require__(78).EventEmitter
+	  , inherits = __webpack_require__(77)
 	  ;
 
 	function XHRFake(/* method, url, payload, opts */) {
@@ -34008,22 +34198,22 @@ var BigBang =
 
 
 /***/ },
-/* 117 */
+/* 121 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process, global) {'use strict';
 
-	var EventEmitter = __webpack_require__(74).EventEmitter
-	  , inherits = __webpack_require__(73)
-	  , JSON3 = __webpack_require__(94)
-	  , utils = __webpack_require__(62)
-	  , IframeTransport = __webpack_require__(93)
-	  , InfoReceiverIframe = __webpack_require__(118)
+	var EventEmitter = __webpack_require__(78).EventEmitter
+	  , inherits = __webpack_require__(77)
+	  , JSON3 = __webpack_require__(98)
+	  , utils = __webpack_require__(66)
+	  , IframeTransport = __webpack_require__(97)
+	  , InfoReceiverIframe = __webpack_require__(122)
 	  ;
 
 	var debug = function() {};
 	if (process.env.NODE_ENV !== 'production') {
-	  debug = __webpack_require__(70)('sockjs-client:info-iframe');
+	  debug = __webpack_require__(74)('sockjs-client:info-iframe');
 	}
 
 	function InfoIframe(baseUrl, url) {
@@ -34084,16 +34274,16 @@ var BigBang =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(22), (function() { return this; }())))
 
 /***/ },
-/* 118 */
+/* 122 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var inherits = __webpack_require__(73)
-	  , EventEmitter = __webpack_require__(74).EventEmitter
-	  , JSON3 = __webpack_require__(94)
-	  , XHRLocalObject = __webpack_require__(85)
-	  , InfoAjax = __webpack_require__(119)
+	var inherits = __webpack_require__(77)
+	  , EventEmitter = __webpack_require__(78).EventEmitter
+	  , JSON3 = __webpack_require__(98)
+	  , XHRLocalObject = __webpack_require__(89)
+	  , InfoAjax = __webpack_require__(123)
 	  ;
 
 	function InfoReceiverIframe(transUrl) {
@@ -34123,20 +34313,20 @@ var BigBang =
 
 
 /***/ },
-/* 119 */
+/* 123 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
 
-	var EventEmitter = __webpack_require__(74).EventEmitter
-	  , inherits = __webpack_require__(73)
-	  , JSON3 = __webpack_require__(94)
-	  , objectUtils = __webpack_require__(98)
+	var EventEmitter = __webpack_require__(78).EventEmitter
+	  , inherits = __webpack_require__(77)
+	  , JSON3 = __webpack_require__(98)
+	  , objectUtils = __webpack_require__(102)
 	  ;
 
 	var debug = function() {};
 	if (process.env.NODE_ENV !== 'production') {
-	  debug = __webpack_require__(70)('sockjs-client:info-ajax');
+	  debug = __webpack_require__(74)('sockjs-client:info-ajax');
 	}
 
 	function InfoAjax(url, AjaxObject) {
@@ -34179,23 +34369,23 @@ var BigBang =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(22)))
 
 /***/ },
-/* 120 */
+/* 124 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
 
-	var urlUtils = __webpack_require__(65)
-	  , eventUtils = __webpack_require__(62)
-	  , JSON3 = __webpack_require__(94)
-	  , FacadeJS = __webpack_require__(121)
-	  , InfoIframeReceiver = __webpack_require__(118)
-	  , iframeUtils = __webpack_require__(97)
-	  , loc = __webpack_require__(112)
+	var urlUtils = __webpack_require__(69)
+	  , eventUtils = __webpack_require__(66)
+	  , JSON3 = __webpack_require__(98)
+	  , FacadeJS = __webpack_require__(125)
+	  , InfoIframeReceiver = __webpack_require__(122)
+	  , iframeUtils = __webpack_require__(101)
+	  , loc = __webpack_require__(116)
 	  ;
 
 	var debug = function() {};
 	if (process.env.NODE_ENV !== 'production') {
-	  debug = __webpack_require__(70)('sockjs-client:iframe-bootstrap');
+	  debug = __webpack_require__(74)('sockjs-client:iframe-bootstrap');
 	}
 
 	module.exports = function(SockJS, availableTransports) {
@@ -34288,13 +34478,13 @@ var BigBang =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(22)))
 
 /***/ },
-/* 121 */
+/* 125 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var JSON3 = __webpack_require__(94)
-	  , iframeUtils = __webpack_require__(97)
+	var JSON3 = __webpack_require__(98)
+	  , iframeUtils = __webpack_require__(101)
 	  ;
 
 	function FacadeJS(transport) {
