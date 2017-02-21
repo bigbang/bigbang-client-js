@@ -12,7 +12,7 @@ describe('devices', () => {
                 assert.notOk(err);
                 createDeviceOk(tags, createResult);
 
-                bb.queryDevices(testTag, (queryErr, r) => {
+                bb.queryDevices([testTag], (queryErr, r) => {
                     assert.notOk(err);
                     assert.ok(r);
                     assert.ok(r.devices);

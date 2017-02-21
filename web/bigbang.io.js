@@ -1965,6 +1965,11 @@ var BigBang =
 	        value: function createDevice(tags, virtual, callback) {
 	            var api = this._getRestClient();
 	            var body = new RestApiClient.CreateDeviceRequest();
+
+	            if (tags == null || !Array.isArray(tags)) {
+	                tags = [];
+	            }
+
 	            body.tags = tags;
 	            body.virtual = virtual;
 
@@ -1987,6 +1992,7 @@ var BigBang =
 	            var opts = {
 	                tags: tags
 	            };
+
 	            api.query(opts, function (err, data, response) {
 	                callback(err, response.body);
 	            });
@@ -10657,7 +10663,7 @@ var BigBang =
 	    /**
 	     * Query devices
 	     * @param {Object} opts Optional parameters
-	     * @param {String} opts.tags device tag to query
+	     * @param {Array.<String>} opts.tags device tag to query
 	     * @param {module:api/DefaultApi~queryCallback} callback The callback function, accepting three arguments: error, data, response
 	     * data is of type: {module:model/QueryDevicesResponse}
 	     */
@@ -10667,7 +10673,7 @@ var BigBang =
 
 	      var pathParams = {};
 	      var queryParams = {
-	        'tags': opts['tags']
+	        'tags': this.apiClient.buildCollectionParam(opts['tags'], 'csv')
 	      };
 	      var headerParams = {};
 	      var formParams = {};
@@ -29139,7 +29145,7 @@ var BigBang =
 	          address = address.slice(0, index);
 	        }
 	      }
-	    } else if (index = parse.exec(address)) {
+	    } else if ((index = parse.exec(address))) {
 	      url[key] = index[1];
 	      address = address.slice(0, index.index);
 	    }
@@ -29217,7 +29223,7 @@ var BigBang =
 	 * @returns {URL}
 	 * @api public
 	 */
-	URL.prototype.set = function set(part, value, fn) {
+	function set(part, value, fn) {
 	  var url = this;
 
 	  switch (part) {
@@ -29298,7 +29304,7 @@ var BigBang =
 	 * @returns {String}
 	 * @api public
 	 */
-	URL.prototype.toString = function toString(stringify) {
+	function toString(stringify) {
 	  if (!stringify || 'function' !== typeof stringify) stringify = qs.stringify;
 
 	  var query
@@ -29323,7 +29329,9 @@ var BigBang =
 	  if (url.hash) result += url.hash;
 
 	  return result;
-	};
+	}
+
+	URL.prototype = { set: set, toString: toString };
 
 	//
 	// Expose the URL parser and some additional properties that might be useful for
@@ -29708,7 +29716,7 @@ var BigBang =
 	 * Expose `debug()` as the module.
 	 */
 
-	exports = module.exports = createDebug.debug = createDebug.default = createDebug;
+	exports = module.exports = createDebug.debug = createDebug['default'] = createDebug;
 	exports.coerce = coerce;
 	exports.disable = disable;
 	exports.enable = enable;
@@ -29839,6 +29847,9 @@ var BigBang =
 
 	function enable(namespaces) {
 	  exports.save(namespaces);
+
+	  exports.names = [];
+	  exports.skips = [];
 
 	  var split = (namespaces || '').split(/[\s,]+/);
 	  var len = split.length;
