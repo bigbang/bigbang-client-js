@@ -223,11 +223,13 @@ export class AbstractBigBangClient extends SimpleEventEmitter {
 
     queryDevices(tags, callback) {
         const api = this._getRestClient();
+
+        if(tags == null ||  !Array.isArray(tags)) {
+            tags = [];
+        }
         const opts = {
             tags:tags
         };
-
-
 
         api.query(opts, (err, data, response) => {
             callback(err, response.body);
