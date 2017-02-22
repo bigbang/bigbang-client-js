@@ -47,6 +47,7 @@ class BrowserBigBangClient extends bigbang.AbstractBigBangClient {
         var parsedUrl = this.parseAppURL()
         var host = parsedUrl.hostname;
         host += ':' + parsedUrl.port;
+
         this.authenticateDevice(id, secret, (err, result) => {
             if (err) {
                 callback(err);
@@ -57,7 +58,7 @@ class BrowserBigBangClient extends bigbang.AbstractBigBangClient {
                 this.internalConnect(parsedUrl.protocol, host, result.clientKey, callback);
             }
             else {
-                callback(err);
+                callback({message:"Authentication failed."});
                 return;
             }
         });

@@ -31,7 +31,7 @@ describe('devices', () => {
             client.createDevice(tags, false, (err, createResult) => {
                 assert.notOk(err);
                 createDeviceOk(tags, createResult)
-                client.connectAsDevice(createResult.id, createResult.secret, (connectErr, connectResult) => {
+                client.connectAsDevice(createResult.id, createResult.secret, (connectErr) => {
                     assert.notOk(connectErr);
 
                     client.getDeviceChannel((deviceChannel) => {
@@ -53,7 +53,7 @@ describe('devices', () => {
 
         it('fails to connect with a bogus device', (done) => {
             let client = new BigBang.Client(TEST_HOST);
-            client.connectAsDevice(randomstring(), randomstring(), (err, connectResult) => {
+            client.connectAsDevice(randomstring(), randomstring(), (err) => {
                 assert.ok(err);
                 done();
             });

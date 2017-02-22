@@ -117,6 +117,7 @@ var BigBang =
 	            var parsedUrl = this.parseAppURL();
 	            var host = parsedUrl.hostname;
 	            host += ':' + parsedUrl.port;
+
 	            this.authenticateDevice(id, secret, function (err, result) {
 	                if (err) {
 	                    callback(err);
@@ -126,7 +127,7 @@ var BigBang =
 	                    _this4._deviceId = id;
 	                    _this4.internalConnect(parsedUrl.protocol, host, result.clientKey, callback);
 	                } else {
-	                    callback(err);
+	                    callback({ message: "Authentication failed." });
 	                    return;
 	                }
 	            });
