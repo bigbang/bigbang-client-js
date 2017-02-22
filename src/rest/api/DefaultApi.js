@@ -684,7 +684,7 @@
     /**
      * Query devices
      * @param {Object} opts Optional parameters
-     * @param {String} opts.tags device tag to query
+     * @param {Array.<String>} opts.tags device tag to query
      * @param {module:api/DefaultApi~queryCallback} callback The callback function, accepting three arguments: error, data, response
      * data is of type: {module:model/QueryDevicesResponse}
      */
@@ -696,7 +696,7 @@
       var pathParams = {
       };
       var queryParams = {
-        'tags': opts['tags']
+        'tags': this.apiClient.buildCollectionParam(opts['tags'], 'csv')
       };
       var headerParams = {
       };

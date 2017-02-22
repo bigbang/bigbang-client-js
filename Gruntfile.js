@@ -68,7 +68,7 @@ module.exports = function (grunt) {
                 ],
 
                 node: {
-                    fs: 'empty'
+                    fs: false
                 },
 
                 stats: {

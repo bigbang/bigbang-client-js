@@ -200,6 +200,11 @@ export class AbstractBigBangClient extends SimpleEventEmitter {
     createDevice(tags, virtual, callback) {
         var api = this._getRestClient();
         var body = new RestApiClient.CreateDeviceRequest();
+
+        if(tags == null ||  !Array.isArray(tags)) {
+            tags = [];
+        }
+
         body.tags = tags;
         body.virtual = virtual;
 
@@ -218,9 +223,14 @@ export class AbstractBigBangClient extends SimpleEventEmitter {
 
     queryDevices(tags, callback) {
         const api = this._getRestClient();
+
+        if(tags == null ||  !Array.isArray(tags)) {
+            tags = [];
+        }
         const opts = {
             tags:tags
         };
+
         api.query(opts, (err, data, response) => {
             callback(err, response.body);
         });
