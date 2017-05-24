@@ -409,7 +409,10 @@ export class AbstractBigBangClient extends SimpleEventEmitter {
 
     onWireChannelLeave(msg) {
         var channel = this.channelMap[msg.name];
+        //Remove from list after we leave.
+        delete this.channelMap[msg.name];
         channel.onWireChannelLeave(msg);
+
     }
 
     onWireChannelMessage(msg) {

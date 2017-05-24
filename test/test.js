@@ -61,7 +61,7 @@ describe('client', function () {
         })
     });
 
-    describe('#connect', function () {
+    describe('#channel', function () {
         it('should should subscribe and unsubscribe', function (done) {
             var bb = new BigBang.Client(TEST_HOST);
             bb.connect(function (err) {
@@ -79,6 +79,19 @@ describe('client', function () {
                     channel.unsubscribe(function () {
                         done();
                     });
+                })
+            })
+        })
+    });
+
+    describe("#channel", () => {
+        it('Should clean up channels after we leave', (done) => {
+            const channelName = randomstring();
+            clientOnChannel(channelName, (client, channel) => {
+                assert.isOk(client.channelMap[channelName]);
+                channel.unsubscribe(() => {
+                    assert.isNotOk(client.channelMap[channelName]);
+                    done();
                 })
             })
         })
@@ -158,7 +171,7 @@ describe('client', function () {
             clientOnChannel('test', function (client, channel) {
                 var obj = {foo: randomstring(), bar: randomstring()};
 
-                channel.getChannelData().put(1, obj, (err)=>{
+                channel.getChannelData().put(1, obj, (err) => {
                     assert.ok(err);
                     done();
                 });
