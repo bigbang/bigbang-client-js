@@ -6,6 +6,14 @@
     "./lib/NodeBigBangClient.js": "./web/BrowserBigBangClient.js",
     "fs": false
   },
+  "watch": {
+    "prepublish": {
+      "patterns": [
+        "src"
+      ],
+      "extensions": "js"
+    }
+  },
   "license": "BSD-3-Clause",
   "description": "Create real-time applications and devices for the Internet of Things.",
   "repository": {
@@ -45,11 +53,13 @@
     "grunt-contrib-watch": "^1.0.0",
     "grunt-exec": "^1.0.0",
     "grunt-webpack": "^1.0.11",
+    "mocha": "^3.2.0",
+    "npm-watch": "^0.1.9",
     "webpack": "1.14.0",
-    "webpack-dev-server": "^1.14.1",
-    "mocha": "^3.2.0"
+    "webpack-dev-server": "^1.14.1"
   },
   "scripts": {
-    "prepublish": "grunt"
+    "prepublish": "grunt",
+    "watch": "npm-watch"
   }
 }
