@@ -1,12 +1,12 @@
 (function(factory) {
   if (typeof define === 'function' && define.amd) {
     // AMD. Register as an anonymous module.
-    define(['./ApiClient', './model/AuthDeviceRequest', './model/AuthDeviceResponse', './model/AuthResponse', './model/AuthTokenRequest', './model/AuthTokenResponse', './model/AuthUserRequest', './model/AuthUserResponse', './model/CallRequest', './model/CallResponse', './model/ChannelDataPutRequest', './model/ChannelResponse', './model/CreateDeviceRequest', './model/CreateDeviceResponse', './model/CreateUserRequest', './model/CreateUserResponse', './model/DeleteDeviceRequest', './model/NotAuthorizedResponse', './model/PingResponse', './model/PublishRequest', './model/PublishResponse', './model/QueryDevicesResponse', './api/DefaultApi'], factory);
+    define(['./ApiClient', './model/AuthAccessTokenRequest', './model/AuthAccessTokenResponse', './model/AuthDeviceRequest', './model/AuthDeviceResponse', './model/AuthResponse', './model/AuthTokenRequest', './model/AuthTokenResponse', './model/AuthUserRequest', './model/AuthUserResponse', './model/CallRequest', './model/CallResponse', './model/ChannelDataPutRequest', './model/ChannelResponse', './model/CreateDeviceRequest', './model/CreateDeviceResponse', './model/CreateUserRequest', './model/CreateUserResponse', './model/DeleteDeviceRequest', './model/GetAccessTokenResponse', './model/NewAccessTokenRequest', './model/NewAccessTokenResponse', './model/NotAuthorizedResponse', './model/PingResponse', './model/PublishRequest', './model/PublishResponse', './model/QueryDevicesResponse', './api/DefaultApi'], factory);
   } else if (typeof module === 'object' && module.exports) {
     // CommonJS-like environments that support module.exports, like Node.
-    module.exports = factory(require('./ApiClient'), require('./model/AuthDeviceRequest'), require('./model/AuthDeviceResponse'), require('./model/AuthResponse'), require('./model/AuthTokenRequest'), require('./model/AuthTokenResponse'), require('./model/AuthUserRequest'), require('./model/AuthUserResponse'), require('./model/CallRequest'), require('./model/CallResponse'), require('./model/ChannelDataPutRequest'), require('./model/ChannelResponse'), require('./model/CreateDeviceRequest'), require('./model/CreateDeviceResponse'), require('./model/CreateUserRequest'), require('./model/CreateUserResponse'), require('./model/DeleteDeviceRequest'), require('./model/NotAuthorizedResponse'), require('./model/PingResponse'), require('./model/PublishRequest'), require('./model/PublishResponse'), require('./model/QueryDevicesResponse'), require('./api/DefaultApi'));
+    module.exports = factory(require('./ApiClient'), require('./model/AuthAccessTokenRequest'), require('./model/AuthAccessTokenResponse'), require('./model/AuthDeviceRequest'), require('./model/AuthDeviceResponse'), require('./model/AuthResponse'), require('./model/AuthTokenRequest'), require('./model/AuthTokenResponse'), require('./model/AuthUserRequest'), require('./model/AuthUserResponse'), require('./model/CallRequest'), require('./model/CallResponse'), require('./model/ChannelDataPutRequest'), require('./model/ChannelResponse'), require('./model/CreateDeviceRequest'), require('./model/CreateDeviceResponse'), require('./model/CreateUserRequest'), require('./model/CreateUserResponse'), require('./model/DeleteDeviceRequest'), require('./model/GetAccessTokenResponse'), require('./model/NewAccessTokenRequest'), require('./model/NewAccessTokenResponse'), require('./model/NotAuthorizedResponse'), require('./model/PingResponse'), require('./model/PublishRequest'), require('./model/PublishResponse'), require('./model/QueryDevicesResponse'), require('./api/DefaultApi'));
   }
-}(function(ApiClient, AuthDeviceRequest, AuthDeviceResponse, AuthResponse, AuthTokenRequest, AuthTokenResponse, AuthUserRequest, AuthUserResponse, CallRequest, CallResponse, ChannelDataPutRequest, ChannelResponse, CreateDeviceRequest, CreateDeviceResponse, CreateUserRequest, CreateUserResponse, DeleteDeviceRequest, NotAuthorizedResponse, PingResponse, PublishRequest, PublishResponse, QueryDevicesResponse, DefaultApi) {
+}(function(ApiClient, AuthAccessTokenRequest, AuthAccessTokenResponse, AuthDeviceRequest, AuthDeviceResponse, AuthResponse, AuthTokenRequest, AuthTokenResponse, AuthUserRequest, AuthUserResponse, CallRequest, CallResponse, ChannelDataPutRequest, ChannelResponse, CreateDeviceRequest, CreateDeviceResponse, CreateUserRequest, CreateUserResponse, DeleteDeviceRequest, GetAccessTokenResponse, NewAccessTokenRequest, NewAccessTokenResponse, NotAuthorizedResponse, PingResponse, PublishRequest, PublishResponse, QueryDevicesResponse, DefaultApi) {
   'use strict';
 
   /**
@@ -46,6 +46,16 @@
      * @property {module:ApiClient}
      */
     ApiClient: ApiClient,
+    /**
+     * The AuthAccessTokenRequest model constructor.
+     * @property {module:model/AuthAccessTokenRequest}
+     */
+    AuthAccessTokenRequest: AuthAccessTokenRequest,
+    /**
+     * The AuthAccessTokenResponse model constructor.
+     * @property {module:model/AuthAccessTokenResponse}
+     */
+    AuthAccessTokenResponse: AuthAccessTokenResponse,
     /**
      * The AuthDeviceRequest model constructor.
      * @property {module:model/AuthDeviceRequest}
@@ -126,6 +136,21 @@
      * @property {module:model/DeleteDeviceRequest}
      */
     DeleteDeviceRequest: DeleteDeviceRequest,
+    /**
+     * The GetAccessTokenResponse model constructor.
+     * @property {module:model/GetAccessTokenResponse}
+     */
+    GetAccessTokenResponse: GetAccessTokenResponse,
+    /**
+     * The NewAccessTokenRequest model constructor.
+     * @property {module:model/NewAccessTokenRequest}
+     */
+    NewAccessTokenRequest: NewAccessTokenRequest,
+    /**
+     * The NewAccessTokenResponse model constructor.
+     * @property {module:model/NewAccessTokenResponse}
+     */
+    NewAccessTokenResponse: NewAccessTokenResponse,
     /**
      * The NotAuthorizedResponse model constructor.
      * @property {module:model/NotAuthorizedResponse}

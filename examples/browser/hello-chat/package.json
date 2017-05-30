@@ -1,6 +1,6 @@
 {
   "name": "bigbang.io-examples-web-hello",
-  "version": "0.0.16",
+  "version": "0.0.18",
   "description": "",
   "scripts": {
     "start": "static-server -p 8080"

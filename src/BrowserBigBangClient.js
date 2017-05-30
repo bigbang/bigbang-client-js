@@ -7,75 +7,9 @@ class BrowserBigBangClient extends bigbang.AbstractBigBangClient {
         super(appUrl);
     }
 
-    connect(callback) {
-        var parsedUrl = this.parseAppURL()
-        var host = parsedUrl.hostname;
-        host += ':' + parsedUrl.port;
-        this.internalLogin(parsedUrl.protocol, host, null, null, host, (loginResult) => {
-            if (loginResult.authenticated) {
-                this.internalConnect(parsedUrl.protocol, host, loginResult.clientKey, callback);
-            }
-            else {
-                var err = new bigbang.ConnectionError(loginResult.message);
-                callback(err);
-            }
-        });
-    }
-
-    connectAsUser(email, password, callback) {
-        var parsedUrl = this.parseAppURL()
-        var host = parsedUrl.hostname;
-        host += ':' + parsedUrl.port;
-        this.authUser(email,password, (err, result) => {
-            if(err) {{
-                callback(err);
-                return;
-            }}
-
-            if(result.authenticated) {
-                this.internalConnect(parsedUrl.protocol, host, result.clientKey, callback);
-            }
-            else {
-                callback(result.message);
-                return;
-            }
-        })
-    }
-
-
-    connectAsDevice(id, secret, callback) {
-        var parsedUrl = this.parseAppURL()
-        var host = parsedUrl.hostname;
-        host += ':' + parsedUrl.port;
-
-        this.authenticateDevice(id, secret, (err, result) => {
-            if (err) {
-                callback(err);
-                return;
-            }
-            if (result.authenticated) {
-                this._deviceId = id;
-                this.internalConnect(parsedUrl.protocol, host, result.clientKey, callback);
-            }
-            else {
-                callback({message:"Authentication failed."});
-                return;
-            }
-        });
-    }
-
-    internalLogin(protocol, host, user, password, application, callback) {
-        if (!user && !password) {
-            this.authAnon(callback);
-        }
-        else {
-            this.authUser(user, password, callback);
-        }
-    }
-
     internalConnect(protocol, host, clientKey, callback) {
         this._clientKey = clientKey;
-        //TODO could be more elegant here.
+
         var deviceCalled = false;
         if (this._deviceId) {
             this._internalConnectionResult = (cr) => {
