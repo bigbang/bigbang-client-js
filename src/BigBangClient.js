@@ -71,6 +71,15 @@ export class AbstractBigBangClient extends SimpleEventEmitter {
         this.channelSubscribeMap = {};
         this.channelMap = {};
         this.rpcRequests = new Map();
+        this._credentials = null;
+    }
+
+    /**
+     * types: accessToken, device
+     * @param credentials
+     */
+    setCredentials( credentials ) {
+        this._credentials = credentials;
     }
 
     _getRestClient() {
@@ -80,7 +89,28 @@ export class AbstractBigBangClient extends SimpleEventEmitter {
     }
 
     connect(callback) {
-        throw new Error("abstract");
+        if( this._credentials  && this._credentials.type === 'accessToken') {
+            this.connectWithAccessToken(this._credentials.key, callback);
+        }
+        else {
+            var parsedUrl = this.parseAppURL()
+            var host = parsedUrl.hostname;
+            host += ':' + parsedUrl.port;
+            this.internalLogin(parsedUrl.protocol, host, null, null, host, (err,loginResult) => {
+                if(err) {
+                    callback(new ConnectionError(err));
+                    return;
+                }
+
+                if (loginResult.authenticated) {
+                    this.internalConnect(parsedUrl.protocol, host, loginResult.clientKey, callback);
+                }
+                else {
+                    var err = new ConnectionError(loginResult.message);
+                    callback(err);
+                }
+            });
+        }
     }
 
     connectAsDevice(id, secret, callback) {
@@ -152,7 +182,6 @@ export class AbstractBigBangClient extends SimpleEventEmitter {
 
         api.authAnon((err, data, response) => {
             if (err) {
-                //console.error(err);
                 callback(new ConnectionError('Unable to authenticate user.'), null);
                 return;
             }
@@ -163,13 +192,45 @@ export class AbstractBigBangClient extends SimpleEventEmitter {
                     loginResult.authenticated = json.authenticated;
                     loginResult.clientKey = json.clientKey;
                     loginResult.message = json.message;
-                    callback(loginResult);
+                    callback(null,loginResult);
                     return;
                 }
                 catch (e) {
                     loginResult.authenticated = false;
                     loginResult.message = e.message;
-                    callback(loginResult);
+                    callback(null,loginResult);
+                    return;
+                }
+            }
+        })
+    }
+
+
+    authAccessToken(accessToken, callback) {
+        var api = this._getRestClient();
+        var body = new RestApiClient.AuthAccessTokenRequest();
+        body.accessToken =accessToken;
+
+
+        api.authAccessToken(body, (err, data, response) => {
+            if (err) {
+                callback(new ConnectionError('Unable to authenticate with access token.'), null);
+                return;
+            }
+            else {
+                const json = response.body;
+                var loginResult = new LoginResult();
+                try {
+                    loginResult.authenticated = json.authenticated;
+                    loginResult.clientKey = json.clientKey;
+                    loginResult.message = json.message;
+                    callback(null,loginResult);
+                    return;
+                }
+                catch (e) {
+                    loginResult.authenticated = false;
+                    loginResult.message = e.message;
+                    callback(null,loginResult);
                     return;
                 }
             }
@@ -307,12 +368,89 @@ export class AbstractBigBangClient extends SimpleEventEmitter {
         }
     }
 
+
+
+
     ////////////////////////////////////////////////////////////////////////////
     // End of public interface
     ////////////////////////////////////////////////////////////////////////////
     sendToServer(msg) {
         throw new Error("Unimplemented: sendToServer");
     }
+
+    connectAsDevice(id, secret, callback) {
+        var parsedUrl = this.parseAppURL()
+        var host = parsedUrl.hostname;
+        host += ':' + parsedUrl.port;
+        this.authenticateDevice(id, secret, function (err, result) {
+            if (err) {
+                callback(err);
+                return;
+            }
+            if (result.authenticated) {
+                this._deviceId = id;
+                this.internalConnect(parsedUrl.protocol, host, result.clientKey, callback);
+            }
+            else {
+                callback({message:"Authentication failed."});
+                return;
+            }
+        }.bind(this));
+    }
+
+
+    connectAsUser(email, password, callback ) {
+
+        var parsedUrl = this.parseAppURL()
+        var host = parsedUrl.hostname;
+        host += ':' + parsedUrl.port;
+        this.authUser(email,password, (err, result) => {
+            if(err) {{
+                callback(err);
+                return;
+            }}
+
+            if(result.authenticated) {
+                this.internalConnect(parsedUrl.protocol, host, result.clientKey, callback);
+            }
+            else {
+                callback(result.message);
+                return;
+            }
+        })
+    }
+
+    connectWithAccessToken(key, callback ) {
+        var parsedUrl = this.parseAppURL()
+        var host = parsedUrl.hostname;
+        host += ':' + parsedUrl.port;
+
+        this.authAccessToken(key, (err,result) =>{
+            if(err) {
+                callback(err);
+                return;
+            }
+
+            if(result.authenticated) {
+                this.internalConnect(parsedUrl.protocol, host, result.clientKey, callback);
+                return;
+            }
+            else {
+                callback(result.message);
+                return;
+            }
+        })
+    }
+
+    internalLogin(protocol, host, user, password, application, callback) {
+        if (!user && !password) {
+            this.authAnon(callback);
+        }
+        else {
+            this.authUser(user, password, callback);
+        }
+    }
+
 
     parseAppURL() {
         var parsedUrl = url.parse(this._appUrl, true);
@@ -412,7 +550,6 @@ export class AbstractBigBangClient extends SimpleEventEmitter {
         //Remove from list after we leave.
         delete this.channelMap[msg.name];
         channel.onWireChannelLeave(msg);
-
     }
 
     onWireChannelMessage(msg) {
