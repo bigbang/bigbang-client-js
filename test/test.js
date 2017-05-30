@@ -1,7 +1,7 @@
-describe('client', function () {
+describe('client', () => {
 
-    describe('#connect', function () {
-        it('should connect successfuly', function (done) {
+    describe('#connect', () => {
+        it('should connect successfuly', (done) => {
             var bb = new BigBang.Client(TEST_HOST);
             bb.connect(function (err) {
                 assert.equal(err, null);
@@ -10,28 +10,46 @@ describe('client', function () {
         })
     });
 
-
-    describe('#connect', function () {
-        it('should should fail gracefully', function (done) {
+    describe('#connectf', () => {
+        it('should should fail gracefully', (done) => {
             var bb = new BigBang.Client('http://hugenondexistintdomainthingfoobar.bigbang.io');
-            bb.connect(function (err) {
+            bb.connect( (err) => {
                 assert(err);
                 done();
             })
         })
     });
 
-
-    describe('#connect', function () {
-        it('should connect successfuly via https', function (done) {
+    describe('#connect', () => {
+        it('should connect successfuly via https', (done) => {
             var bb = new BigBang.Client(SECURE_TEST_HOST);
-            bb.connect(function (err) {
+            bb.connect( (err) => {
                 assert.equal(err, null);
                 done();
             })
         })
     });
 
+
+    describe('#connectaccesskey',()=>{
+        it('should connect with accessKey credentials', done =>{
+            var bb = new BigBang.Client(SECURE_TEST_HOST);
+            bb.setCredentials({type:'accessToken', key: BB_ACCESS_KEY});
+            bb.connect( (err) => {
+                assert.equal(err, null);
+                done();
+            })
+        })
+
+        it('should not connect with bogus accessKey credentials', done =>{
+            var bb = new BigBang.Client(SECURE_TEST_HOST);
+            bb.setCredentials({type:'accessToken', key: 'adawhfcehfaskjdfhaskjhf28fh_bogus'});
+            bb.connect( (err) => {
+                assert.isOk(err);
+                done();
+            })
+        })
+    })
 
     describe('#connect', function () {
         it('should should subscribe', function (done) {

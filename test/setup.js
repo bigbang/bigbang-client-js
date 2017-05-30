@@ -5,16 +5,11 @@ if (typeof process !== 'undefined' && process.release.name === 'node') {
     BigBang = require('../lib/NodeBigBangClient');
     isBrowser = false;
 } else {
-    // We are in the browser. Set up variables like above using served js files.
     assert = chai.assert;
     isBrowser = true;
 }
-
-//Set hosts for testing
-//TEST_HOST = 'http://demo.bigbang.io';
-//SECURE_TEST_HOST = 'https://demo.bigbang.io';
-
-//Local option for bigbang.io developers
-TEST_HOST = 'http://localhost:8888';
-SECURE_TEST_HOST = 'http://localhost:8888';
+//Test env variables.
+TEST_HOST = process.env.TEST_HOST;
+SECURE_TEST_HOST = process.env.SECURE_TEST_HOST;
+BB_ACCESS_KEY = process.env.BB_ACCESS_KEY;
 
