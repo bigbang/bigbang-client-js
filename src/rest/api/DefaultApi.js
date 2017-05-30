@@ -1,18 +1,18 @@
 (function(root, factory) {
   if (typeof define === 'function' && define.amd) {
     // AMD. Register as an anonymous module.
-    define(['../ApiClient', '../model/AuthResponse', '../model/AuthDeviceResponse', '../model/AuthDeviceRequest', '../model/AuthTokenResponse', '../model/AuthTokenRequest', '../model/AuthUserResponse', '../model/AuthUserRequest', '../model/CallRequest', '../model/NotAuthorizedResponse', '../model/CallResponse', '../model/CreateDeviceResponse', '../model/CreateDeviceRequest', '../model/CreateUserResponse', '../model/CreateUserRequest', '../model/ChannelResponse', '../model/DeleteDeviceRequest', '../model/PingResponse', '../model/PublishResponse', '../model/PublishRequest', '../model/ChannelDataPutRequest', '../model/QueryDevicesResponse'], factory);
+    define(['../ApiClient', '../model/AuthAccessTokenResponse', '../model/AuthAccessTokenRequest', '../model/AuthResponse', '../model/AuthDeviceResponse', '../model/AuthDeviceRequest', '../model/AuthUserResponse', '../model/AuthUserRequest', '../model/CallRequest', '../model/NotAuthorizedResponse', '../model/CallResponse', '../model/NewAccessTokenRequest', '../model/NewAccessTokenResponse', '../model/CreateDeviceResponse', '../model/CreateDeviceRequest', '../model/CreateUserResponse', '../model/CreateUserRequest', '../model/ChannelResponse', '../model/DeleteDeviceRequest', '../model/PingResponse', '../model/QueryDevicesResponse', '../model/GetAccessTokenResponse', '../model/PublishResponse', '../model/PublishRequest', '../model/ChannelDataPutRequest'], factory);
   } else if (typeof module === 'object' && module.exports) {
     // CommonJS-like environments that support module.exports, like Node.
-    module.exports = factory(require('../ApiClient'), require('../model/AuthResponse'), require('../model/AuthDeviceResponse'), require('../model/AuthDeviceRequest'), require('../model/AuthTokenResponse'), require('../model/AuthTokenRequest'), require('../model/AuthUserResponse'), require('../model/AuthUserRequest'), require('../model/CallRequest'), require('../model/NotAuthorizedResponse'), require('../model/CallResponse'), require('../model/CreateDeviceResponse'), require('../model/CreateDeviceRequest'), require('../model/CreateUserResponse'), require('../model/CreateUserRequest'), require('../model/ChannelResponse'), require('../model/DeleteDeviceRequest'), require('../model/PingResponse'), require('../model/PublishResponse'), require('../model/PublishRequest'), require('../model/ChannelDataPutRequest'), require('../model/QueryDevicesResponse'));
+    module.exports = factory(require('../ApiClient'), require('../model/AuthAccessTokenResponse'), require('../model/AuthAccessTokenRequest'), require('../model/AuthResponse'), require('../model/AuthDeviceResponse'), require('../model/AuthDeviceRequest'), require('../model/AuthUserResponse'), require('../model/AuthUserRequest'), require('../model/CallRequest'), require('../model/NotAuthorizedResponse'), require('../model/CallResponse'), require('../model/NewAccessTokenRequest'), require('../model/NewAccessTokenResponse'), require('../model/CreateDeviceResponse'), require('../model/CreateDeviceRequest'), require('../model/CreateUserResponse'), require('../model/CreateUserRequest'), require('../model/ChannelResponse'), require('../model/DeleteDeviceRequest'), require('../model/PingResponse'), require('../model/QueryDevicesResponse'), require('../model/GetAccessTokenResponse'), require('../model/PublishResponse'), require('../model/PublishRequest'), require('../model/ChannelDataPutRequest'));
   } else {
     // Browser globals (root is window)
     if (!root.BigBangRestApi) {
       root.BigBangRestApi = {};
     }
-    root.BigBangRestApi.DefaultApi = factory(root.BigBangRestApi.ApiClient, root.BigBangRestApi.AuthResponse, root.BigBangRestApi.AuthDeviceResponse, root.BigBangRestApi.AuthDeviceRequest, root.BigBangRestApi.AuthTokenResponse, root.BigBangRestApi.AuthTokenRequest, root.BigBangRestApi.AuthUserResponse, root.BigBangRestApi.AuthUserRequest, root.BigBangRestApi.CallRequest, root.BigBangRestApi.NotAuthorizedResponse, root.BigBangRestApi.CallResponse, root.BigBangRestApi.CreateDeviceResponse, root.BigBangRestApi.CreateDeviceRequest, root.BigBangRestApi.CreateUserResponse, root.BigBangRestApi.CreateUserRequest, root.BigBangRestApi.ChannelResponse, root.BigBangRestApi.DeleteDeviceRequest, root.BigBangRestApi.PingResponse, root.BigBangRestApi.PublishResponse, root.BigBangRestApi.PublishRequest, root.BigBangRestApi.ChannelDataPutRequest, root.BigBangRestApi.QueryDevicesResponse);
+    root.BigBangRestApi.DefaultApi = factory(root.BigBangRestApi.ApiClient, root.BigBangRestApi.AuthAccessTokenResponse, root.BigBangRestApi.AuthAccessTokenRequest, root.BigBangRestApi.AuthResponse, root.BigBangRestApi.AuthDeviceResponse, root.BigBangRestApi.AuthDeviceRequest, root.BigBangRestApi.AuthUserResponse, root.BigBangRestApi.AuthUserRequest, root.BigBangRestApi.CallRequest, root.BigBangRestApi.NotAuthorizedResponse, root.BigBangRestApi.CallResponse, root.BigBangRestApi.NewAccessTokenRequest, root.BigBangRestApi.NewAccessTokenResponse, root.BigBangRestApi.CreateDeviceResponse, root.BigBangRestApi.CreateDeviceRequest, root.BigBangRestApi.CreateUserResponse, root.BigBangRestApi.CreateUserRequest, root.BigBangRestApi.ChannelResponse, root.BigBangRestApi.DeleteDeviceRequest, root.BigBangRestApi.PingResponse, root.BigBangRestApi.QueryDevicesResponse, root.BigBangRestApi.GetAccessTokenResponse, root.BigBangRestApi.PublishResponse, root.BigBangRestApi.PublishRequest, root.BigBangRestApi.ChannelDataPutRequest);
   }
-}(this, function(ApiClient, AuthResponse, AuthDeviceResponse, AuthDeviceRequest, AuthTokenResponse, AuthTokenRequest, AuthUserResponse, AuthUserRequest, CallRequest, NotAuthorizedResponse, CallResponse, CreateDeviceResponse, CreateDeviceRequest, CreateUserResponse, CreateUserRequest, ChannelResponse, DeleteDeviceRequest, PingResponse, PublishResponse, PublishRequest, ChannelDataPutRequest, QueryDevicesResponse) {
+}(this, function(ApiClient, AuthAccessTokenResponse, AuthAccessTokenRequest, AuthResponse, AuthDeviceResponse, AuthDeviceRequest, AuthUserResponse, AuthUserRequest, CallRequest, NotAuthorizedResponse, CallResponse, NewAccessTokenRequest, NewAccessTokenResponse, CreateDeviceResponse, CreateDeviceRequest, CreateUserResponse, CreateUserRequest, ChannelResponse, DeleteDeviceRequest, PingResponse, QueryDevicesResponse, GetAccessTokenResponse, PublishResponse, PublishRequest, ChannelDataPutRequest) {
   'use strict';
 
   /**
@@ -31,6 +31,50 @@
   var exports = function(apiClient) {
     this.apiClient = apiClient || ApiClient.instance;
 
+
+    /**
+     * Callback function to receive the result of the authAccessToken operation.
+     * @callback module:api/DefaultApi~authAccessTokenCallback
+     * @param {String} error Error message, if any.
+     * @param {module:model/AuthAccessTokenResponse} data The data returned by the service call.
+     * @param {String} response The complete HTTP response.
+     */
+
+    /**
+     * Authenticates and returns a single use token.
+     * @param {module:model/AuthAccessTokenRequest} body body
+     * @param {module:api/DefaultApi~authAccessTokenCallback} callback The callback function, accepting three arguments: error, data, response
+     * data is of type: {module:model/AuthAccessTokenResponse}
+     */
+    this.authAccessToken = function(body, callback) {
+      var postBody = body;
+
+      // verify the required parameter 'body' is set
+      if (body == undefined || body == null) {
+        throw "Missing the required parameter 'body' when calling authAccessToken";
+      }
+
+
+      var pathParams = {
+      };
+      var queryParams = {
+      };
+      var headerParams = {
+      };
+      var formParams = {
+      };
+
+      var authNames = [];
+      var contentTypes = ['application/json'];
+      var accepts = ['application/json'];
+      var returnType = AuthAccessTokenResponse;
+
+      return this.apiClient.callApi(
+        '/auth/accessToken', 'POST',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType, callback
+      );
+    }
 
     /**
      * Callback function to receive the result of the authAnon operation.
@@ -109,50 +153,6 @@
 
       return this.apiClient.callApi(
         '/auth/device', 'POST',
-        pathParams, queryParams, headerParams, formParams, postBody,
-        authNames, contentTypes, accepts, returnType, callback
-      );
-    }
-
-    /**
-     * Callback function to receive the result of the authToken operation.
-     * @callback module:api/DefaultApi~authTokenCallback
-     * @param {String} error Error message, if any.
-     * @param {module:model/AuthTokenResponse} data The data returned by the service call.
-     * @param {String} response The complete HTTP response.
-     */
-
-    /**
-     * Authenticates and returns token.
-     * @param {module:model/AuthTokenRequest} body body
-     * @param {module:api/DefaultApi~authTokenCallback} callback The callback function, accepting three arguments: error, data, response
-     * data is of type: {module:model/AuthTokenResponse}
-     */
-    this.authToken = function(body, callback) {
-      var postBody = body;
-
-      // verify the required parameter 'body' is set
-      if (body == undefined || body == null) {
-        throw "Missing the required parameter 'body' when calling authToken";
-      }
-
-
-      var pathParams = {
-      };
-      var queryParams = {
-      };
-      var headerParams = {
-      };
-      var formParams = {
-      };
-
-      var authNames = [];
-      var contentTypes = ['application/json'];
-      var accepts = ['application/json'];
-      var returnType = AuthTokenResponse;
-
-      return this.apiClient.callApi(
-        '/auth/token', 'POST',
         pathParams, queryParams, headerParams, formParams, postBody,
         authNames, contentTypes, accepts, returnType, callback
       );
@@ -241,6 +241,50 @@
 
       return this.apiClient.callApi(
         '/call', 'POST',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType, callback
+      );
+    }
+
+    /**
+     * Callback function to receive the result of the callNew operation.
+     * @callback module:api/DefaultApi~callNewCallback
+     * @param {String} error Error message, if any.
+     * @param {module:model/NewAccessTokenResponse} data The data returned by the service call.
+     * @param {String} response The complete HTTP response.
+     */
+
+    /**
+     * Generate Access Token
+     * @param {module:model/NewAccessTokenRequest} body the body
+     * @param {module:api/DefaultApi~callNewCallback} callback The callback function, accepting three arguments: error, data, response
+     * data is of type: {module:model/NewAccessTokenResponse}
+     */
+    this.callNew = function(body, callback) {
+      var postBody = body;
+
+      // verify the required parameter 'body' is set
+      if (body == undefined || body == null) {
+        throw "Missing the required parameter 'body' when calling callNew";
+      }
+
+
+      var pathParams = {
+      };
+      var queryParams = {
+      };
+      var headerParams = {
+      };
+      var formParams = {
+      };
+
+      var authNames = ['JWT'];
+      var contentTypes = ['application/json'];
+      var accepts = ['application/json'];
+      var returnType = NewAccessTokenResponse;
+
+      return this.apiClient.callApi(
+        '/accessTokens', 'POST',
         pathParams, queryParams, headerParams, formParams, postBody,
         authNames, contentTypes, accepts, returnType, callback
       );
@@ -552,6 +596,95 @@
 
       return this.apiClient.callApi(
         '/ping', 'HEAD',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType, callback
+      );
+    }
+
+    /**
+     * Callback function to receive the result of the io operation.
+     * @callback module:api/DefaultApi~ioCallback
+     * @param {String} error Error message, if any.
+     * @param {module:model/QueryDevicesResponse} data The data returned by the service call.
+     * @param {String} response The complete HTTP response.
+     */
+
+    /**
+     * Device IO
+     * @param {String} deviceId 
+     * @param {Object} opts Optional parameters
+     * @param {String} opts.start 
+     * @param {String} opts.end 
+     * @param {module:api/DefaultApi~ioCallback} callback The callback function, accepting three arguments: error, data, response
+     * data is of type: {module:model/QueryDevicesResponse}
+     */
+    this.io = function(deviceId, opts, callback) {
+      opts = opts || {};
+      var postBody = null;
+
+      // verify the required parameter 'deviceId' is set
+      if (deviceId == undefined || deviceId == null) {
+        throw "Missing the required parameter 'deviceId' when calling io";
+      }
+
+
+      var pathParams = {
+        'deviceId': deviceId
+      };
+      var queryParams = {
+        'start': opts['start'],
+        'end': opts['end']
+      };
+      var headerParams = {
+      };
+      var formParams = {
+      };
+
+      var authNames = ['JWT'];
+      var contentTypes = ['application/json'];
+      var accepts = ['application/json'];
+      var returnType = QueryDevicesResponse;
+
+      return this.apiClient.callApi(
+        '/device/{deviceId}/io', 'GET',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType, callback
+      );
+    }
+
+    /**
+     * Callback function to receive the result of the list operation.
+     * @callback module:api/DefaultApi~listCallback
+     * @param {String} error Error message, if any.
+     * @param {module:model/GetAccessTokenResponse} data The data returned by the service call.
+     * @param {String} response The complete HTTP response.
+     */
+
+    /**
+     * List existing access token names
+     * @param {module:api/DefaultApi~listCallback} callback The callback function, accepting three arguments: error, data, response
+     * data is of type: {module:model/GetAccessTokenResponse}
+     */
+    this.list = function(callback) {
+      var postBody = null;
+
+
+      var pathParams = {
+      };
+      var queryParams = {
+      };
+      var headerParams = {
+      };
+      var formParams = {
+      };
+
+      var authNames = ['JWT'];
+      var contentTypes = ['application/json'];
+      var accepts = ['application/json'];
+      var returnType = GetAccessTokenResponse;
+
+      return this.apiClient.callApi(
+        '/accessTokens', 'GET',
         pathParams, queryParams, headerParams, formParams, postBody,
         authNames, contentTypes, accepts, returnType, callback
       );
